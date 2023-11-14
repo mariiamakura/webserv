@@ -6,20 +6,20 @@
 #    By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/09 13:47:00 by fhassoun          #+#    #+#              #
-#    Updated: 2023/11/13 11:59:14 by fhassoun         ###   ########.fr        #
+#    Updated: 2023/11/14 11:21:29 by fhassoun         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		=	webserv
 
 CC			=	c++
-CFLAGS		=	-Wall -Werror -Wextra -std=c++98
+CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -g3 -fsanitize=address
 
 SRC_DIR		=	source/
 OBJ_DIR		=	object/
 INC_DIR		=	includes/
 
-SRC_FILES	=	main.cpp Server.cpp Config.cpp
+SRC_FILES	=	main.cpp Server.cpp Config.cpp helpers.cpp
 
 
 

@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:22:29 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/13 14:57:16 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/14 13:44:03 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,17 @@
 #include <sstream>
 #include <typeinfo>
 #include <cmath>
+#include <sys/ioctl.h>
+#include <sys/poll.h>
 
 #include "Config.hpp"
+#include "helpers.hpp"
 
-#define DEF_CONF "configs/default.conf"
+#define DEF_CONF		"configs/default.conf"
+#define DEF_PORT		9999
+#define DEF_BACKLOG		100
+#define TRUE			1
+#define FALSE			0
 
 class Config;
 
@@ -50,6 +57,7 @@ class Server
 		
 
 		void parseConfig(char *path);
+		void init_server(int port, int backlog);
 		void run();
 		
 		
