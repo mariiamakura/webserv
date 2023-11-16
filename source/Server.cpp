@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:43:52 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/14 14:25:52 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/16 15:17:23 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void Server::parseConfig(char *path)
 			
 			this->_config.push_back(tmpConf);
 
-			std::cout << "after push_back start this: " << this->_config.begin()->getListen() << std::endl;
+			// std::cout << "after push_back start this: " << this->_config.begin()->getListen() << std::endl;
 			//delete tmpConf;
 			iter++;
 			std::cout << "server end" << std::endl;
@@ -109,13 +109,15 @@ void Server::parseConfig(char *path)
 void Server::init_server(int port, int backlog)
 {
 
+	
 	int rc, on, len = 1;
 	pollfd fds[200];
 	int  end_server = FALSE, close_conn = FALSE, compress_array = FALSE;
 	int current_size = 0;
-	char   buffer[1000];
+	char   buffer[80];
 	int nfds = 1, i = 0, j = 1;
 	int new_sd = 0;
+	sockaddr_in sockaddr;
 	
 	// Create a socket (IPv4, TCP)
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -128,25 +130,23 @@ void Server::init_server(int port, int backlog)
 	rc = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
 	if (rc < 0)
 	{
-		perror("setsockopt() failed");
+		std::cout << "setsockopt() failed" << std::endl;
 		close(sockfd);
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 	rc = ioctl(sockfd, FIONBIO, (char *)&on);
 	if (rc < 0)
 	{
-		perror("ioctl() failed");
+		std::cout << "ioctl() failed" << std::endl;
 		close(sockfd);
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 	
 	
 	// Listen to port  on any address
-	sockaddr_in sockaddr;
 	ft_memset(&sockaddr, 0, sizeof(sockaddr));
 	sockaddr.sin_family = AF_INET;
 	sockaddr.sin_addr.s_addr = INADDR_ANY;
-	
 	ft_memcpy(&sockaddr.sin_addr, &sockaddr.sin_addr.s_addr, sizeof(sockaddr.sin_addr.s_addr));
 	
 	sockaddr.sin_port = htons(port); // htons is necessary to convert a number to
@@ -169,8 +169,8 @@ void Server::init_server(int port, int backlog)
 		exit(EXIT_FAILURE);
 	}
 
-	ft_memset(&fds, 0 , sizeof(fds));
 	//setup poll structure
+	ft_memset(fds, 0 , sizeof(fds));
 	fds[0].fd = sockfd;
 	fds[0].events = POLLIN;
 
@@ -237,18 +237,66 @@ void Server::init_server(int port, int backlog)
 
 				do
 				{
-					//Receive all incoming data on this socket before we loop back and call poll again
-					rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
-					if (rc < 0)
+					// Receive all incoming data on this socket before we loop back and call poll again
+					
+
+					if (fds[i].events | POLLIN)
 					{
-						if (errno != EWOULDBLOCK)
-						{
-							std::cout << "Error: recv() failed" << std::endl;
-							close_conn = TRUE;
-						}
-						
+						std::cout << "POLLIN" << std::endl;
+						rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+					}
+					else if (fds[i].events & POLLHUP)
+					{
+						std::cout << "POLLHUP" << std::endl;
+						close_conn = TRUE;
 						break;
 					}
+					else if (fds[i].events & POLLERR)
+					{
+						std::cout << "POLLERR" << std::endl;
+						close_conn = TRUE;
+						break;
+					}
+					else
+					{
+						std::cout << "Error: Unknown event" << std::endl;
+						close_conn = TRUE;
+						break;
+					}
+
+
+					
+
+					// if the last 4 bytes of buffer are \r\n\r\n
+					
+					
+					
+					
+					
+				
+					// while (rc != 0)
+					// {
+					// 	//check if the last 4 bytes are \r\n\r\n
+					// 	rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+					// 	if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r')
+					// 	{
+					// 		std::cout << " ---- request received  ----"  << std::endl;
+					// 		break ;
+					// 	}
+					// }
+					if (rc < 0)
+					{
+						if (errno == EWOULDBLOCK) {
+							// No data available, continue with other tasks or wait
+							break;
+						} else {
+							// Handle other errors
+							std::cout << "Error: recv() failed" << std::endl;
+							close_conn = TRUE;
+							break;
+						}
+					}
+
 					
 					//Check to see if the connection has been closed by the client
 					if (rc == 0)
@@ -263,18 +311,71 @@ void Server::init_server(int port, int backlog)
 					std::cout << len << " bytes received" << std::endl;
 					
 					//Echo the data back to the client
-					// std::string response = "HTTP/1.1 200 OK \nContent-Type: text/html\n\n<html><body><h1>Hello, World!</h1></body></html>\n";
-					 std::string response = "HTTP/1.1 200 OK /n/r/n/r Content-Type: text/html /n/r/n/r <html><body><h1>Hello, World!</h1></body></html> /n/r/n/r";
-
-		
-					rc = send(fds[i].fd, response.c_str(), response.size(), 0);
 					// rc = send(fds[i].fd, buffer, len, 0);
-					if (rc < 0)
+					// std::string response = "HTTP/1.1 200 OK \nContent-Type: text/html\n\n<html><body><h1>Hello, World!</h1></body></html>\n";
+					//  std::string response = "HTTP/1.1 200 OK /n/r/n/r Content-Type: text/html /n/r/n/r <html><body><h1>Hello, World!</h1></body></html> /n/r/n/r";
+
+					// std::string response = "hello 2";
+					// std::string rresponse = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(response.size()) + "\n\n" + response;
+					std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello, World from fd " + int_to_string(fds[i].fd) + "\n";
+					
+					if (fds[i].events | POLLOUT)
 					{
-						std::cout << "Error: send() failed" << std::endl;
+						if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r')
+						{
+							std::cout << " ---- request received  ----"  << std::endl;
+							std::cout << "POLLOUT" << std::endl;
+							rc = send(fds[i].fd, response.c_str(), response.size(), 0);
+							std::cout << rc << " bytes sent" << std::endl;
+							break ;
+						}
+						// rc = send(fds[i].fd, buffer, len, 0);
+					}
+					else if (fds[i].events | POLLHUP)
+					{
+						std::cout << "POLLHUP" << std::endl;
+						std::cout << "Connection closed by the client" << std::endl;
 						close_conn = TRUE;
 						break;
-					}	
+					}
+					else if (fds[i].events | POLLERR)
+					{
+						std::cout << "POLLERR" << std::endl;
+						close_conn = TRUE;
+						break;
+					}
+					else
+					{
+						std::cout << "Error: Unknown event" << std::endl;
+						close_conn = TRUE;
+						break;
+					}
+					if (rc < 0)
+					{
+						if (errno == EWOULDBLOCK) {
+							// Socket buffer is full, continue with other tasks or wait
+							break;
+						} else {
+							// Handle other errors
+							std::cout << "Error: send() failed" << std::endl;
+							close_conn = TRUE;
+							break;
+						}
+					}
+					
+					// if (rc < 0) {
+					// 	std::cout << "Error: send() failed" << std::endl;
+					// 	close_conn = TRUE;
+					// 	break;
+					// }
+				
+					// if (rc < 0)
+					// {
+					// 	std::cout << "Error: send() failed" << std::endl;
+					// 	close_conn = TRUE;
+					// 	break;
+					// }	
+					ft_memset(buffer, 0, sizeof(buffer));
 				} while (TRUE);
 				
 				//If the close_conn flag was turned on, we need to clean up this active connection. This clean up process includes removing the descriptor

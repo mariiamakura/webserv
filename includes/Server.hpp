@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:22:29 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/14 13:44:03 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/16 11:50:46 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include <sstream>
 #include <typeinfo>
 #include <cmath>
+#include <string>
 #include <sys/ioctl.h>
 #include <sys/poll.h>
 
