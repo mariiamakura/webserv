@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:43:52 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/16 15:17:23 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/17 15:36:40 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,44 @@ Server &Server::operator=(Server const &src)
 		return (*this);
 	return (*this);
 }
+
+
+//getter
+// void Server::setConfig(std::vector<Config> config)
+// {
+// 	this->_config = config;
+// }
+
+std::map <int, std::string> Server::getInRequest()
+{
+	return (in_request);
+}
+
+std::map <int, std::string> Server::getOutResponse()
+{
+	return (out_response);
+}
+
+
+
+
+
+//setter
+// void Server::setConfig(std::vector<Config> config)
+// {
+// 	this->_config = config;
+// }
+
+void Server::setInRequest(std::map <int, std::string> in_request)
+{
+	this->in_request = in_request;
+}
+
+void Server::setOutResponse(std::map <int, std::string> out_response)
+{
+	this->out_response = out_response;
+}
+
 
 void Server::parseConfig(char *path)
 {
@@ -109,7 +147,7 @@ void Server::parseConfig(char *path)
 void Server::init_server(int port, int backlog)
 {
 
-	
+	int sockfd;
 	int rc, on, len = 1;
 	pollfd fds[200];
 	int  end_server = FALSE, close_conn = FALSE, compress_array = FALSE;
@@ -120,7 +158,7 @@ void Server::init_server(int port, int backlog)
 	sockaddr_in sockaddr;
 	
 	// Create a socket (IPv4, TCP)
-	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd == -1)
 	{
 		std::cout << "Failed to create socket. errno: " << errno << std::endl;
@@ -134,13 +172,14 @@ void Server::init_server(int port, int backlog)
 		close(sockfd);
 		exit(EXIT_FAILURE);
 	}
-	rc = ioctl(sockfd, FIONBIO, (char *)&on);
-	if (rc < 0)
-	{
-		std::cout << "ioctl() failed" << std::endl;
-		close(sockfd);
-		exit(EXIT_FAILURE);
-	}
+	fcntl(sockfd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	// rc = ioctl(sockfd, FIONBIO, (char *)&on);
+	// if (rc < 0)
+	// {
+	// 	std::cout << "ioctl() failed" << std::endl;
+	// 	close(sockfd);
+	// 	exit(EXIT_FAILURE);
+	// }
 	
 	
 	// Listen to port  on any address
@@ -244,6 +283,11 @@ void Server::init_server(int port, int backlog)
 					{
 						std::cout << "POLLIN" << std::endl;
 						rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+						
+						in_request[fds[i].fd] += buffer;
+						
+						// std::cout << "\nin_buffer :\n" << in_request[fds[i].fd] << "\n" << std::endl;
+						// std::cout << "buffer: " << buffer << std::endl;
 					}
 					else if (fds[i].events & POLLHUP)
 					{
@@ -318,14 +362,38 @@ void Server::init_server(int port, int backlog)
 					// std::string response = "hello 2";
 					// std::string rresponse = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(response.size()) + "\n\n" + response;
 					std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello, World from fd " + int_to_string(fds[i].fd) + "\n";
-					
+				
 					if (fds[i].events | POLLOUT)
 					{
 						if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r')
 						{
 							std::cout << " ---- request received  ----"  << std::endl;
 							std::cout << "POLLOUT" << std::endl;
-							rc = send(fds[i].fd, response.c_str(), response.size(), 0);
+						
+
+// -------------------------------------------------------------------------------------------------------------
+							std::cout << "\nin_buffer :\n" << in_request[fds[i].fd] << "\n" << std::endl;
+							// getting html files
+							// if (strncmp(buffer, "GET /index.html", 15))
+							if (in_request[fds[i].fd].find("GET /index.html") != std::string::npos)
+							{
+								std::cout << "GET index.html" << std::endl;
+								std::ifstream file("index.html");
+								std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+								response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
+								
+								rc = send(fds[i].fd, response.c_str(), response.size(), 0);
+							}
+
+							// getting simple responses 
+							// else if (strncmp(buffer, "GET /", 5))
+							else if (in_request[fds[i].fd].find("GET /") != std::string::npos)
+							{
+								std::cout << "GET" << std::endl;
+								rc = send(fds[i].fd, response.c_str(), response.size(), 0);
+							}
+// -------------------------------------------------------------------------------------------------------------
+							
 							std::cout << rc << " bytes sent" << std::endl;
 							break ;
 						}
@@ -374,9 +442,10 @@ void Server::init_server(int port, int backlog)
 					// 	std::cout << "Error: send() failed" << std::endl;
 					// 	close_conn = TRUE;
 					// 	break;
-					// }	
+					// }
 					ft_memset(buffer, 0, sizeof(buffer));
 				} while (TRUE);
+				in_request[fds[i].fd] = "";	
 				
 				//If the close_conn flag was turned on, we need to clean up this active connection. This clean up process includes removing the descriptor
 				if (close_conn)

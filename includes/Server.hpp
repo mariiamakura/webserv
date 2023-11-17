@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:22:29 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/16 11:50:46 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/17 15:15:38 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <unistd.h>		// For read
 #include <cerrno>		// For errno
 #include <vector>
+#include <map>
 #include <iomanip>
 #include <cctype>
 #include <cstring>
@@ -31,6 +32,7 @@
 #include <string>
 #include <sys/ioctl.h>
 #include <sys/poll.h>
+#include <fcntl.h>
 
 #include "Config.hpp"
 #include "helpers.hpp"
@@ -46,7 +48,10 @@ class Config;
 class Server
 {
 	private:
-
+		std::map <int, std::string> in_request;
+		std::map <int, std::string> out_response;
+		
+		
 
 
 	public:
@@ -61,18 +66,20 @@ class Server
 		void init_server(int port, int backlog);
 		void run();
 		
+
+		//setters
+		// void setConfig(std::vector<Config> config);
+		void setInRequest(std::map <int, std::string> in_request);
+		void setOutResponse(std::map <int, std::string> out_response);
+
+		//getters
+		// std::vector<Config> getConfig();
+		std::map <int, std::string> getInRequest() ;
+		std::map <int, std::string> getOutResponse();
+		
 		
 
 		
-		//for each config in the vector, create a socket
-		//listen to the port
-		//accept the connection
-		//read the request
-		//parse the request
-		//build the response
-		//send the response
-		//close the connection
-		//close the socket
-		//repeat for the next config
+		
 	
 };

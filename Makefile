@@ -6,14 +6,14 @@
 #    By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/09 13:47:00 by fhassoun          #+#    #+#              #
-#    Updated: 2023/11/14 11:21:29 by fhassoun         ###   ########.fr        #
+#    Updated: 2023/11/17 13:24:17 by fhassoun         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		=	webserv
 
 CC			=	c++
-CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -g3 -fsanitize=address
+CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -g3 #-fsanitize=address
 
 SRC_DIR		=	source/
 OBJ_DIR		=	object/

@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 13:47:45 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/13 14:57:35 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/17 15:16:46 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,11 @@
 
 #include "Server.hpp"
 
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **env)
 {
 	Server server;
 
-	
+	(void)env;
 	if (argc == 1)
 	{
 		server.parseConfig((char *)DEF_CONF);
