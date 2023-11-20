@@ -6,12 +6,12 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 11:20:18 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/16 11:31:18 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/20 09:00:42 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include "Server.hpp"
+#include "Webserv.hpp"
 #include <cstddef>
 
 void	*ft_memset(void *s, int c, size_t n);

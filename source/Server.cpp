@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:43:52 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/17 15:36:40 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/20 14:07:11 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 
 Server::Server()
 {
+
+	
+	
 }
 
 Server::~Server()
@@ -47,6 +50,11 @@ std::map <int, std::string> Server::getInRequest()
 std::map <int, std::string> Server::getOutResponse()
 {
 	return (out_response);
+}
+
+int Server::getSockfd()
+{
+	return (sockfd);
 }
 
 
@@ -147,15 +155,13 @@ void Server::parseConfig(char *path)
 void Server::init_server(int port, int backlog)
 {
 
-	int sockfd;
-	int rc, on, len = 1;
+	// int sockfd;
+	int rc, on;
 	pollfd fds[200];
-	int  end_server = FALSE, close_conn = FALSE, compress_array = FALSE;
-	int current_size = 0;
-	char   buffer[80];
-	int nfds = 1, i = 0, j = 1;
-	int new_sd = 0;
+
+
 	sockaddr_in sockaddr;
+	std::vector<Client> clients;
 	
 	// Create a socket (IPv4, TCP)
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -164,6 +170,7 @@ void Server::init_server(int port, int backlog)
 		std::cout << "Failed to create socket. errno: " << errno << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	
 	//Allow socket descriptor to be reuseable  
 	rc = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char *)&on, sizeof(on));
 	if (rc < 0)
@@ -172,14 +179,13 @@ void Server::init_server(int port, int backlog)
 		close(sockfd);
 		exit(EXIT_FAILURE);
 	}
-	fcntl(sockfd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-	// rc = ioctl(sockfd, FIONBIO, (char *)&on);
-	// if (rc < 0)
-	// {
-	// 	std::cout << "ioctl() failed" << std::endl;
-	// 	close(sockfd);
-	// 	exit(EXIT_FAILURE);
-	// }
+	rc = fcntl(sockfd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	if (rc < 0)
+	{
+		std::cout << "fcntl() failed" << std::endl;
+		close(sockfd);
+		exit(EXIT_FAILURE);
+	}
 	
 	
 	// Listen to port  on any address
@@ -214,340 +220,326 @@ void Server::init_server(int port, int backlog)
 	fds[0].events = POLLIN;
 
 	//initialize timeout to 3 minutes
-	int timeout = (3 * 60 * 1000);
+	// int timeout = (3 * 60 * 1000);
+	
 
-	do
-	{
-		std::cout << "Waiting on poll()..." << std::endl;
-		rc = poll(fds, nfds, timeout);
+// 	do
+// 	{
+// 		std::cout << "Waiting on poll()..." << std::endl;
+// 		rc = poll(fds, nfds, timeout);
 		
-		if (rc < 0)
-		{
-			std::cout << "Error: poll() failed" << std::endl;
-			break;
-		}
-		if (rc == 0)
-		{
-			std::cout << "Error: poll() timed out. End program." << std::endl;
-			break;	
-		}
-		current_size = nfds;
-		for (i = 0; i < current_size; i++)
-		{
-			//Loop through to find the descriptors that returned POLLIN
-			if (fds[i].revents == 0)
-				continue;
+// 		if (rc < 0)
+// 		{
+// 			std::cout << "Error: poll() failed" << std::endl;
+// 			break;
+// 		}
+// 		if (rc == 0)
+// 		{
+// 			std::cout << "Error: poll() timed out. End program." << std::endl;
+// 			break;	
+// 		}
+// 		current_size = nfds;
+// 		for (i = 0; i < current_size; i++)
+// 		{
+// 			//Loop through to find the descriptors that returned POLLIN
+// 			if (fds[i].revents == 0)
+// 				continue;
 			
-			//if revents is not POLLIN than it's an unexpected result
-			if (fds[i].revents != POLLIN)
-			{
-				std::cout << "Error: revents = " << fds[i].revents << std::endl;
-				end_server = TRUE;
-				break;
-			}
+// 			//if revents is not POLLIN than it's an unexpected result
+// 			if (fds[i].revents != POLLIN)
+// 			{
+// 				std::cout << "Error: revents = " << fds[i].revents << std::endl;
+// 				end_server = TRUE;
+// 				break;
+// 			}
 
-			if (fds[i].fd == sockfd)
-			{
-				std::cout << "Listening socket is readable" << std::endl;
-				//Accept all incoming connections that are queued up on the listening socket before we loop back and call poll again
-				do
-				{
-					//Accept each incoming connection
-					new_sd = accept(sockfd, NULL, NULL);
-					if (new_sd < 0)
-					{
-						if (errno != EWOULDBLOCK)
-						{
-							std::cout << "Error: accept() failed" << std::endl;
-							end_server = TRUE;
-						}
-						break;
-					}
-					std::cout << "New incoming connection - " << new_sd << std::endl;
-					fds[nfds].fd = new_sd;
-					fds[nfds].events = POLLIN;
-					nfds++;
-				} while (new_sd != -1);
-			}
-			else
-			{
-				std::cout << "Descriptor " << fds[i].fd << " is readable" << std::endl;
-				close_conn = FALSE;
+// 			if (fds[i].fd == sockfd)
+// 			{
+// 				std::cout << "Listening socket is readable" << std::endl;
+// 				//Accept all incoming connections that are queued up on the listening socket before we loop back and call poll again
+// 				do
+// 				{
+// 					//Accept each incoming connection
+// 					new_sd = accept(sockfd, NULL, NULL);
+// 					if (new_sd < 0)
+// 					{
+// 						if (errno != EWOULDBLOCK)
+// 						{
+// 							std::cout << "Error: accept() failed" << std::endl;
+// 							end_server = TRUE;
+// 						}
+// 						break;
+// 					}
+// 					std::cout << "New incoming connection - " << new_sd << std::endl;
+// 					fds[nfds].fd = new_sd;
+// 					fds[nfds].events = POLLIN;
+// 					nfds++;
+// 				} while (new_sd != -1);
+// 			}
+// 			else
+// 			{
+// 				std::cout << "Descriptor " << fds[i].fd << " is readable" << std::endl;
+// 				close_conn = FALSE;
 
-				do
-				{
-					// Receive all incoming data on this socket before we loop back and call poll again
+// 				do
+// 				{
+// 					// Receive all incoming data on this socket before we loop back and call poll again
 					
 
-					if (fds[i].events | POLLIN)
-					{
-						std::cout << "POLLIN" << std::endl;
-						rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+// 					if (fds[i].events | POLLIN)
+// 					{
+// 						std::cout << "POLLIN" << std::endl;
+// 						rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
 						
-						in_request[fds[i].fd] += buffer;
+// 						in_request[fds[i].fd] += buffer;
 						
-						// std::cout << "\nin_buffer :\n" << in_request[fds[i].fd] << "\n" << std::endl;
-						// std::cout << "buffer: " << buffer << std::endl;
-					}
-					else if (fds[i].events & POLLHUP)
-					{
-						std::cout << "POLLHUP" << std::endl;
-						close_conn = TRUE;
-						break;
-					}
-					else if (fds[i].events & POLLERR)
-					{
-						std::cout << "POLLERR" << std::endl;
-						close_conn = TRUE;
-						break;
-					}
-					else
-					{
-						std::cout << "Error: Unknown event" << std::endl;
-						close_conn = TRUE;
-						break;
-					}
+// 						// std::cout << "\nin_buffer :\n" << in_request[fds[i].fd] << "\n" << std::endl;
+// 						// std::cout << "buffer: " << buffer << std::endl;
+// 					}
+// 					else if (fds[i].events & POLLHUP)
+// 					{
+// 						std::cout << "POLLHUP" << std::endl;
+// 						close_conn = TRUE;
+// 						break;
+// 					}
+// 					else if (fds[i].events & POLLERR)
+// 					{
+// 						std::cout << "POLLERR" << std::endl;
+// 						close_conn = TRUE;
+// 						break;
+// 					}
+// 					else
+// 					{
+// 						std::cout << "Error: Unknown event" << std::endl;
+// 						close_conn = TRUE;
+// 						break;
+// 					}
 
 
 					
 
-					// if the last 4 bytes of buffer are \r\n\r\n
+// 					// if the last 4 bytes of buffer are \r\n\r\n
 					
 					
 					
 					
 					
 				
-					// while (rc != 0)
-					// {
-					// 	//check if the last 4 bytes are \r\n\r\n
-					// 	rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
-					// 	if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r')
-					// 	{
-					// 		std::cout << " ---- request received  ----"  << std::endl;
-					// 		break ;
-					// 	}
-					// }
-					if (rc < 0)
-					{
-						if (errno == EWOULDBLOCK) {
-							// No data available, continue with other tasks or wait
-							break;
-						} else {
-							// Handle other errors
-							std::cout << "Error: recv() failed" << std::endl;
-							close_conn = TRUE;
-							break;
-						}
-					}
+// 					// while (rc != 0)
+// 					// {
+// 					// 	//check if the last 4 bytes are \r\n\r\n
+// 					// 	rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+// 					// 	if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r')
+// 					// 	{
+// 					// 		std::cout << " ---- request received  ----"  << std::endl;
+// 					// 		break ;
+// 					// 	}
+// 					// }
+// 					if (rc < 0)
+// 					{
+// 						if (errno == EWOULDBLOCK) {
+// 							// No data available, continue with other tasks or wait
+// 							break;
+// 						} else {
+// 							// Handle other errors
+// 							std::cout << "Error: recv() failed" << std::endl;
+// 							close_conn = TRUE;
+// 							break;
+// 						}
+// 					}
 
 					
-					//Check to see if the connection has been closed by the client
-					if (rc == 0)
-					{
-						std::cout << "Connection closed" << std::endl;
-						close_conn = TRUE;
-						break;
-					}
-					// std::cout << "buffer: " << buffer << std::endl;
-					//Data was received
-					len = rc;
-					std::cout << len << " bytes received" << std::endl;
+// 					//Check to see if the connection has been closed by the client
+// 					if (rc == 0)
+// 					{
+// 						std::cout << "Connection closed" << std::endl;
+// 						close_conn = TRUE;
+// 						break;
+// 					}
+// 					// std::cout << "buffer: " << buffer << std::endl;
+// 					//Data was received
+// 					len = rc;
+// 					std::cout << len << " bytes received" << std::endl;
 					
-					//Echo the data back to the client
-					// rc = send(fds[i].fd, buffer, len, 0);
-					// std::string response = "HTTP/1.1 200 OK \nContent-Type: text/html\n\n<html><body><h1>Hello, World!</h1></body></html>\n";
-					//  std::string response = "HTTP/1.1 200 OK /n/r/n/r Content-Type: text/html /n/r/n/r <html><body><h1>Hello, World!</h1></body></html> /n/r/n/r";
+// 					//Echo the data back to the client
+// 					// rc = send(fds[i].fd, buffer, len, 0);
+// 					// std::string response = "HTTP/1.1 200 OK \nContent-Type: text/html\n\n<html><body><h1>Hello, World!</h1></body></html>\n";
+// 					//  std::string response = "HTTP/1.1 200 OK /n/r/n/r Content-Type: text/html /n/r/n/r <html><body><h1>Hello, World!</h1></body></html> /n/r/n/r";
 
-					// std::string response = "hello 2";
-					// std::string rresponse = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(response.size()) + "\n\n" + response;
-					std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello, World from fd " + int_to_string(fds[i].fd) + "\n";
+// 					// std::string response = "hello 2";
+// 					// std::string rresponse = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(response.size()) + "\n\n" + response;
+// 					std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello, World from fd " + int_to_string(fds[i].fd) + "\n";
 				
-					if (fds[i].events | POLLOUT)
-					{
-						if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r')
-						{
-							std::cout << " ---- request received  ----"  << std::endl;
-							std::cout << "POLLOUT" << std::endl;
+// 					if (fds[i].events | POLLOUT)
+// 					{
+// 						if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r')
+// 						{
+// 							std::cout << " ---- request received  ----"  << std::endl;
+// 							std::cout << "POLLOUT" << std::endl;
 						
 
-// -------------------------------------------------------------------------------------------------------------
-							std::cout << "\nin_buffer :\n" << in_request[fds[i].fd] << "\n" << std::endl;
-							// getting html files
-							// if (strncmp(buffer, "GET /index.html", 15))
-							if (in_request[fds[i].fd].find("GET /index.html") != std::string::npos)
-							{
-								std::cout << "GET index.html" << std::endl;
-								std::ifstream file("index.html");
-								std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-								response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
+// // -------------------------------------------------------------------------------------------------------------
+// 							std::cout << "\nin_buffer :\n" << in_request[fds[i].fd] << "\n" << std::endl;
+// 							// getting html files
+// 							// if (strncmp(buffer, "GET /index.html", 15))
+// 							if (in_request[fds[i].fd].find("GET /index2.html") != std::string::npos)
+// 							{
+// 								std::cout << "GET index2.html" << std::endl;
+// 								std::ifstream file("index2.html");
+// 								std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+// 								response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
 								
-								rc = send(fds[i].fd, response.c_str(), response.size(), 0);
-							}
-
-							// getting simple responses 
-							// else if (strncmp(buffer, "GET /", 5))
-							else if (in_request[fds[i].fd].find("GET /") != std::string::npos)
-							{
-								std::cout << "GET" << std::endl;
-								rc = send(fds[i].fd, response.c_str(), response.size(), 0);
-							}
-// -------------------------------------------------------------------------------------------------------------
+// 								rc = send(fds[i].fd, response.c_str(), response.size(), 0);
+// 							}
 							
-							std::cout << rc << " bytes sent" << std::endl;
-							break ;
-						}
-						// rc = send(fds[i].fd, buffer, len, 0);
-					}
-					else if (fds[i].events | POLLHUP)
-					{
-						std::cout << "POLLHUP" << std::endl;
-						std::cout << "Connection closed by the client" << std::endl;
-						close_conn = TRUE;
-						break;
-					}
-					else if (fds[i].events | POLLERR)
-					{
-						std::cout << "POLLERR" << std::endl;
-						close_conn = TRUE;
-						break;
-					}
-					else
-					{
-						std::cout << "Error: Unknown event" << std::endl;
-						close_conn = TRUE;
-						break;
-					}
-					if (rc < 0)
-					{
-						if (errno == EWOULDBLOCK) {
-							// Socket buffer is full, continue with other tasks or wait
-							break;
-						} else {
-							// Handle other errors
-							std::cout << "Error: send() failed" << std::endl;
-							close_conn = TRUE;
-							break;
-						}
-					}
+// 							if (in_request[fds[i].fd].find("GET /index.html") != std::string::npos)
+// 							{
+// 								std::cout << "GET index.html" << std::endl;
+// 								std::ifstream file("index.html");
+// 								std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+// 								response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
+								
+// 								rc = send(fds[i].fd, response.c_str(), response.size(), 0);
+// 							}
+							
+
+// 							// getting simple responses 
+// 							// else if (strncmp(buffer, "GET /", 5))
+// 							else if (in_request[fds[i].fd].find("GET /") != std::string::npos)
+// 							{
+// 								std::cout << "GET" << std::endl;
+// 								rc = send(fds[i].fd, response.c_str(), response.size(), 0);
+// 							}
+// // -------------------------------------------------------------------------------------------------------------
+							
+// 							std::cout << rc << " bytes sent" << std::endl;
+// 							break ;
+// 						}
+// 						// rc = send(fds[i].fd, buffer, len, 0);
+// 					}
+// 					else if (fds[i].events | POLLHUP)
+// 					{
+// 						std::cout << "POLLHUP" << std::endl;
+// 						std::cout << "Connection closed by the client" << std::endl;
+// 						close_conn = TRUE;
+// 						break;
+// 					}
+// 					else if (fds[i].events | POLLERR)
+// 					{
+// 						std::cout << "POLLERR" << std::endl;
+// 						close_conn = TRUE;
+// 						break;
+// 					}
+// 					else
+// 					{
+// 						std::cout << "Error: Unknown event" << std::endl;
+// 						close_conn = TRUE;
+// 						break;
+// 					}
+// 					if (rc < 0)
+// 					{
+// 						if (errno == EWOULDBLOCK) {
+// 							// Socket buffer is full, continue with other tasks or wait
+// 							break;
+// 						} else {
+// 							// Handle other errors
+// 							std::cout << "Error: send() failed" << std::endl;
+// 							close_conn = TRUE;
+// 							break;
+// 						}
+// 					}
 					
-					// if (rc < 0) {
-					// 	std::cout << "Error: send() failed" << std::endl;
-					// 	close_conn = TRUE;
-					// 	break;
-					// }
+// 					// if (rc < 0) {
+// 					// 	std::cout << "Error: send() failed" << std::endl;
+// 					// 	close_conn = TRUE;
+// 					// 	break;
+// 					// }
 				
-					// if (rc < 0)
-					// {
-					// 	std::cout << "Error: send() failed" << std::endl;
-					// 	close_conn = TRUE;
-					// 	break;
-					// }
-					ft_memset(buffer, 0, sizeof(buffer));
-				} while (TRUE);
-				in_request[fds[i].fd] = "";	
+// 					// if (rc < 0)
+// 					// {
+// 					// 	std::cout << "Error: send() failed" << std::endl;
+// 					// 	close_conn = TRUE;
+// 					// 	break;
+// 					// }
+// 					ft_memset(buffer, 0, sizeof(buffer));
+// 				} while (TRUE);
+// 				in_request[fds[i].fd] = "";	
 				
-				//If the close_conn flag was turned on, we need to clean up this active connection. This clean up process includes removing the descriptor
-				if (close_conn)
-				{
-					close(fds[i].fd);
-					fds[i].fd = -1;
-					compress_array = TRUE;
-				}
-			}
+// 				//If the close_conn flag was turned on, we need to clean up this active connection. This clean up process includes removing the descriptor
+// 				if (close_conn)
+// 				{
+// 					close(fds[i].fd);
+// 					fds[i].fd = -1;
+// 					compress_array = TRUE;
+// 				}
+// 			}
 			
-		}
-		if (compress_array)
-		{
-			compress_array = FALSE;
-			for ( i = 0; i < nfds; i++)
-			{
-				if (fds[i].fd == -1)
-				{
-				for( j = i; j < nfds; j++)
-				{
-					fds[j].fd = fds[j+1].fd;
-				}
-				i--;
-				nfds--;
-				}
-			}
-		}
-	} while (end_server == FALSE);
+// 		}
+// 		if (compress_array)
+// 		{
+// 			compress_array = FALSE;
+// 			for ( i = 0; i < nfds; i++)
+// 			{
+// 				if (fds[i].fd == -1)
+// 				{
+// 				for( j = i; j < nfds; j++)
+// 				{
+// 					fds[j].fd = fds[j+1].fd;
+// 				}
+// 				i--;
+// 				nfds--;
+// 				}
+// 			}
+// 		}
+// 	} while (end_server == FALSE);
 	
 	
 
 	
-	// Close the connections
-	for (int i = 0; i < nfds; i++)
-	{
-		if (fds[i].fd >= 0)
-			close(fds[i].fd);
-	}
+// 	// Close the connections
+// 	for (int i = 0; i < nfds; i++)
+// 	{
+// 		if (fds[i].fd >= 0)
+// 			close(fds[i].fd);
+// 	}
 	
-	// if (bind(sockfd, (struct sockaddr *)&sockaddr, sizeof(sockaddr)) < 0)
-	// {
-	// 	std::cout << "Failed to bind to port " << port << ". errno: " << errno << std::endl;
-	// 	exit(EXIT_FAILURE);
-	// }
+// 	// if (bind(sockfd, (struct sockaddr *)&sockaddr, sizeof(sockaddr)) < 0)
+// 	// {
+// 	// 	std::cout << "Failed to bind to port " << port << ". errno: " << errno << std::endl;
+// 	// 	exit(EXIT_FAILURE);
+// 	// }
 
-	// // Start listening. Hold at most 10 connections in the queue
-	// if (listen(sockfd, backlog) < 0)
-	// {
-	// 	std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
-	// 	exit(EXIT_FAILURE);
-	// }
+// 	// // Start listening. Hold at most 10 connections in the queue
+// 	// if (listen(sockfd, backlog) < 0)
+// 	// {
+// 	// 	std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
+// 	// 	exit(EXIT_FAILURE);
+// 	// }
 
-	return ;
+// 	return ;
 }
 
-int accept_new_connection(int sockfd)
-{
-	sockaddr_in sockaddr;
-	// Grab a connection from the queue
-	int addrlen = sizeof(sockaddr);
-	int connection = accept(sockfd, (struct sockaddr *)&sockaddr, (socklen_t *)&addrlen);
-	if (connection < 0)
-	{
-		std::cout << "Failed to grab connection. errno: " << errno << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	return (connection);
-}
+// int accept_new_connection(int sockfd)
+// {
+// 	sockaddr_in sockaddr;
+// 	// Grab a connection from the queue
+// 	int addrlen = sizeof(sockaddr);
+// 	int connection = accept(sockfd, (struct sockaddr *)&sockaddr, (socklen_t *)&addrlen);
+// 	if (connection < 0)
+// 	{
+// 		std::cout << "Failed to grab connection. errno: " << errno << std::endl;
+// 		exit(EXIT_FAILURE);
+// 	}
+// 	return (connection);
+// }
 
-void Server::run()
-{
+// void Server::run()
+// {
 
 	
-	 init_server(DEF_PORT, DEF_BACKLOG);
-
-
-	// int i = 0;
-	
-	// while (1)
-	// {
-	// 	// Grab a connection from the queue
-	// 	int connection = accept_new_connection(sockfd);
-	
-
-	// 	// Read from the connection
-	// 	char buffer[1000000];
-	// 	int bytesRead = read(connection, buffer, 1000000);
-	// 	(void)bytesRead; // Silence unused variable warning
-	// 	std::cout << "The message was: \n" << buffer;
-
-	// 	// Send a message to the connection
-	// 	std::string response = "Good talking to you\n";
+// 	 init_server(DEF_PORT, DEF_BACKLOG);
 
 
 		
-	// 	send(connection, response.c_str(), response.size(), 0);
-	// 	close(connection);
-	// 	std::cout << "connections: " << i << std::endl;
-	// 	i++;
-	// }
-		// Close the connections
-	//close(sockfd);
-		
 	
-}
+// }

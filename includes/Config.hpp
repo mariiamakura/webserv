@@ -6,12 +6,12 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:37:48 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/13 14:50:20 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/20 09:00:37 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once 
-#include "Server.hpp"
+#include "Webserv.hpp"
 
 class Config
 {
