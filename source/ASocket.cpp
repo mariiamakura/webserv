@@ -1,31 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.cpp                                         :+:      :+:    :+:   */
+/*   ASocket.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/20 08:09:23 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/21 14:21:48 by fhassoun         ###   ########.fr       */
+/*   Created: 2023/11/21 13:34:59 by fhassoun          #+#    #+#             */
+/*   Updated: 2023/11/21 14:28:44 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
 
-Client::Client(): ASocket()
+#include "Webserv.hpp"
+
+ASocket::ASocket()
+{
+	type = 0;
+	fd = 0;
+	port = 0;
+	backlog = 0;
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_port = 0;
+
+}
+
+ASocket::~ASocket()
 {
 }
 
-Client::~Client()
-{
-}
-
-Client::Client(Client const &src)
+ASocket::ASocket(ASocket const &src)
 {
 	*this = src;
 }
 
-Client &Client::operator=(Client const &src)
+ASocket &ASocket::operator=(ASocket const &src)
 {
 	if (this == &src)
 		return (*this);
@@ -37,5 +46,8 @@ Client &Client::operator=(Client const &src)
 	return (*this);
 }
 
-//setters
+
+
+
+
 

@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:22:29 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/20 13:59:21 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/21 14:27:58 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 class Config;
 class Client;
 class Webserv;
+
 class Server
 {
 	private:

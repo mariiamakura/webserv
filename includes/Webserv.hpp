@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/20 14:00:17 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/21 14:29:03 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@
 #include <sys/poll.h>
 #include <fcntl.h>
 
+#include "ASocket.hpp"
 #include "Config.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
@@ -41,8 +42,28 @@
 #define DEF_CONF		"configs/default.conf"
 #define DEF_PORT		9999
 #define DEF_BACKLOG		100
-#define TRUE			1
 #define FALSE			0
+#define TRUE			1
+
+#define DEBUG			2
+#define INFO			3
+#define WARNING			4
+#define ERROR			5
+
+// define colors
+#define RESET			"\033[0m"
+#define BLACK			"\033[30m"				/* Black */
+#define RED				"\033[31m"				/* Red */
+#define GREEN			"\033[32m"				/* Green */
+#define YELLOW			"\033[33m"				/* Yellow */
+#define BLUE			"\033[34m"				/* Blue */
+#define MAGENTA			"\033[35m"				/* Magenta */
+#define CYAN			"\033[0;38;5;44m"		/* Cyan */
+#define WHITE			"\033[37m"				/* White */
+#define LILA            "\033[0;38;5;199m"		/* Lila */
+#define PURPLE			"\033[38;5;105m"		/* Purple */
+#define ORANGE			"\033[38;5;208m"		/* Orange */
+
 
 
 class Config;
@@ -70,6 +91,7 @@ class Webserv
 
 	
 	public:
+		std::string response;
 		Webserv();
 		~Webserv();
 		Webserv(Webserv const &src);
@@ -98,5 +120,6 @@ class Webserv
 		void parseConfig(char *path);
 		void init_servers();
 		void run();
+		void logging(std::string str, int status);
 	
 };

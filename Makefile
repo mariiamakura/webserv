@@ -6,7 +6,7 @@
 #    By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/09 13:47:00 by fhassoun          #+#    #+#              #
-#    Updated: 2023/11/20 09:34:49 by fhassoun         ###   ########.fr        #
+#    Updated: 2023/11/21 13:36:19 by fhassoun         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ SRC_DIR		=	source/
 OBJ_DIR		=	object/
 INC_DIR		=	includes/
 
-SRC_FILES	=	main.cpp Webserv.cpp Server.cpp Client.cpp Config.cpp helpers.cpp
+SRC_FILES	=	main.cpp Webserv.cpp ASocket.cpp Server.cpp Client.cpp Config.cpp helpers.cpp
 
 
 

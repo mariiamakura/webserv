@@ -6,18 +6,19 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:09:29 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/20 10:31:26 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/21 14:29:28 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include "Webserv.hpp"
+#include "ASocket.hpp"
 
-class Client
+
+
+class Client : public ASocket
 {
 	private:
-        int                 server_socket;
-        struct sockaddr_in  server_address;
+
 		// pollfd				poll_fd;
 
 

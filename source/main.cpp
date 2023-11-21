@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 13:47:45 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/20 14:12:17 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/21 10:28:31 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ int main(int argc, char **argv, char **env)
 	(void)argv;
 	if (argc == 1)
 	{
-		std::cout << "No config file specified. Using default config!" << std::endl;
+		webserv.logging("No config file specified. Using default config!", INFO);
+		// std::cout << "No config file specified. Using default config!" << std::endl;
 		//server.parseConfig((char *)DEF_CONF);
 		webserv.init_servers();
 		webserv.run();
