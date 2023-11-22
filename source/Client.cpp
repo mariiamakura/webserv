@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:09:23 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/21 14:21:48 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/22 07:22:06 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ Client::~Client()
 {
 }
 
-Client::Client(Client const &src)
+Client::Client(Client const &src) : ASocket()
 {
 	*this = src;
 }

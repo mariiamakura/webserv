@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:43:52 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/20 14:07:11 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/22 07:21:06 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ void Server::parseConfig(char *path)
 	Config tmpConf;
 	
 
-	memset(&tmpConf, 0, sizeof(tmpConf));
+	// memset(&tmpConf, 0, sizeof(tmpConf));
 	std::vector<Config>::iterator iter = this->_config.begin();
 
 	conf.open(path, std::ifstream::in);

@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/21 14:29:03 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/22 12:10:55 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@
 #define FALSE			0
 #define TRUE			1
 
+
+// define log levels
 #define DEBUG			2
 #define INFO			3
 #define WARNING			4
@@ -70,10 +72,32 @@ class Config;
 class Client;
 class Server;
 
+struct HttpRequest {
+    std::string http_version;
+    std::string method;
+    std::string path;
+    std::map<std::string, std::string> headers;
+};
+
+struct HttpResponse {
+    std::string http_version;
+    int status_code;
+    std::string status_message;
+    std::map<std::string, std::string> headers;
+    std::string body;
+};
+
 class Webserv
 {
 	private:
-		int sockfd;
+		int		sockfd;
+		int		new_sd ;
+		char	buffer[80];
+		int		rc;
+		int 	end_server ;
+		int		close_conn ;
+		HttpRequest http_request;
+		HttpResponse http_response;
 		std::vector<Server> server;
 		std::vector<Server>::iterator s_iter;
 		
@@ -121,5 +145,8 @@ class Webserv
 		void init_servers();
 		void run();
 		void logging(std::string str, int status);
+		int handle_pollin(int i);
+		HttpRequest parse_http_request(const std::string& request);
+		std::string create_http_response(void);
 	
 };
