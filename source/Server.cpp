@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:43:52 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/22 07:21:06 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/23 10:18:56 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,7 +164,8 @@ void Server::init_server(int port, int backlog)
 	std::vector<Client> clients;
 	
 	// Create a socket (IPv4, TCP)
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	std::cout << "sockfd: " << sockfd << std::endl;
 	if (sockfd == -1)
 	{
 		std::cout << "Failed to create socket. errno: " << errno << std::endl;
@@ -216,6 +217,7 @@ void Server::init_server(int port, int backlog)
 
 	//setup poll structure
 	ft_memset(fds, 0 , sizeof(fds));
+	this->sockfd = sockfd;
 	fds[0].fd = sockfd;
 	fds[0].events = POLLIN;
 

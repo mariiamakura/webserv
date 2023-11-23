@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:22:29 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/21 14:27:58 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/23 09:51:00 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ class Server
 		std::map <int, std::string> in_request;
 		std::map <int, std::string> out_response;
 		int sockfd;
+		int port;
+		int backlog;
 		
 
 

@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/22 12:10:55 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/23 14:00:30 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@
 #include <sys/ioctl.h>
 #include <sys/poll.h>
 #include <fcntl.h>
+#include <sys/wait.h>
+
 
 #include "ASocket.hpp"
 #include "Config.hpp"
@@ -90,6 +92,7 @@ struct HttpResponse {
 class Webserv
 {
 	private:
+		char 	**env;
 		int		sockfd;
 		int		new_sd ;
 		char	buffer[80];
@@ -128,6 +131,7 @@ class Webserv
 		void setConfig(std::vector<Config> config);
 		void setInRequest(std::map <int, std::string> in_request);
 		void setOutResponse(std::map <int, std::string> out_response);
+		void setEnv(char **env);
 
 
 		//getters
@@ -137,10 +141,11 @@ class Webserv
 		std::vector<Config> getConfig();
 		std::map <int, std::string> getInRequest() ;
 		std::map <int, std::string> getOutResponse();
+		char **getEnv();
 	
 		
 		//methods
-		
+		std::map<std::string, std::string> parse_form_data(const std::string& formData);
 		void parseConfig(char *path);
 		void init_servers();
 		void run();
@@ -148,5 +153,6 @@ class Webserv
 		int handle_pollin(int i);
 		HttpRequest parse_http_request(const std::string& request);
 		std::string create_http_response(void);
+		int check_sockfds(std::vector<int> sockfds, int i);
 	
 };

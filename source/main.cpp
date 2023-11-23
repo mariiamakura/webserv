@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 13:47:45 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/21 10:28:31 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/23 12:14:14 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int main(int argc, char **argv, char **env)
 	// Server server;
 	Webserv webserv;
 
-	(void)env;
+	webserv.setEnv(env);
 	(void)argv;
 	if (argc == 1)
 	{
