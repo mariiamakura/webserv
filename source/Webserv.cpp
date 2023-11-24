@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/23 14:18:56 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/24 13:52:05 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ void Webserv::init_servers()
 	// ports.push_back(7777);
 
 	std::vector<Server>::size_type size = server.size();
-	std::cout << "size: " << size << std::endl;
+	// std::cout << "size: " << size << std::endl;
 	for (std::vector<Server>::size_type i = 0; i < size; i++)
 	{
 		// instead of ports[i] we need to loop through config files and pass port and backlog
@@ -206,8 +206,20 @@ std::string Webserv::create_http_response(void)
 {
 	std::ostringstream sstream;
 	http_response.http_version = http_request.http_version;
-	http_response.headers["Content-Type"] = "text/html";
-	std::cout << "path: " << http_request.path << std::endl;
+
+	// if the file in request_path is a html file, set the content type to text/html
+	if (http_request.path.find(".html") != std::string::npos)
+		http_response.headers["Content-Type"] = "text/html";
+	// else if it is a css file, set it to text/css
+	else if (http_request.path.find(".css") != std::string::npos)
+		http_response.headers["Content-Type"] = "text/css";
+	// else set it to text/plain
+	else
+		http_response.headers["Content-Type"] = "text/plain";
+		
+	
+	// http_response.headers["Content-Type"] = "text/html";
+	// std::cout << "path: " << http_request.path << std::endl;
 	http_request.path = "." + http_request.path;
 	//Check if it is a file (static website), if not it's a cgi script
 	if (access(http_request.path.c_str(), F_OK) != 0)
@@ -216,7 +228,7 @@ std::string Webserv::create_http_response(void)
 	{
 		std::ifstream file(http_request.path.c_str());
 		std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-		std::cout << "str: " << str << std::endl;
+		// std::cout << "str: " << str << std::endl;
 		http_response.body = str;
 		
 	}
@@ -252,7 +264,7 @@ int Webserv::handle_pollin(int i)
 			in_request[poll_fd[i].fd] += buffer;
 		}
 
-		logging("buffer:\n" + std::string(buffer), DEBUG);
+		// logging("buffer:\n" + std::string(buffer), DEBUG);
 	}
 	else if (poll_fd[i].events == POLLHUP)
 	{
@@ -327,7 +339,7 @@ void Webserv::run()
 
 		// loop through all the descriptors to see which ones are ready
 		std::vector<pollfd>::size_type size = poll_fd.size();
-		std::cout << "size: " << size << std::endl;
+		// std::cout << "size: " << size << std::endl;
 		for (std::vector<pollfd>::size_type i = 0; i < size; i++)
 		{
 			// Loop through to find the descriptors that returned POLLIN
@@ -381,18 +393,18 @@ void Webserv::run()
 					
 					if (poll_fd[i].events | POLLOUT)
 					{
-						std::cout << "POLLOUT entered" << std::endl;
+						// std::cout << "POLLOUT entered" << std::endl;
 					
 						// if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r')
 						if (endsWithCRLF(buffer, rc) )
 						{
-							std::cout << "CRLF found" << std::endl;
+							// std::cout << "CRLF found" << std::endl;
 							// logging(int_to_string(in_request[poll_fd[i].fd].size() ) + " bytes received", DEBUG);
 							logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
 
 							http_request = parse_http_request(in_request[poll_fd[i].fd]);
 
-							
+							/* 
 							// just some logging to print all data in the http_request struct
 							std::cout << "method: " << http_request.method << std::endl;
 							std::cout << "path: " << http_request.path << std::endl;
@@ -402,7 +414,7 @@ void Webserv::run()
 							{
 								std::cout << it->first << "  =  " << it->second << std::endl;
 							}
-							
+							 */
 
 							if (http_request.method == "GET")
 							{
@@ -597,7 +609,7 @@ void Webserv::run()
 							// -------------------------------------------------------------------------------------------------------------
 
 							logging(" ---- response: " + int_to_string(rc) + " bytes sent  ----", DEBUG);
-							logging("response:\n" + out_response[poll_fd[i].fd], DEBUG);
+							// logging("response:\n" + out_response[poll_fd[i].fd], DEBUG);
 							// logging(int_to_string(rc) + " bytes sent", DEBUG);
 
 							// std::cout << rc << " bytes sent" << std::endl;
