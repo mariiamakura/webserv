@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:43:52 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/23 10:18:56 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/24 14:16:32 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,8 @@ void Server::init_server(int port, int backlog)
 	int rc, on;
 	pollfd fds[200];
 
-
+	rc = 0;
+	on = 1;
 	sockaddr_in sockaddr;
 	std::vector<Client> clients;
 	

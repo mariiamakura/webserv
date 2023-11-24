@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/24 13:52:05 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/24 15:15:57 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,9 @@ std::string Webserv::create_http_response(void)
 	std::ostringstream sstream;
 	http_response.http_version = http_request.http_version;
 
+/* 
+	CHECK AGAIN IF WE REALLY DONT NEED THE CONTENT-TYPE
+	
 	// if the file in request_path is a html file, set the content type to text/html
 	if (http_request.path.find(".html") != std::string::npos)
 		http_response.headers["Content-Type"] = "text/html";
@@ -216,6 +219,7 @@ std::string Webserv::create_http_response(void)
 	// else set it to text/plain
 	else
 		http_response.headers["Content-Type"] = "text/plain";
+*/
 		
 	
 	// http_response.headers["Content-Type"] = "text/html";
@@ -396,10 +400,11 @@ void Webserv::run()
 						// std::cout << "POLLOUT entered" << std::endl;
 					
 						// if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r')
-						if (endsWithCRLF(buffer, rc) )
+						if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r')
+
+						// if (endsWithCRLF(buffer, rc) )
 						{
 							// std::cout << "CRLF found" << std::endl;
-							// logging(int_to_string(in_request[poll_fd[i].fd].size() ) + " bytes received", DEBUG);
 							logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
 
 							http_request = parse_http_request(in_request[poll_fd[i].fd]);
@@ -420,9 +425,7 @@ void Webserv::run()
 							{
 								logging("GET request", DEBUG);
 								char *tmp = string_to_chararray(http_request.path);
-								// std::cout << "tmp: " << tmp << std::endl;
-
-								// if (std::string::compare("./") == 0)
+								
 								if (access(tmp, F_OK) == 0)
 								{
 									
@@ -435,6 +438,7 @@ void Webserv::run()
 										{
 											std::cout << "index.html exists" << std::endl;
 											std::string tmp2 = "/index.html";
+											delete[] tmp;
 											tmp = string_to_chararray(tmp2);
 											http_request.path = tmp2;
 										}
@@ -442,6 +446,7 @@ void Webserv::run()
 										{
 											std::cout << "index.php exists" << std::endl;
 											std::string tmp2 = "/index.php";
+											delete[] tmp;
 											tmp = string_to_chararray(tmp2);
 											http_request.path = tmp2;
 										}
@@ -457,8 +462,8 @@ void Webserv::run()
 											{
 												close(pipefd[0]);
 												dup2(pipefd[1], STDOUT_FILENO);
-												// dup2(pipefd[1], poll_fd[i].fd);
 												std::string tmp2 = "/cgi-bin/index.py";
+												delete[] tmp;
 												tmp = string_to_chararray(tmp2);
 												http_request.path = tmp2;
 												char *const args[] = {tmp, NULL};
@@ -479,6 +484,7 @@ void Webserv::run()
 												http_request.path = scriptOutput;
 												std::cout << "scripted http_request.path: " << http_request.path << std::endl;
 												waitpid(-1, NULL, WUNTRACED);
+											
 											}
 										}
 										else
@@ -489,12 +495,11 @@ void Webserv::run()
 											// out_response[poll_fd[i].fd] = create_http_response();
 											std::cout << "file doesn't exist" << std::endl;
 										}
-										// std::string tmp2 = "/index.html";
-										// tmp =  string_to_chararray(tmp2);
-										// http_request.path = tmp2;
+										
 									}
 									out_response[poll_fd[i].fd] = create_http_response();
 									std::cout << "file exists" << std::endl;
+									// delete[] tmp;
 								}
 								else
 								{
@@ -505,6 +510,7 @@ void Webserv::run()
 									std::cout << "file doesn't exist" << std::endl;
 								}
 								// std::cout << "GET request" << std::endl;
+								delete[] tmp;
 							}
 							else if (http_request.method == "POST")
 							{
@@ -540,79 +546,13 @@ void Webserv::run()
 							// -------------------------------------------------------------------------------------------------------------
 							// for debugging, print out what is in buffer
 							logging("request :\n" + in_request[poll_fd[i].fd] + "\n", DEBUG);
-							// std::cout << "\nin_buffer :\n" << in_request[poll_fd[i].fd] << "\n" << std::endl;
-
-							// getting html files
-							// if (strncmp(buffer, "GET /index.html", 15))
-
-							// if (in_request[poll_fd[i].fd].find("GET /over42/index.html") != std::string::npos)
-							// {
-							// 	// std::cout << "GET index2.html" << std::endl;
-							// 	logging("getting the site", DEBUG);
-							// 	std::ifstream file("/home/fhassoun/dev_area/webserv_git/over42/index.html");
-
-							// 	std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-							// 	out_response[poll_fd[i].fd] = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
-							// 	// response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
-
-							// 	// std::cout << response << std::endl;
-							// 	// rc = send(poll_fd[i].fd, response.c_str(), response.size(), 0);
-							// }
-
-							// else if (in_request[poll_fd[i].fd].find("/images/muppet_opas.jpg") != std::string::npos)
-							// {
-							// 	// std::cout << "GET index2.html" << std::endl;
-							// 	logging("getting the image", DEBUG);
-							// 	std::ifstream file("/home/fhassoun/dev_area/webserv_git/over42/images/muppet_opas.jpg");
-
-							// 	std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-							// 	out_response[poll_fd[i].fd] = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
-							// 	// response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
-
-							// 	// std::cout << response << std::endl;
-							// 	// rc = send(poll_fd[i].fd, response.c_str(), response.size(), 0);
-							// }
-
-							// else if (in_request[poll_fd[i].fd].find("GET /index2.html") != std::string::npos)
-							// {
-							// 	// std::cout << "GET index2.html" << std::endl;
-							// 	std::ifstream file("index2.html");
-							// 	std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-							// 	out_response[poll_fd[i].fd] = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
-							// 	// response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
-
-							// 	// rc = send(poll_fd[i].fd, response.c_str(), response.size(), 0);
-							// }
-
-							// else if (in_request[poll_fd[i].fd].find("GET /index.html") != std::string::npos)
-							// {
-							// 	// std::cout << "GET index.html" << std::endl;
-							// 	std::ifstream file("index.html");
-							// 	std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-							// 	out_response[poll_fd[i].fd] = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
-							// 	// response = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + int_to_string(str.size()) + "\n\n" + str;
-
-							// 	// rc = send(poll_fd[i].fd, response.c_str(), response.size(), 0);
-							// }
-
-							// // getting simple responses
-							// // else if (strncmp(buffer, "GET /", 5))
-							// else if (in_request[poll_fd[i].fd].find("GET /") != std::string::npos)
-							// {
-							// 	// std::cout << "GET" << std::endl;
-							// 	out_response[poll_fd[i].fd] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello, World from fd " + int_to_string(poll_fd[i].fd) + "\n";
-							// 	// response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello, World from fd " + int_to_string(p_iter->fd) + "\n";
-
-							// }
-							rc = send(poll_fd[i].fd, out_response[poll_fd[i].fd].c_str(), out_response[poll_fd[i].fd].size(), 0);
-							// rc = send(poll_fd[i].fd, response.c_str(), response.size(), 0);
 							// -------------------------------------------------------------------------------------------------------------
+						
+							
 
+							rc = send(poll_fd[i].fd, out_response[poll_fd[i].fd].c_str(), out_response[poll_fd[i].fd].size(), 0);
 							logging(" ---- response: " + int_to_string(rc) + " bytes sent  ----", DEBUG);
-							// logging("response:\n" + out_response[poll_fd[i].fd], DEBUG);
-							// logging(int_to_string(rc) + " bytes sent", DEBUG);
-
-							// std::cout << rc << " bytes sent" << std::endl;
+							
 							break;
 						}
 						// rc = send(p_iter.fd, buffer, len, 0);
@@ -659,6 +599,7 @@ void Webserv::run()
 
 					ft_memset(buffer, 0, sizeof(buffer));
 					// } while (TRUE);
+				
 				} while (!close_conn);
 				in_request[poll_fd[i].fd] = "";
 

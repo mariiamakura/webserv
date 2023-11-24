@@ -15,7 +15,7 @@ header {
 }
 
 .container {
-    width: 80%;
+    width: 100%;
     margin: auto;
     overflow: hidden;
 }
@@ -42,3 +42,4 @@ footer {
     margin-left: auto;
     margin-right: auto;
 }
+
