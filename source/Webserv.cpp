@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/24 15:15:57 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/27 15:24:31 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ Webserv &Webserv::operator=(Webserv const &src)
 
 void Webserv::logging(std::string str, int status)
 {
-	// get time
 	std::string color1 = WHITE;
 	std::string color2 = WHITE;
 	switch (status)
@@ -60,6 +59,7 @@ void Webserv::logging(std::string str, int status)
 	default:
 		break;
 	}
+	// get time
 	time_t rawtime;
 	struct tm *timeinfo;
 	char buffer[80];
@@ -72,6 +72,7 @@ void Webserv::logging(std::string str, int status)
 
 int Webserv::check_sockfds(std::vector<int> sockfds, int i)
 {
+	//check if current fd is one of the server fds
 	std::vector<int>::iterator it;
 	for (it = sockfds.begin(); it != sockfds.end(); it++)
 	{
@@ -95,7 +96,36 @@ char **Webserv::getEnv()
 
 // methods
 
-std::map<std::string, std::string> Webserv::parse_form_data(const std::string& formData)
+std::string Webserv::autoindex(const std::string& path) 
+{
+    DIR* dir;
+    struct dirent* ent;
+    struct stat st;
+
+    std::ostringstream html;
+    html << "<html><body><ul>";
+
+    if ((dir = opendir(path.c_str())) != NULL) {
+        while ((ent = readdir(dir)) != NULL) {
+            std::string file_name = ent->d_name;
+            std::string full_path = path + "/" + file_name;
+
+            if (stat(full_path.c_str(), &st) == 0) {
+                if (S_ISDIR(st.st_mode)) {
+                    html << "<li><a href=\"" << file_name << "/\">" << file_name << "/</a></li>";
+                } else {
+                    html << "<li><a href=\"" << file_name << "\">" << file_name << "</a></li>";
+                }
+            }
+        }
+        closedir(dir);
+    }
+
+    html << "</ul></body></html>";
+    return html.str();
+}
+
+std::map<std::string, std::string> Webserv::parse_form_data(const std::string &formData)
 {
     std::map<std::string, std::string> result;
     std::istringstream ss(formData);
@@ -207,24 +237,46 @@ std::string Webserv::create_http_response(void)
 	std::ostringstream sstream;
 	http_response.http_version = http_request.http_version;
 
-/* 
-	CHECK AGAIN IF WE REALLY DONT NEED THE CONTENT-TYPE
+
+	// CHECK AGAIN IF WE REALLY DONT NEED THE CONTENT-TYPE
 	
 	// if the file in request_path is a html file, set the content type to text/html
+	
+
+	
+	
+	
+	
+
+	// std::cout << "http_request.path: " << http_request.path << std::endl;
 	if (http_request.path.find(".html") != std::string::npos)
+	{
 		http_response.headers["Content-Type"] = "text/html";
+		http_request.path = "." + http_request.path;
+	}
 	// else if it is a css file, set it to text/css
 	else if (http_request.path.find(".css") != std::string::npos)
+	{
 		http_response.headers["Content-Type"] = "text/css";
+		http_request.path = "." + http_request.path;
+	}
+	else if (http_request.path.find(".jpg") != std::string::npos)
+	{
+		http_response.headers["Content-Type"] = "image/jpeg";
+		http_request.path = "." + http_request.path;
+	}
 	// else set it to text/plain
 	else
-		http_response.headers["Content-Type"] = "text/plain";
-*/
+	{
+		http_response.headers["Content-Type"] = "text/html";
+		http_request.path =  http_request.path;
+	}
+
 		
 	
 	// http_response.headers["Content-Type"] = "text/html";
-	// std::cout << "path: " << http_request.path << std::endl;
-	http_request.path = "." + http_request.path;
+
+	// http_request.path = "." + http_request.path;
 	//Check if it is a file (static website), if not it's a cgi script
 	if (access(http_request.path.c_str(), F_OK) != 0)
 		http_response.body = http_request.path ;
@@ -268,7 +320,7 @@ int Webserv::handle_pollin(int i)
 			in_request[poll_fd[i].fd] += buffer;
 		}
 
-		// logging("buffer:\n" + std::string(buffer), DEBUG);
+		logging("buffer:\n" + std::string(buffer), DEBUG);
 	}
 	else if (poll_fd[i].events == POLLHUP)
 	{
@@ -327,7 +379,6 @@ void Webserv::run()
 	// logging("Listening socket is " + int_to_string(sockfd), DEBUG);
 	do
 	{
-
 		logging("Waiting on poll()...", INFO);
 		rc = poll(&poll_fd[0], poll_fd.size(), -1);
 		if (rc < 0)
@@ -362,7 +413,6 @@ void Webserv::run()
 			if (check_sockfds(sockfds, i) == 1)
 			{
 				logging("Listening socket is readable", DEBUG);
-				// std::cout << "Listening socket is readable" << std::endl;
 				// Accept all incoming connections that are queued up on the listening socket before we loop back and call poll again
 				do
 				{
@@ -374,7 +424,6 @@ void Webserv::run()
 						if (errno != EWOULDBLOCK)
 						{
 							logging("Error: accept() failed", ERROR);
-							// std::cout << "Error: accept() failed" << std::endl;
 							end_server = TRUE;
 						}
 						break;
@@ -398,16 +447,19 @@ void Webserv::run()
 					if (poll_fd[i].events | POLLOUT)
 					{
 						// std::cout << "POLLOUT entered" << std::endl;
-					
-						// if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r')
-						if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r')
+						if ((buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r'))
+						// if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r')
 
 						// if (endsWithCRLF(buffer, rc) )
 						{
+
+							
 							// std::cout << "CRLF found" << std::endl;
 							logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
-
 							http_request = parse_http_request(in_request[poll_fd[i].fd]);
+							logging("request :\n" + in_request[poll_fd[i].fd] + "\n", DEBUG);
+
+							// http_request = parse_http_request(in_request[poll_fd[i].fd]);
 
 							/* 
 							// just some logging to print all data in the http_request struct
@@ -419,7 +471,8 @@ void Webserv::run()
 							{
 								std::cout << it->first << "  =  " << it->second << std::endl;
 							}
-							 */
+ 							 */
+							
 
 							if (http_request.method == "GET")
 							{
@@ -429,10 +482,16 @@ void Webserv::run()
 								if (access(tmp, F_OK) == 0)
 								{
 									
+									struct stat path_stat;
+									stat(tmp, &path_stat);
+									bool is_directory = S_ISDIR(path_stat.st_mode);
+									
 									http_response.status_code = 200;
 									http_response.status_message = "OK";
-									if (ft_strcmp(tmp, "./") == 0)
+									
+								/* 	if (ft_strcmp(tmp, "./") == 0)
 									{
+
 										
 										if (access("./index.html", F_OK) == 0)
 										{
@@ -451,10 +510,19 @@ void Webserv::run()
 											http_request.path = tmp2;
 										}
 									}
+									else  */if (is_directory)
+									{
+										 std::string tmp2 = "." + http_request.path;
+										http_request.path = autoindex(tmp2);
+										std::cout << "autoindex http_request.path: " << http_request.path << std::endl;
+									}
+									
 									else if (ft_strcmp(tmp, "./cgi-bin/index.py") == 0 && access("./cgi-bin/index.py", F_OK) == 0)
 									{
+										
 										if (access("./cgi-bin/index.py", X_OK) == 0)
 										{
+											
 											std::cout << "cgi-bin/index.py exists" << std::endl;
 											int pipefd[2];
 											pipe(pipefd);
@@ -480,9 +548,9 @@ void Webserv::run()
 													buffer[bytesRead] = '\0';
 													scriptOutput += buffer;
 												}
-												std::cout << "scriptOutput: " << scriptOutput << std::endl;
+												// std::cout << "scriptOutput: " << scriptOutput << std::endl;
 												http_request.path = scriptOutput;
-												std::cout << "scripted http_request.path: " << http_request.path << std::endl;
+												// std::cout << "scripted http_request.path: " << http_request.path << std::endl;
 												waitpid(-1, NULL, WUNTRACED);
 											
 											}
@@ -496,6 +564,10 @@ void Webserv::run()
 											std::cout << "file doesn't exist" << std::endl;
 										}
 										
+									}
+									else 
+									{
+										http_request.path = "." + http_request.path;
 									}
 									out_response[poll_fd[i].fd] = create_http_response();
 									std::cout << "file exists" << std::endl;
@@ -531,6 +603,23 @@ void Webserv::run()
 
 								// Parse the request body as form data
 								std::map<std::string, std::string> formData = parse_form_data(requestBody);
+
+								// Create the response body
+								std::ostringstream sstream;
+								sstream << "<html><body><h1>Form data</h1><table>";
+								for (std::map<std::string, std::string>::const_iterator it = formData.begin(); it != formData.end(); ++it) {
+									sstream << "<tr><td>" << it->first << "</td><td>" << it->second << "</td></tr>";
+								}
+								sstream << "</table></body></html>";
+								
+								http_response.status_code = 200;
+								http_response.status_message = "OK";
+								http_response.headers["Content-Type"] = "text/html";
+								http_response.headers["Content-Length"] = int_to_string(sstream.str().size());
+								http_response.body = sstream.str();
+								out_response[poll_fd[i].fd] = create_http_response();
+								// std::cout << "POST request" << std::endl;
+								
 							}
 							else if (http_request.method == "DELETE")
 							{
@@ -552,7 +641,7 @@ void Webserv::run()
 
 							rc = send(poll_fd[i].fd, out_response[poll_fd[i].fd].c_str(), out_response[poll_fd[i].fd].size(), 0);
 							logging(" ---- response: " + int_to_string(rc) + " bytes sent  ----", DEBUG);
-							
+							logging("response :\n" + out_response[poll_fd[i].fd] + "\n", DEBUG);
 							break;
 						}
 						// rc = send(p_iter.fd, buffer, len, 0);

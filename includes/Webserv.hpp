@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/24 14:08:55 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/27 14:32:05 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,12 @@
 #include <typeinfo>
 #include <cmath>
 #include <string>
+#include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/poll.h>
-#include <fcntl.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
+#include <dirent.h>
 
 
 #include "ASocket.hpp"
@@ -154,5 +156,6 @@ class Webserv
 		HttpRequest parse_http_request(const std::string& request);
 		std::string create_http_response(void);
 		int check_sockfds(std::vector<int> sockfds, int i);
+		std::string autoindex(const std::string& path) ;
 	
 };
