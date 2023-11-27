@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/27 15:24:31 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/27 15:50:30 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,24 +252,24 @@ std::string Webserv::create_http_response(void)
 	if (http_request.path.find(".html") != std::string::npos)
 	{
 		http_response.headers["Content-Type"] = "text/html";
-		http_request.path = "." + http_request.path;
+		// http_request.path = "." + http_request.path;
 	}
 	// else if it is a css file, set it to text/css
 	else if (http_request.path.find(".css") != std::string::npos)
 	{
 		http_response.headers["Content-Type"] = "text/css";
-		http_request.path = "." + http_request.path;
+		// http_request.path = "." + http_request.path;
 	}
 	else if (http_request.path.find(".jpg") != std::string::npos)
 	{
 		http_response.headers["Content-Type"] = "image/jpeg";
-		http_request.path = "." + http_request.path;
+		// http_request.path = "." + http_request.path;
 	}
 	// else set it to text/plain
 	else
 	{
 		http_response.headers["Content-Type"] = "text/html";
-		http_request.path =  http_request.path;
+		// http_request.path =  http_request.path;
 	}
 
 		
@@ -310,7 +310,9 @@ int Webserv::handle_pollin(int i)
 {
 	// check events on fd
 	// if (poll_fd[i].events & POLLIN)
-	if (poll_fd[i].events == POLLIN)
+	// if (poll_fd[i].events == POLLIN)
+	
+	if (poll_fd[i].events | POLLIN)
 	{
 		rc = recv(poll_fd[i].fd, buffer, sizeof(buffer) - 1, 0);
 		logging("POLLIN fd" + int_to_string(poll_fd[i].fd) + ": added " + int_to_string(rc) + " bytes into buffer", DEBUG);
@@ -489,28 +491,43 @@ void Webserv::run()
 									http_response.status_code = 200;
 									http_response.status_message = "OK";
 									
-								/* 	if (ft_strcmp(tmp, "./") == 0)
+									// if (ft_strcmp(tmp, "./") == 0)
+									if (!is_directory)
 									{
 
+										if (access(tmp, R_OK) == 0)
+										{
+											std::cout << "file exists" << std::endl;
+											http_request.path = tmp;
+										}
+										else
+										{
+											http_response.status_code = 403;
+											http_response.status_message = "Forbidden";
+											http_request.path = "/403.html";
+											// out_response[poll_fd[i].fd] = create_http_response();
+											std::cout << "file doesn't exist" << std::endl;
+										}
+										// if (access("./index.html", F_OK) == 0)
 										
-										if (access("./index.html", F_OK) == 0)
-										{
-											std::cout << "index.html exists" << std::endl;
-											std::string tmp2 = "/index.html";
-											delete[] tmp;
-											tmp = string_to_chararray(tmp2);
-											http_request.path = tmp2;
-										}
-										else if ( access("./index.php", F_OK) == 0)
-										{
-											std::cout << "index.php exists" << std::endl;
-											std::string tmp2 = "/index.php";
-											delete[] tmp;
-											tmp = string_to_chararray(tmp2);
-											http_request.path = tmp2;
-										}
+										// {
+										// 	std::cout << "index.html exists" << std::endl;
+										// 	std::string tmp2 = "/index.html";
+										// 	delete[] tmp;
+										// 	tmp = string_to_chararray(tmp2);
+										// 	http_request.path = tmp2;
+										// }
+										// else if ( access("./index.php", F_OK) == 0)
+										// {
+										// 	std::cout << "index.php exists" << std::endl;
+										// 	std::string tmp2 = "/index.php";
+										// 	delete[] tmp;
+										// 	tmp = string_to_chararray(tmp2);
+										// 	http_request.path = tmp2;
+										// }
+										
 									}
-									else  */if (is_directory)
+									else if (is_directory)
 									{
 										 std::string tmp2 = "." + http_request.path;
 										http_request.path = autoindex(tmp2);
@@ -555,29 +572,29 @@ void Webserv::run()
 											
 											}
 										}
-										else
-										{
-											http_response.status_code = 404;
-											http_response.status_message = "Not Found";
-											http_request.path = "/404.html";
-											// out_response[poll_fd[i].fd] = create_http_response();
-											std::cout << "file doesn't exist" << std::endl;
-										}
+										// else
+										// {
+										// 	http_response.status_code = 404;
+										// 	http_response.status_message = "Not Found";
+										// 	http_request.path = "/404.html";
+										// 	// out_response[poll_fd[i].fd] = create_http_response();
+										// 	std::cout << "file doesn't exist" << std::endl;
+										// }
 										
 									}
-									else 
-									{
-										http_request.path = "." + http_request.path;
-									}
+									// else 
+									// {
+									// 	http_request.path = "." + http_request.path;
+									// }
 									out_response[poll_fd[i].fd] = create_http_response();
-									std::cout << "file exists" << std::endl;
-									// delete[] tmp;
+									// std::cout << "file exists" << std::endl;
+									
 								}
 								else
 								{
 									http_response.status_code = 404;
 									http_response.status_message = "Not Found";
-									http_request.path = "/404.html";
+									http_request.path = "./404.html";
 									out_response[poll_fd[i].fd] = create_http_response();
 									std::cout << "file doesn't exist" << std::endl;
 								}
