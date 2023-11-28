@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/27 15:50:30 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/28 08:10:46 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -449,8 +449,8 @@ void Webserv::run()
 					if (poll_fd[i].events | POLLOUT)
 					{
 						// std::cout << "POLLOUT entered" << std::endl;
-						if ((buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r'))
-						// if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r')
+						// if ((buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r'))
+						if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r')
 
 						// if (endsWithCRLF(buffer, rc) )
 						{
@@ -531,7 +531,7 @@ void Webserv::run()
 									{
 										 std::string tmp2 = "." + http_request.path;
 										http_request.path = autoindex(tmp2);
-										std::cout << "autoindex http_request.path: " << http_request.path << std::endl;
+										// std::cout << "autoindex http_request.path: " << http_request.path << std::endl;
 									}
 									
 									else if (ft_strcmp(tmp, "./cgi-bin/index.py") == 0 && access("./cgi-bin/index.py", F_OK) == 0)

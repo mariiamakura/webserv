@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:43:52 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/24 14:16:32 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/11/28 12:40:41 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,7 @@ void Server::init_server(int port, int backlog)
 
 	// int sockfd;
 	int rc, on;
-	pollfd fds[200];
+	// pollfd fds[200];
 
 	rc = 0;
 	on = 1;
@@ -217,10 +217,10 @@ void Server::init_server(int port, int backlog)
 	}
 
 	//setup poll structure
-	ft_memset(fds, 0 , sizeof(fds));
+	// ft_memset(fds, 0 , sizeof(fds));
 	this->sockfd = sockfd;
-	fds[0].fd = sockfd;
-	fds[0].events = POLLIN;
+	// fds[0].fd = sockfd;
+	// fds[0].events = POLLIN;
 
 	//initialize timeout to 3 minutes
 	// int timeout = (3 * 60 * 1000);
