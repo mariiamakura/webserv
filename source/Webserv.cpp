@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/28 08:10:46 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/12/04 13:41:58 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,7 @@ void Webserv::init_servers()
 	// 	s_iter++;
 	// }
 
-	// 	// !!! Need to implement looping through config files and passing port and backlog !!!
+	// !!! Need to implement looping through config files and passing port and backlog !!!
 	std::vector<int> ports;
 	ports.push_back(DEF_PORT);
 	// ports.push_back(8888);
@@ -311,6 +311,11 @@ int Webserv::handle_pollin(int i)
 	// check events on fd
 	// if (poll_fd[i].events & POLLIN)
 	// if (poll_fd[i].events == POLLIN)
+	
+
+	
+	
+
 	
 	if (poll_fd[i].events | POLLIN)
 	{
@@ -492,51 +497,12 @@ void Webserv::run()
 									http_response.status_message = "OK";
 									
 									// if (ft_strcmp(tmp, "./") == 0)
-									if (!is_directory)
-									{
-
-										if (access(tmp, R_OK) == 0)
-										{
-											std::cout << "file exists" << std::endl;
-											http_request.path = tmp;
-										}
-										else
-										{
-											http_response.status_code = 403;
-											http_response.status_message = "Forbidden";
-											http_request.path = "/403.html";
-											// out_response[poll_fd[i].fd] = create_http_response();
-											std::cout << "file doesn't exist" << std::endl;
-										}
-										// if (access("./index.html", F_OK) == 0)
-										
-										// {
-										// 	std::cout << "index.html exists" << std::endl;
-										// 	std::string tmp2 = "/index.html";
-										// 	delete[] tmp;
-										// 	tmp = string_to_chararray(tmp2);
-										// 	http_request.path = tmp2;
-										// }
-										// else if ( access("./index.php", F_OK) == 0)
-										// {
-										// 	std::cout << "index.php exists" << std::endl;
-										// 	std::string tmp2 = "/index.php";
-										// 	delete[] tmp;
-										// 	tmp = string_to_chararray(tmp2);
-										// 	http_request.path = tmp2;
-										// }
-										
-									}
-									else if (is_directory)
-									{
-										 std::string tmp2 = "." + http_request.path;
-										http_request.path = autoindex(tmp2);
-										// std::cout << "autoindex http_request.path: " << http_request.path << std::endl;
-									}
 									
-									else if (ft_strcmp(tmp, "./cgi-bin/index.py") == 0 && access("./cgi-bin/index.py", F_OK) == 0)
+									
+									
+									if (ft_strcmp(tmp, "./cgi-bin/index.py") == 0 && access("./cgi-bin/index.py", F_OK) == 0)
 									{
-										
+										std::cout << "cgi-bin/index.py exists" << std::endl;
 										if (access("./cgi-bin/index.py", X_OK) == 0)
 										{
 											
@@ -581,6 +547,47 @@ void Webserv::run()
 										// 	std::cout << "file doesn't exist" << std::endl;
 										// }
 										
+									}
+									else if (!is_directory)
+									{
+
+										if (access(tmp, R_OK) == 0)
+										{
+											std::cout << "file exists" << std::endl;
+											http_request.path = tmp;
+										}
+										else
+										{
+											http_response.status_code = 403;
+											http_response.status_message = "Forbidden";
+											http_request.path = "/403.html";
+											// out_response[poll_fd[i].fd] = create_http_response();
+											std::cout << "file doesn't exist" << std::endl;
+										}
+										// if (access("./index.html", F_OK) == 0)
+										
+										// {
+										// 	std::cout << "index.html exists" << std::endl;
+										// 	std::string tmp2 = "/index.html";
+										// 	delete[] tmp;
+										// 	tmp = string_to_chararray(tmp2);
+										// 	http_request.path = tmp2;
+										// }
+										// else if ( access("./index.php", F_OK) == 0)
+										// {
+										// 	std::cout << "index.php exists" << std::endl;
+										// 	std::string tmp2 = "/index.php";
+										// 	delete[] tmp;
+										// 	tmp = string_to_chararray(tmp2);
+										// 	http_request.path = tmp2;
+										// }
+										
+									}
+									else if (is_directory)
+									{
+										 std::string tmp2 = "." + http_request.path;
+										http_request.path = autoindex(tmp2);
+										// std::cout << "autoindex http_request.path: " << http_request.path << std::endl;
 									}
 									// else 
 									// {

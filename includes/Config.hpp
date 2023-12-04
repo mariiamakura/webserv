@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:37:48 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/20 09:00:37 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/12/04 14:39:58 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,10 @@ class Config
 {
 	private:
 		u_int16_t _listen;
+		
+		std::map<std::string, std::string> locations;
+
+		
 
 
 	public:
