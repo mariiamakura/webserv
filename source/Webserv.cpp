@@ -470,7 +470,7 @@ void Webserv::run()
 
                             if (http_request.method == "POST")
                             {
-                                logging("response \n got POST request", DEBUG);
+                                logging("response \n got POST request. data to be saved", DEBUG);
                                 break;
 
 
