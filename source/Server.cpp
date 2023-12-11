@@ -194,7 +194,7 @@ void Server::init_server(int port, int backlog)
 	ft_memset(&sockaddr, 0, sizeof(sockaddr));
 	sockaddr.sin_family = AF_INET;
 	sockaddr.sin_addr.s_addr = INADDR_ANY;
-	ft_memcpy(&sockaddr.sin_addr, &sockaddr.sin_addr.s_addr, sizeof(sockaddr.sin_addr.s_addr));
+	ft_memcpy(&sockaddr.sin_addr, &sockaddr.sin_addr.s_addr, sizeof(sockaddr.sin_addr.s_addr)); //do we need this line it?
 	
 	sockaddr.sin_port = htons(port); // htons is necessary to convert a number to
 									// network byte order

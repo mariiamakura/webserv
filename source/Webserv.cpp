@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/12/04 13:41:58 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/12/11 11:56:01 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,7 +164,7 @@ void Webserv::init_servers()
 	// ports.push_back(7777);
 
 	std::vector<Server>::size_type size = server.size();
-	// std::cout << "size: " << size << std::endl;
+	//std::cout << "size: " << size << std::endl;
 	for (std::vector<Server>::size_type i = 0; i < size; i++)
 	{
 		// instead of ports[i] we need to loop through config files and pass port and backlog
@@ -317,17 +317,19 @@ int Webserv::handle_pollin(int i)
 	
 
 	
-	if (poll_fd[i].events | POLLIN)
+	if (poll_fd[i].events & POLLIN) //reading data from client
 	{
 		rc = recv(poll_fd[i].fd, buffer, sizeof(buffer) - 1, 0);
 		logging("POLLIN fd" + int_to_string(poll_fd[i].fd) + ": added " + int_to_string(rc) + " bytes into buffer", DEBUG);
+        //http_request = parse_http_request(in_request[poll_fd[i].fd]);
+        //std::cout << http_request.method << std::endl;
+        //std::cout << in_request[poll_fd[i].fd] << std::endl; //this works with POST
 		if (rc > 0)
 		{
 			buffer[rc] = '\0';
 			in_request[poll_fd[i].fd] += buffer;
 		}
-
-		logging("buffer:\n" + std::string(buffer), DEBUG);
+		// logging("buffer:\n" + std::string(buffer), DEBUG);
 	}
 	else if (poll_fd[i].events == POLLHUP)
 	{
@@ -349,12 +351,20 @@ int Webserv::handle_pollin(int i)
 	}
 	if (rc < 0)
 	{
-		if (errno == EWOULDBLOCK)
+		//  check if this needs to be handled differently !!!!
+		if (poll_fd[i].events & POLLIN)
 		{
-			// No data available, continue with other tasks or wait
+			// Socket buffer is full, continue with other tasks or wait
 			return (1);
 		}
-		else
+	
+		
+		// if (errno == EWOULDBLOCK)
+		// {
+		// 	// No data available, continue with other tasks or wait
+		// 	return (1);
+		// }
+		// else
 		{
 			// Handle other errors
 			logging("Error: recv() failed", ERROR);
@@ -369,7 +379,7 @@ int Webserv::handle_pollin(int i)
 		close_conn = TRUE;
 		return (1);
 	}
-	return (0);
+    return (0);
 }
 
 void Webserv::run()
@@ -408,13 +418,13 @@ void Webserv::run()
 			if (poll_fd[i].revents == 0)
 				continue;
 			// if revents is not POLLIN than it's an unexpected result
-			if (poll_fd[i].revents != POLLIN)
-			{
-				logging("Error: revents = " + int_to_string(poll_fd[i].revents) + " from " + int_to_string(poll_fd[i].fd), ERROR);
-				// std::cout << "Error: revents = " << poll_fd[i].revents << std::endl;
-				end_server = TRUE;
-				break;
-			}
+			//  if (poll_fd[i].revents != POLLIN)
+			// {
+			// 	logging("Error: revents = " + int_to_string(poll_fd[i].revents) + " from " + int_to_string(poll_fd[i].fd), ERROR);
+			// 	// std::cout << "Error: revents = " << poll_fd[i].revents << std::endl;
+			// 	end_server = TRUE;
+			// 	break;
+			// }
 
 			// if (poll_fd[i].fd == sockfd || poll_fd[i].fd == sockfd2 || poll_fd[i].fd == sockfd3)
 			if (check_sockfds(sockfds, i) == 1)
@@ -450,17 +460,33 @@ void Webserv::run()
 				{
 					if (handle_pollin(i) != 0)
 						break;
-					
+					if (poll_fd[i].events | POLLIN) {
+                        std::cout << "\nIM IN POLLIN" <<std::endl;
+                        if (in_request[poll_fd[i].fd].find("\r\n\r\n") != std::string::npos)
+                        {
+                            std::cout << "\nTHE END OF REQUEST" <<std::endl;
+                            http_request = parse_http_request(in_request[poll_fd[i].fd]);
+                            logging("request :\n" + in_request[poll_fd[i].fd] + "\n", DEBUG);
+
+                            if (http_request.method == "POST")
+                            {
+                                logging("response \n got POST request", DEBUG);
+                                break;
+
+
+                            }
+                        }
+                    }
 					if (poll_fd[i].events | POLLOUT)
 					{
 						// std::cout << "POLLOUT entered" << std::endl;
-						// if ((buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r'))
+						//if ((buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r'))
 						if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r')
 
 						// if (endsWithCRLF(buffer, rc) )
 						{
 
-							
+
 							// std::cout << "CRLF found" << std::endl;
 							logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
 							http_request = parse_http_request(in_request[poll_fd[i].fd]);
@@ -607,43 +633,6 @@ void Webserv::run()
 								}
 								// std::cout << "GET request" << std::endl;
 								delete[] tmp;
-							}
-							else if (http_request.method == "POST")
-							{
-								logging("POST request", DEBUG);
-								
-
-								// Read the request body
-								std::string requestBody;
-								char buffer[1024];
-								ssize_t bytesRead;
-								while ((bytesRead = read(poll_fd[i].fd, buffer, sizeof(buffer) - 1)) > 0) {
-									buffer[bytesRead] = '\0';
-									requestBody += buffer;
-									if (endsWithCRLF(buffer, bytesRead)) {
-										break;
-									}
-								}
-
-								// Parse the request body as form data
-								std::map<std::string, std::string> formData = parse_form_data(requestBody);
-
-								// Create the response body
-								std::ostringstream sstream;
-								sstream << "<html><body><h1>Form data</h1><table>";
-								for (std::map<std::string, std::string>::const_iterator it = formData.begin(); it != formData.end(); ++it) {
-									sstream << "<tr><td>" << it->first << "</td><td>" << it->second << "</td></tr>";
-								}
-								sstream << "</table></body></html>";
-								
-								http_response.status_code = 200;
-								http_response.status_message = "OK";
-								http_response.headers["Content-Type"] = "text/html";
-								http_response.headers["Content-Length"] = int_to_string(sstream.str().size());
-								http_response.body = sstream.str();
-								out_response[poll_fd[i].fd] = create_http_response();
-								// std::cout << "POST request" << std::endl;
-								
 							}
 							else if (http_request.method == "DELETE")
 							{
