@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/12/04 13:41:58 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/12/11 11:56:01 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -327,7 +327,7 @@ int Webserv::handle_pollin(int i)
 			in_request[poll_fd[i].fd] += buffer;
 		}
 
-		logging("buffer:\n" + std::string(buffer), DEBUG);
+		// logging("buffer:\n" + std::string(buffer), DEBUG);
 	}
 	else if (poll_fd[i].events == POLLHUP)
 	{
@@ -349,12 +349,20 @@ int Webserv::handle_pollin(int i)
 	}
 	if (rc < 0)
 	{
-		if (errno == EWOULDBLOCK)
+		//  check if this needs to be handled differently !!!!
+		if (poll_fd[i].events & POLLIN)
 		{
-			// No data available, continue with other tasks or wait
+			// Socket buffer is full, continue with other tasks or wait
 			return (1);
 		}
-		else
+	
+		
+		// if (errno == EWOULDBLOCK)
+		// {
+		// 	// No data available, continue with other tasks or wait
+		// 	return (1);
+		// }
+		// else
 		{
 			// Handle other errors
 			logging("Error: recv() failed", ERROR);
@@ -408,13 +416,13 @@ void Webserv::run()
 			if (poll_fd[i].revents == 0)
 				continue;
 			// if revents is not POLLIN than it's an unexpected result
-			if (poll_fd[i].revents != POLLIN)
-			{
-				logging("Error: revents = " + int_to_string(poll_fd[i].revents) + " from " + int_to_string(poll_fd[i].fd), ERROR);
-				// std::cout << "Error: revents = " << poll_fd[i].revents << std::endl;
-				end_server = TRUE;
-				break;
-			}
+			//  if (poll_fd[i].revents != POLLIN)
+			// {
+			// 	logging("Error: revents = " + int_to_string(poll_fd[i].revents) + " from " + int_to_string(poll_fd[i].fd), ERROR);
+			// 	// std::cout << "Error: revents = " << poll_fd[i].revents << std::endl;
+			// 	end_server = TRUE;
+			// 	break;
+			// }
 
 			// if (poll_fd[i].fd == sockfd || poll_fd[i].fd == sockfd2 || poll_fd[i].fd == sockfd3)
 			if (check_sockfds(sockfds, i) == 1)

@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/27 14:32:05 by fhassoun         ###   ########.fr       */
+/*   Updated: 2023/12/11 12:00:47 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,12 +97,14 @@ class Webserv
 		char 	**env;
 		int		sockfd;
 		int		new_sd ;
-		char	buffer[128];
+		// char	buffer[256];
+		char 	buffer[4096];
 		int		rc;
 		int 	end_server ;
 		int		close_conn ;
 		HttpRequest http_request;
 		HttpResponse http_response;
+		
 		std::vector<Server> server;
 		std::vector<Server>::iterator s_iter;
 		
