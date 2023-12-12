@@ -472,8 +472,6 @@ void Webserv::run()
 
 						// if (endsWithCRLF(buffer, rc) )
 						{
-
-
 							// std::cout << "CRLF found" << std::endl;
 							logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
 							http_request = parse_http_request(in_request[poll_fd[i].fd]);
@@ -492,9 +490,8 @@ void Webserv::run()
 								std::cout << it->first << "  =  " << it->second << std::endl;
 							}
  							 */
-							
 
-							if (http_request.method == "GET")
+							 if (http_request.method == "GET")
 							{
 								logging("GET request", DEBUG);
 								char *tmp = string_to_chararray(http_request.path);
