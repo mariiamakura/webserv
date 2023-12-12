@@ -159,5 +159,7 @@ class Webserv
 		std::string create_http_response(void);
 		int check_sockfds(std::vector<int> sockfds, int i);
 		std::string autoindex(const std::string& path) ;
+
+        bool post_getdata(int i);
 	
 };

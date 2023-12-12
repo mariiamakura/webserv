@@ -460,59 +460,9 @@ void Webserv::run()
 				{
 					if (handle_pollin(i) != 0)
 						break;
-					if (poll_fd[i].events | POLLIN) {
-                        std::cout << "\nIM IN POLLIN" <<std::endl;
-                        if (in_request[poll_fd[i].fd].find("\r\n\r\n") != std::string::npos)
-                        {
-                            std::cout << "\nTHE END OF REQUEST" <<std::endl;
-                            http_request = parse_http_request(in_request[poll_fd[i].fd]);
-                            logging("request :\n" + in_request[poll_fd[i].fd] + "\n", DEBUG);
-
-                            if (http_request.method == "POST")
-                            {
-                                logging("response \n got POST request. data to be saved", DEBUG);
-                                std::string requestBody;
-                                //char buffer[1024];
-                                //ssize_t bytesRead;
-                                std::cout << "BEFORE WHILE" << std::endl;
-//                                while ((bytesRead = read(poll_fd[i].fd, buffer, sizeof(buffer) - 1)) > 0) {
-//                                    std::cout << "IN WHILE LOOP" << std::endl;
-//                                    buffer[bytesRead] = '\0';
-//                                    requestBody += buffer;
-//                                    if (endsWithCRLF(buffer, bytesRead)) {
-//                                        break;
-//                                    }
-//                                }
-                                // Parse the request body as form data
-                                std::map<std::string, std::string> formData = parse_form_data(requestBody);
-                                if (!formData.empty()) {
-                                    // Get an iterator to the first element
-                                    std::map<std::string, std::string>::iterator it = formData.begin();
-
-                                    // Print the key and value of the first pair
-                                    std::cout << "First pair: Key = " << it->first << ", Value = " << it->second << std::endl;
-                                } else {
-                                    std::cout << "The map is empty." << std::endl;
-                                }
-                                // Create the response body
-//                                std::ostringstream sstream;
-//                                sstream << "<html><body><h1>Form data</h1><table>";
-//                                for (std::map<std::string, std::string>::const_iterator it = formData.begin(); it != formData.end(); ++it) {
-//                                    sstream << "<tr><td>" << it->first << "</td><td>" << it->second << "</td></tr>";
-//                                }
-//                                sstream << "</table></body></html>";
-//
-//                                http_response.status_code = 200;
-//                                http_response.status_message = "OK";
-//                                http_response.headers["Content-Type"] = "text/html";
-//                                http_response.headers["Content-Length"] = int_to_string(sstream.str().size());
-//                                http_response.body = sstream.str();
-//                                out_response[poll_fd[i].fd] = create_http_response();
-                                break;
-
-
-                            }
-                        }
+                    if (poll_fd[i].events | POLLIN) {
+                        if(post_getdata(i))
+                            break;
                     }
 					if (poll_fd[i].events | POLLOUT)
 					{
