@@ -12,7 +12,7 @@ if "user_input" in form:
 print("<p>please enter your name:</p>")
 print("""
 <form method="POST">
-    <input type="text" name="user_input">
+    <input type="text" name="username">
     <input type="submit" value="Send">
 </form>
 """)
