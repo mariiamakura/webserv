@@ -460,37 +460,13 @@ void Webserv::run()
 				{
 					if (handle_pollin(i) != 0)
 						break;
-                    if (poll_fd[i].events | POLLIN) {
-                        if(post_getdata(i))
-                            break;
-                    }
 					if (poll_fd[i].events | POLLOUT)
 					{
-						// std::cout << "POLLOUT entered" << std::endl;
-						//if ((buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r' && buffer[rc - 3] == '\n' && buffer[rc - 4] == '\r'))
-						if (buffer[rc - 1] == '\n' && buffer[rc - 2] == '\r')
-
-						// if (endsWithCRLF(buffer, rc) )
+                        if (in_request[poll_fd[i].fd].find("\r\n\r\n") != std::string::npos)
 						{
-							// std::cout << "CRLF found" << std::endl;
 							logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
 							http_request = parse_http_request(in_request[poll_fd[i].fd]);
 							logging("request :\n" + in_request[poll_fd[i].fd] + "\n", DEBUG);
-
-							// http_request = parse_http_request(in_request[poll_fd[i].fd]);
-
-							/* 
-							// just some logging to print all data in the http_request struct
-							std::cout << "method: " << http_request.method << std::endl;
-							std::cout << "path: " << http_request.path << std::endl;
-							std::cout << "http_version: " << http_request.http_version << std::endl;
-							std::cout << "headers: " << std::endl;
-							for (std::map<std::string, std::string>::iterator it = http_request.headers.begin(); it != http_request.headers.end(); it++)
-							{
-								std::cout << it->first << "  =  " << it->second << std::endl;
-							}
- 							 */
-
 							 if (http_request.method == "GET")
 							{
 								logging("GET request", DEBUG);
@@ -505,11 +481,6 @@ void Webserv::run()
 									
 									http_response.status_code = 200;
 									http_response.status_message = "OK";
-									
-									// if (ft_strcmp(tmp, "./") == 0)
-									
-									
-									
 									if (ft_strcmp(tmp, "./cgi-bin/index.py") == 0 && access("./cgi-bin/index.py", F_OK) == 0)
 									{
 										std::cout << "cgi-bin/index.py exists" << std::endl;
@@ -548,15 +519,6 @@ void Webserv::run()
 											
 											}
 										}
-										// else
-										// {
-										// 	http_response.status_code = 404;
-										// 	http_response.status_message = "Not Found";
-										// 	http_request.path = "/404.html";
-										// 	// out_response[poll_fd[i].fd] = create_http_response();
-										// 	std::cout << "file doesn't exist" << std::endl;
-										// }
-										
 									}
 									else if (!is_directory)
 									{
@@ -574,23 +536,6 @@ void Webserv::run()
 											// out_response[poll_fd[i].fd] = create_http_response();
 											std::cout << "file doesn't exist" << std::endl;
 										}
-										// if (access("./index.html", F_OK) == 0)
-										
-										// {
-										// 	std::cout << "index.html exists" << std::endl;
-										// 	std::string tmp2 = "/index.html";
-										// 	delete[] tmp;
-										// 	tmp = string_to_chararray(tmp2);
-										// 	http_request.path = tmp2;
-										// }
-										// else if ( access("./index.php", F_OK) == 0)
-										// {
-										// 	std::cout << "index.php exists" << std::endl;
-										// 	std::string tmp2 = "/index.php";
-										// 	delete[] tmp;
-										// 	tmp = string_to_chararray(tmp2);
-										// 	http_request.path = tmp2;
-										// }
 										
 									}
 									else if (is_directory)
@@ -599,13 +544,8 @@ void Webserv::run()
 										http_request.path = autoindex(tmp2);
 										// std::cout << "autoindex http_request.path: " << http_request.path << std::endl;
 									}
-									// else 
-									// {
-									// 	http_request.path = "." + http_request.path;
-									// }
 									out_response[poll_fd[i].fd] = create_http_response();
-									// std::cout << "file exists" << std::endl;
-									
+
 								}
 								else
 								{
@@ -615,9 +555,11 @@ void Webserv::run()
 									out_response[poll_fd[i].fd] = create_http_response();
 									std::cout << "file doesn't exist" << std::endl;
 								}
-								// std::cout << "GET request" << std::endl;
 								delete[] tmp;
 							}
+                             else if  (http_request.method == "POST") {
+                                 out_response[poll_fd[i].fd] = post_getdata(i);
+                             }
 							else if (http_request.method == "DELETE")
 							{
 								logging("DELETE request", DEBUG);
@@ -633,8 +575,6 @@ void Webserv::run()
 							// for debugging, print out what is in buffer
 							logging("request :\n" + in_request[poll_fd[i].fd] + "\n", DEBUG);
 							// -------------------------------------------------------------------------------------------------------------
-						
-							
 
 							rc = send(poll_fd[i].fd, out_response[poll_fd[i].fd].c_str(), out_response[poll_fd[i].fd].size(), 0);
 							logging(" ---- response: " + int_to_string(rc) + " bytes sent  ----", DEBUG);

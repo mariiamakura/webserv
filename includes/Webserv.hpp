@@ -160,6 +160,6 @@ class Webserv
 		int check_sockfds(std::vector<int> sockfds, int i);
 		std::string autoindex(const std::string& path) ;
 
-        bool post_getdata(int i);
+        std::string post_getdata(int i);
 	
 };
