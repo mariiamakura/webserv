@@ -1,6 +1,6 @@
 #include "Webserv.hpp"
 
-static std::string usernameResponse() {
+static std::string okResponsePost() {
     // Initialize response string outside the loop
     std::string response = "HTTP/1.1 200 OK\r\n";
     response += "Content-Type: text/html\r\n\r\n";
@@ -17,7 +17,7 @@ static std::string usernameResponse() {
 std::string  Webserv::usernamePostRequest(int i) {
     std::string linePost;
     std::istringstream iss(in_request[poll_fd[i].fd]);
-    std::string response = usernameResponse();
+    std::string response = okResponsePost();
     while (getline(iss, linePost)) {
         size_t usernamePtr = linePost.find("username");
         if (usernamePtr != std::string::npos) {
@@ -34,13 +34,12 @@ std::string  Webserv::usernamePostRequest(int i) {
 
 //make return reference to the main function in the end - use new()
 std::string Webserv::post_getdata(int i) {
-    //  /cgi-bin/index.py
-    //  /submit
     std::string response;
     http_request = parse_http_request(in_request[poll_fd[i].fd]);
     if(http_request.path == "/cgi-bin/index.py" || http_request.path == "/submit") {
         response = usernamePostRequest(i);
         return (response);
     }
+    //other data
     return response;
 }
