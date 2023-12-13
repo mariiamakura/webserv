@@ -46,14 +46,33 @@ void Webserv::processForm(const HttpRequest &http_request, int i) {
                 boundaryValue = it->second.substr(boundaryPtr, boundaryLen);
                 boundaryStart = "--" + boundaryValue;
                 boundaryEnd = boundaryStart + "--";
+                //std::cout << "boundaryStart in for loop: " << boundaryStart << std::endl;
                 break;
             }
         }
     }
-    std::string &requestBody = in_request[poll_fd[i].fd]; //try to iterate while not boundary
+    std::string linePost;
+    std::istringstream iss(in_request[poll_fd[i].fd]);
+    bool foundBoundary = false;
+    //std::cout << "boundaryStart: " << boundaryStart << std::endl;
 
+    while (getline(iss, linePost)) {
+        if (foundBoundary) {
+            // Process or save the line as needed
+            //std::cout << "foundBoundary TRUE: " << linePost << std::endl;
+        }
 
-
+        size_t boundaryStBody;
+        std::cout << "Boundary empty? " << boundaryStart.empty() << std::endl;
+        if (!boundaryStart.empty()) {
+            boundaryStBody = linePost.find(boundaryStart);
+            std::cout << boundaryStBody << std::endl;
+        }
+        if (!boundaryStart.empty() && boundaryStBody != std::string::npos) {
+            foundBoundary = true; // Set the flag to start saving lines after finding the boundary
+            std::cout << "Boundary found!" << std::endl;
+        }
+    }
 }
 
 //make return reference to the main function in the end - use new()
