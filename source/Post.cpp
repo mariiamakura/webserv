@@ -32,6 +32,11 @@ std::string  Webserv::usernamePostRequest(int i) {
     return (response);
 }
 
+void Webserv::processForm(const HttpRequest &http_request) {
+    std::map<std::string, std::string> headers = http_request.headers;
+
+}
+
 //make return reference to the main function in the end - use new()
 std::string Webserv::post_getdata(int i) {
     std::string response;
@@ -40,6 +45,12 @@ std::string Webserv::post_getdata(int i) {
         response = usernamePostRequest(i);
         return (response);
     }
-    //other data
+    if (http_request.path == "/over42/upload") {
+        //processForm(http_request);
+        response = "HTTP/1.1 303 See Other\r\n";
+        response += "Location: http://localhost:9999/over42/upload.html\r\n\r\n";
+        return response;
+
+    }
     return response;
 }

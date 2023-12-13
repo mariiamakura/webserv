@@ -559,6 +559,9 @@ void Webserv::run()
 							}
                              else if  (http_request.method == "POST") {
                                  out_response[poll_fd[i].fd] = post_getdata(i);
+                                 rc = send(poll_fd[i].fd, out_response[poll_fd[i].fd].c_str(), out_response[poll_fd[i].fd].size(), 0);
+                                 break;
+
                              }
 							else if (http_request.method == "DELETE")
 							{

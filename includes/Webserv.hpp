@@ -163,5 +163,7 @@ class Webserv
         //POST CALL
         std::string post_getdata(int i);
         std::string usernamePostRequest(int i);
-	
+        void processForm(const HttpRequest &http_request);
+
+
 };
