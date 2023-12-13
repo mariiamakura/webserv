@@ -32,8 +32,27 @@ std::string  Webserv::usernamePostRequest(int i) {
     return (response);
 }
 
-void Webserv::processForm(const HttpRequest &http_request) {
+void Webserv::processForm(const HttpRequest &http_request, int i) {
     std::map<std::string, std::string> headers = http_request.headers;
+    std::string boundaryValue;
+    std::string boundaryStart;
+    std::string boundaryEnd;
+    for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it) {
+        if (it->first == "Content-Type") {
+            size_t boundaryPtr = it->second.find("boundary=");
+            if (boundaryPtr != std::string::npos) {
+                boundaryPtr += 9;
+                size_t boundaryLen = it->second.size() - boundaryPtr;
+                boundaryValue = it->second.substr(boundaryPtr, boundaryLen);
+                boundaryStart = "--" + boundaryValue;
+                boundaryEnd = boundaryStart + "--";
+                break;
+            }
+        }
+    }
+    std::string &requestBody = in_request[poll_fd[i].fd]; //try to iterate while not boundary
+
+
 
 }
 
@@ -46,7 +65,7 @@ std::string Webserv::post_getdata(int i) {
         return (response);
     }
     if (http_request.path == "/over42/upload") {
-        //processForm(http_request);
+        processForm(http_request, i);
         response = "HTTP/1.1 303 See Other\r\n";
         response += "Location: http://localhost:9999/over42/upload.html\r\n\r\n";
         return response;
