@@ -81,7 +81,7 @@ struct HttpRequest {
     std::string method;
     std::string path;
     std::map<std::string, std::string> headers;
-    size_t contentLength;
+    //size_t contentLength;
     std::string content;
 };
 

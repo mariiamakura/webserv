@@ -343,16 +343,6 @@ void Webserv::run()
 			// Loop through to find the descriptors that returned POLLIN
 			if (poll_fd[i].revents == 0)
 				continue;
-			// if revents is not POLLIN than it's an unexpected result
-			//  if (poll_fd[i].revents != POLLIN)
-			// {
-			// 	logging("Error: revents = " + int_to_string(poll_fd[i].revents) + " from " + int_to_string(poll_fd[i].fd), ERROR);
-			// 	// std::cout << "Error: revents = " << poll_fd[i].revents << std::endl;
-			// 	end_server = TRUE;
-			// 	break;
-			// }
-
-			// if (poll_fd[i].fd == sockfd || poll_fd[i].fd == sockfd2 || poll_fd[i].fd == sockfd3)
 			if (check_sockfds(sockfds, i) == 1)
 			{
 				logging("Listening socket is readable", DEBUG);
@@ -396,9 +386,12 @@ void Webserv::run()
 //							logging("request :\n" + in_request[poll_fd[i].fd] + "\n", DEBUG);
                             logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
                             if (http_requests.count(poll_fd[i].fd) > 0) {
-                                http_request = http_requests[poll_fd[i].fd];
+                                http_request = http_requests[poll_fd[i].fd]; //this all should be copy of the pointer in the end for optimization
+                                std::cout << "Content size before append: " << http_request.content.size() <<std::endl;
                                 http_request.content += in_request[poll_fd[i].fd];
+                                http_requests[poll_fd[i].fd] = http_request;
                                 std::cout << "APPEND REQUEST" << std::endl;
+                                std::cout << "Content size after append: " << http_request.content.size() <<std::endl;
                             } else {
                                 http_request = parse_http_request(in_request[poll_fd[i].fd]);
                                 std::cout << "NEW REQUEST" << std::endl;
