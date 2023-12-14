@@ -54,23 +54,24 @@ void Webserv::processForm(const HttpRequest &http_request, int i) {
     std::string linePost;
     std::istringstream iss(in_request[poll_fd[i].fd]);
     bool foundBoundary = false;
-    //std::cout << "boundaryStart: " << boundaryStart << std::endl;
+    std::cout << "boundaryStart: " << boundaryStart << std::endl;
 
+    std::cout << "BODY OF REQUEST\n" << iss << std::endl;
     while (getline(iss, linePost)) {
         if (foundBoundary) {
             // Process or save the line as needed
-            //std::cout << "foundBoundary TRUE: " << linePost << std::endl;
+            std::cout << "foundBoundary TRUE: " << linePost << std::endl;
         }
 
         size_t boundaryStBody;
-        std::cout << "Boundary empty? " << boundaryStart.empty() << std::endl;
+        //std::cout << "Boundary empty? " << boundaryStart.empty() << std::endl;
         if (!boundaryStart.empty()) {
             boundaryStBody = linePost.find(boundaryStart);
-            std::cout << boundaryStBody << std::endl;
+            //std::cout << boundaryStBody << std::endl;
         }
         if (!boundaryStart.empty() && boundaryStBody != std::string::npos) {
             foundBoundary = true; // Set the flag to start saving lines after finding the boundary
-            std::cout << "Boundary found!" << std::endl;
+            //std::cout << "Boundary found!" << std::endl;
         }
     }
 }
@@ -79,16 +80,19 @@ void Webserv::processForm(const HttpRequest &http_request, int i) {
 std::string Webserv::post_getdata(int i) {
     std::string response;
     http_request = parse_http_request(in_request[poll_fd[i].fd]);
-    if(http_request.path == "/cgi-bin/index.py" || http_request.path == "/submit") {
+    if(http_request.path == "/cgi-bin/index.py" || http_request.path == "/over42/upload") {
+        //std::cout << "in here\n";
         response = usernamePostRequest(i);
+        //std::cout << response << std::endl;
+        rc = send(poll_fd[i].fd, response.c_str(), response.size(), 0);
         return (response);
     }
-    if (http_request.path == "/over42/upload") {
-        processForm(http_request, i);
-        response = "HTTP/1.1 303 See Other\r\n";
-        response += "Location: http://localhost:9999/over42/upload.html\r\n\r\n";
-        return response;
-
-    }
+//    if (http_request.path == "/over42/upload") {
+//        processForm(http_request, i);
+//        response = "HTTP/1.1 303 See Other\r\n";
+//        response += "Location: http://localhost:9999/over42/upload.html\r\n\r\n";
+//        return response;
+//
+//    }
     return response;
 }

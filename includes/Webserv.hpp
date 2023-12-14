@@ -81,6 +81,11 @@ struct HttpRequest {
     std::string method;
     std::string path;
     std::map<std::string, std::string> headers;
+    std::string body;
+    //bool isBody;
+    size_t contentLength;
+
+    //HttpRequest() : isBody(false) {}
 };
 
 struct HttpResponse {
@@ -90,6 +95,8 @@ struct HttpResponse {
     std::map<std::string, std::string> headers;
     std::string body;
 };
+
+
 
 class Webserv
 {
@@ -155,7 +162,7 @@ class Webserv
 		void run();
 		void logging(std::string str, int status);
 		int handle_pollin(int i);
-		HttpRequest parse_http_request(const std::string& request);
+        HttpRequest parse_http_request(const std::string &request);
 		std::string create_http_response(void);
 		int check_sockfds(std::vector<int> sockfds, int i);
 		std::string autoindex(const std::string& path) ;
@@ -164,6 +171,7 @@ class Webserv
         std::string post_getdata(int i);
         std::string usernamePostRequest(int i);
         void processForm(const HttpRequest &http_request, int i);
+
 
 
 };
