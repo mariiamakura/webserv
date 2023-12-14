@@ -82,7 +82,7 @@ struct HttpRequest {
     std::string path;
     std::map<std::string, std::string> headers;
     //size_t contentLength;
-    std::string content;
+    std::string content; //this should be just stream
 };
 
 struct HttpResponse {

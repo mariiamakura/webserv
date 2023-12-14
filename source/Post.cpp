@@ -79,15 +79,35 @@ void Webserv::processForm(const HttpRequest &http_request, int i) {
 //make return reference to the main function in the end - use new()
 std::string Webserv::post_getdata(int i) {
     std::string response;
-    if(http_request.path == "/cgi-bin/index.py" || http_request.path == "/over42/upload" || http_request.path == "submit/") {
+    if (http_request.path == "/cgi-bin/index.py" || http_request.path == "/over42/upload" || http_request.path == "/over42/submit/") {
         //std::cout << "in here\n";
-        response = okResponsePost();
-        response += "<h1>Hello, " + http_request.content + "!</h1>";
-        response += "</body></html>";
+//        response = okResponsePost();
+//        response += "<h1>Hello, " + http_request.content + "!</h1>";
+//        response += "</body></html>";
         //std::cout << response << std::endl;
         //send(poll_fd[i].fd, response.c_str(), response.size(), 0);
-        return (response);
+
+        http_response.status_code = 200;
+
+        // Set the content type to HTML
+        http_response.headers["Content-Type"] = "text/html";
+
+        // Build the response body
+        response += "<html><body>";
+        response += "<h1>Hello, " + http_request.content + "!</h1>";
+        response += "</body></html>";
+
+        // Set the content length in the headers
+        http_response.headers["Content-Length"] = std::to_string(response.size());
+        std::string full_response = "HTTP/1.1 " + std::to_string(http_response.status_code) + " OK\r\n";
+        for (std::map<std::string, std::string>::const_iterator it = http_response.headers.begin(); it != http_response.headers.end(); ++it) {
+            full_response += it->first + ": " + it->second + "\r\n";
+        }
+
+        full_response += "\r\n" + response;
+        return full_response;
     }
+
     std::cout << i << std::endl;
     //for form
 //    if (http_request.path == "/over42/upload") {
