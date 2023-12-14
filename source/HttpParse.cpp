@@ -25,5 +25,6 @@ HttpRequest Webserv::parse_http_request(const std::string &request)
         http_request.headers[key] = value;
     }
 
+
     return http_request;
 }

@@ -79,7 +79,6 @@ void Webserv::processForm(const HttpRequest &http_request, int i) {
 //make return reference to the main function in the end - use new()
 std::string Webserv::post_getdata(int i) {
     std::string response;
-    http_request = parse_http_request(in_request[poll_fd[i].fd]);
     if(http_request.path == "/cgi-bin/index.py" || http_request.path == "/over42/upload") {
         //std::cout << "in here\n";
         response = usernamePostRequest(i);
@@ -87,6 +86,7 @@ std::string Webserv::post_getdata(int i) {
         rc = send(poll_fd[i].fd, response.c_str(), response.size(), 0);
         return (response);
     }
+    //for form
 //    if (http_request.path == "/over42/upload") {
 //        processForm(http_request, i);
 //        response = "HTTP/1.1 303 See Other\r\n";

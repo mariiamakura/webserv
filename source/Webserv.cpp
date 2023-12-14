@@ -230,90 +230,79 @@ std::string Webserv::create_http_response(void)
 
 	return sstream.str();
 }
-
 int Webserv::handle_pollin(int i)
 {
-	if (poll_fd[i].events & POLLIN) //reading data from client
+    // check events on fd
+    // if (poll_fd[i].events & POLLIN)
+    // if (poll_fd[i].events == POLLIN)
+
+
+
+
+
+
+    if (poll_fd[i].events & POLLIN) //reading data from client
     {
         rc = recv(poll_fd[i].fd, buffer, sizeof(buffer) - 1, 0);
-        logging("POLLIN fd" + int_to_string(poll_fd[i].fd) + ": added " + int_to_string(rc) + " bytes into buffer",
-                DEBUG);
-        if (rc > 0) {
-            if (std::strstr(buffer, "GET") || std::strstr(buffer, "DELETE"))
-                buffer[rc] = '\0';
+        logging("POLLIN fd" + int_to_string(poll_fd[i].fd) + ": added " + int_to_string(rc) + " bytes into buffer", DEBUG);
+        //http_request = parse_http_request(in_request[poll_fd[i].fd]);
+        //std::cout << http_request.method << std::endl;
+        //std::cout << in_request[poll_fd[i].fd] << std::endl; //this works with POST
+        if (rc > 0)
+        {
+            buffer[rc] = '\0';
             in_request[poll_fd[i].fd] += buffer;
-            if (std::strstr(buffer, "POST")) {
-                const char *contentLengthPos = std::strstr(buffer, "Content-Length:");
-                if (contentLengthPos != nullptr) {
-                    const char *valueStart = contentLengthPos + strlen("Content-Length:");
-                    size_t contentLengthValue = std::stoul(valueStart);
-                    std::cout << "contentLengthValue " << contentLengthValue << std::endl;
-                    size_t contentBuffer = 0;
-                    while (poll_fd[i].events & POLLIN) {
-                            memset(buffer, 0, sizeof(buffer));
-                            rc = recv(poll_fd[i].fd, buffer, sizeof(buffer) - 1, 0);
-                            contentBuffer += rc;
-                            if (rc > 0) {
-                                //buffer[rc] = '\0';
-                                in_request[poll_fd[i].fd] += buffer;
-                            } else if (rc == 0) {
-                                // Connection closed by the other end
-                                break;
-                            } else if (contentBuffer > contentLengthValue) {
-                                break;
-                            } else {
-                                // Error handling, check errno for details
-                                perror("recv");
-                                break;
-                            }
-                    }
-                }
-            }
-            // logging("buffer:\n" + std::string(buffer), DEBUG);
-            std::cout << "FULL request " << in_request[poll_fd[i].fd] << std::endl;
+        }
+        // logging("buffer:\n" + std::string(buffer), DEBUG);
+    }
+    else if (poll_fd[i].events == POLLHUP)
+    {
+        logging("POLLHUP", DEBUG);
+        close_conn = TRUE;
+        return (1);
+    }
+    else if (poll_fd[i].events & POLLERR)
+    {
+        logging("POLLERR", DEBUG);
+        close_conn = TRUE;
+        return (1);
+    }
+    else
+    {
+        logging("Error: Unknown event", DEBUG);
+        close_conn = TRUE;
+        return (1);
+    }
+    if (rc < 0)
+    {
+        //  check if this needs to be handled differently !!!!
+        if (poll_fd[i].events & POLLIN)
+        {
+            // Socket buffer is full, continue with other tasks or wait
+            return (1);
+        }
+
+
+        // if (errno == EWOULDBLOCK)
+        // {
+        // 	// No data available, continue with other tasks or wait
+        // 	return (1);
+        // }
+        // else
+        {
+            // Handle other errors
+            logging("Error: recv() failed", ERROR);
+            close_conn = TRUE;
+            return (1);
         }
     }
-
-	else if (poll_fd[i].events == POLLHUP)
-	{
-		logging("POLLHUP", DEBUG);
-		close_conn = TRUE;
-		return (1);
-	}
-	else if (poll_fd[i].events & POLLERR)
-	{
-		logging("POLLERR", DEBUG);
-		close_conn = TRUE;
-		return (1);
-	}
-	else
-	{
-		logging("Error: Unknown event", DEBUG);
-		close_conn = TRUE;
-		return (1);
-	}
-	if (rc < 0)
-	{
-		//  check if this needs to be handled differently !!!!
-		if (poll_fd[i].events & POLLIN)
-		{
-			// Socket buffer is full, continue with other tasks or wait
-			return (1);
-		}
-		{
-			// Handle other errors
-			logging("Error: recv() failed", ERROR);
-			close_conn = TRUE;
-			return (1);
-		}
-	}
-	// Check to see if the connection has been closed by the client
-	if (rc == 0)
-	{
-		logging("Connection closed", DEBUG);
-		close_conn = TRUE;
-		return (1);
-	}
+    // Check to see if the connection has been closed by the client
+    if (rc == 0)
+    {
+        logging("Connection closed", DEBUG);
+        close_conn = TRUE;
+        return (1);
+    }
     return (0);
 }
 
@@ -406,7 +395,14 @@ void Webserv::run()
 //							http_request = parse_http_request(in_request[poll_fd[i].fd]);
 //							logging("request :\n" + in_request[poll_fd[i].fd] + "\n", DEBUG);
                             logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
-                            http_request = parse_http_request(in_request[poll_fd[i].fd]);
+                            if (http_requests.count(poll_fd[i].fd) > 0) {
+                                http_request = http_requests[poll_fd[i].fd];
+                                http_request.content += in_request[poll_fd[i].fd];
+                                std::cout << "APPEND REQUEST" << std::endl;
+                            } else {
+                                http_request = parse_http_request(in_request[poll_fd[i].fd]);
+                                std::cout << "NEW REQUEST" << std::endl;
+                            }
 							 if (http_request.method == "GET")
 							{
 								logging("GET request", DEBUG);
@@ -498,12 +494,24 @@ void Webserv::run()
 								delete[] tmp;
 							}
                              else if  (http_request.method == "POST") {
-                                 //std::cout << "IM IN POOOOOOST\n\n\n" << std::endl;
-                                 //out_response[poll_fd[i].fd] = post_getdata(i);
-                                 //rc = send(poll_fd[i].fd, out_response[poll_fd[i].fd].c_str(), out_response[poll_fd[i].fd].size(), 0);
-                                 out_response[poll_fd[i].fd] = create_http_response();
-                                 rc = send(poll_fd[i].fd, out_response[poll_fd[i].fd].c_str(), out_response[poll_fd[i].fd].size(), 0);
-                                 break;
+                                 if (http_requests.count(poll_fd[i].fd) == 0) {
+                                     http_requests[poll_fd[i].fd] = http_request;
+
+                                     std::cout << "START CONTENT" << std::endl;
+                                 }
+                                 size_t content_length = std::stoi(http_request.headers["Content-Length"]);
+                                 if (http_request.content.size() == content_length) {
+                                     http_requests.erase(poll_fd[i].fd);
+                                     std::cout << "FINISH CONTENT" << std::endl;
+                                     out_response[poll_fd[i].fd] = post_getdata(i);
+                                 }
+                                 else if (http_request.content.size() > content_length) {
+                                     http_requests.erase(poll_fd[i].fd);
+
+                                     std::cout << "CORRUPTED CONTENT" << std::endl;
+                                 } else {
+                                     std::cout << "PARTIAL CONTENT " << http_request.content.size() << " of " << content_length << std::endl;
+                                 }
 
                              }
 							else if (http_request.method == "DELETE")
@@ -525,6 +533,7 @@ void Webserv::run()
 							rc = send(poll_fd[i].fd, out_response[poll_fd[i].fd].c_str(), out_response[poll_fd[i].fd].size(), 0);
 							logging(" ---- response: " + int_to_string(rc) + " bytes sent  ----", DEBUG);
 							logging("response :\n" + out_response[poll_fd[i].fd] + "\n", DEBUG);
+                            out_response.erase(poll_fd[i].fd);
 							break;
 						//}
 						// rc = send(p_iter.fd, buffer, len, 0);

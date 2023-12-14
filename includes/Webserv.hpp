@@ -81,11 +81,8 @@ struct HttpRequest {
     std::string method;
     std::string path;
     std::map<std::string, std::string> headers;
-    std::string body;
-    //bool isBody;
     size_t contentLength;
-
-    //HttpRequest() : isBody(false) {}
+    std::string content;
 };
 
 struct HttpResponse {
@@ -95,6 +92,7 @@ struct HttpResponse {
     std::map<std::string, std::string> headers;
     std::string body;
 };
+
 
 
 
@@ -125,6 +123,7 @@ class Webserv
 		std::vector<pollfd>::iterator p_iter;
 		
 		std::map <int, std::string> in_request;
+        std::map <int, HttpRequest> http_requests;
 		std::map <int, std::string> out_response;
 
 	
