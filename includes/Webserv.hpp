@@ -123,7 +123,7 @@ class Webserv
 		std::vector<pollfd> poll_fd;
 		std::vector<pollfd>::iterator p_iter;
 		
-		std::map <int, std::string> in_request;
+		std::map <int, std::string> in_request; //this should be something like <int, char[]>
         std::map <int, HttpRequest> http_requests;
 		std::map <int, std::string> out_response;
 

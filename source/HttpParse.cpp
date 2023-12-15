@@ -2,6 +2,7 @@
 
 HttpRequest Webserv::parse_http_request(const std::string &request)
 {
+
     std::istringstream sstream(request);
     HttpRequest http_request;
 
