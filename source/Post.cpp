@@ -5,19 +5,20 @@ void Webserv::postMethod(int i) {
         http_requests[poll_fd[i].fd] = http_request;
 
         std::cout << "START CONTENT" << std::endl;
-        std::cout << "CONTENT : " << http_request.content << std::endl;
+        //std::cout << "CONTENT : " << http_request.content << std::endl;
 
     }
     const char *ContLen = http_request.headers["Content-Length"].c_str();
     size_t content_length = static_cast<size_t>(std::atoi(ContLen));
-
+    if (http_request.content.size() == content_length + 1) //LONG TEXT 1 BYTE ADDED WRONG ON MY SIDE !!!!!!!!!!!!!!!
+        content_length += 1;
     if (http_request.content.size() == content_length) {
         http_requests.erase(poll_fd[i].fd);
         std::cout << "FINISH CONTENT" << std::endl;
         out_response[poll_fd[i].fd] = post_getdata();
-
     }
-    else if (http_request.content.size() > content_length) {
+    else if (http_request.content.size() > content_length || http_request.content.size() > content_length) {
+        std::cout << "SUPPOSED content_length : " << content_length << std::endl;
         std::cout << "content size " << http_request.content.size() << std::endl;
         http_requests.erase(poll_fd[i].fd);
         out_response[poll_fd[i].fd] = "HTTP/1.1 400 Bad Request\r\n";
@@ -93,7 +94,7 @@ std::string Webserv::post_getdata() {
 
         // Build the response body
         response += "<html><body>";
-        response += "<h1>Hello, " + http_request.content + "!</h1>";
+        response += http_request.content;
         response += "</body></html>";
 
         // Set the content length in the headers

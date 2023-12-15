@@ -38,15 +38,15 @@ HttpRequest Webserv::parse_http_request(const std::string &request)
             else if (http_request.headers["Content-Type"].find("multipart/form-data") != std::string::npos) {
                 while (std::getline(sstream, line)) {
                     http_request.content += line + '\n';
-                    std::cout << "content line: " << line << std::endl;
+                    //std::cout << "content line: " << line << std::endl;
                 }
             }
         }
 
 
     }
-    std::cout << "\n\nCONTENT PARSE: ";
-    std::cout << http_request.content << "the end ofCONTENT PARSE\n"<< std::endl;
+    //std::cout << "\n\nCONTENT PARSE: ";
+    //std::cout << http_request.content << "the end ofCONTENT PARSE\n"<< std::endl;
     return http_request;
 }
 

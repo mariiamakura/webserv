@@ -309,14 +309,6 @@ void Webserv::run()
 					if (poll_fd[i].events | POLLOUT)
 					{
                             logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
-//                            char bufferTest[4096];
-//                            ssize_t bytesRead = read(poll_fd[i].fd, bufferTest, sizeof(bufferTest));
-//                        if (bytesRead > 0) {
-//                            // Print the data
-//                            std::cout << "Data from FILE DESCRIPTOR " << poll_fd[i].fd << ":\n";
-//                            std::cout.write(bufferTest, bytesRead);
-//                            std::cout << std::endl;
-//                        }
                             newOrAppendRequest(i);
 							 if (http_request.method == "GET")
 							{
