@@ -82,6 +82,7 @@ struct HttpRequest {
     std::string path;
     std::map<std::string, std::string> headers;
     //size_t contentLength;
+    std::string body;
     std::string content; //this should be just stream
 };
 
@@ -167,10 +168,6 @@ class Webserv
 		std::string autoindex(const std::string& path) ;
 
         //POST CALL
-        std::string post_getdata(int i);
-        std::string usernamePostRequest(int i);
+        std::string post_getdata();
         void processForm(const HttpRequest &http_request, int i);
-
-
-
 };

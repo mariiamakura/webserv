@@ -1,36 +1,18 @@
 #include "Webserv.hpp"
 
-static std::string okResponsePost() {
-    // Initialize response string outside the loop
-    std::string response = "HTTP/1.1 200 OK\r\n";
-    response += "Content-Type: text/html\r\n\r\n";
-    response += "<html><head>";
-    response += "<style>";
-    response += "body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px; }";
-    response += "h1 { color: #3498db; }";
-    response += "</style>";
-    response += "</head><body>";
-    return (response);
-}
+//static std::string okResponsePost() {
+//    // Initialize response string outside the loop
+//    std::string response = "HTTP/1.1 200 OK\r\n";
+//    response += "Content-Type: text/html\r\n\r\n";
+//    response += "<html><head>";
+//    response += "<style>";
+//    response += "body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px; }";
+//    response += "h1 { color: #3498db; }";
+//    response += "</style>";
+//    response += "</head><body>";
+//    return (response);
+//}
 
-//make return reference to the main function in the end - use new()
-std::string  Webserv::usernamePostRequest(int i) {
-    std::string linePost;
-    std::istringstream iss(in_request[poll_fd[i].fd]);
-    std::string response = okResponsePost();
-    while (getline(iss, linePost)) {
-        size_t usernamePtr = linePost.find("username");
-        if (usernamePtr != std::string::npos) {
-            usernamePtr += 9;
-            size_t userNameLen = linePost.size() - usernamePtr;
-            std::string usernameValue = linePost.substr(usernamePtr, userNameLen);
-            std::cout << usernameValue << std::endl;
-            response += "<h1>Hello, " + usernameValue + "!</h1>";
-        }
-    }
-    response += "</body></html>";
-    return (response);
-}
 
 void Webserv::processForm(const HttpRequest &http_request, int i) {
     std::map<std::string, std::string> headers = http_request.headers;
@@ -76,16 +58,17 @@ void Webserv::processForm(const HttpRequest &http_request, int i) {
     }
 }
 
-//make return reference to the main function in the end - use new()
-std::string Webserv::post_getdata(int i) {
+// Helper function to convert integer to string
+std::string intToString(int value) {
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+
+std::string Webserv::post_getdata() {
     std::string response;
     if (http_request.path == "/cgi-bin/index.py" || http_request.path == "/over42/upload" || http_request.path == "/over42/submit/") {
-        //std::cout << "in here\n";
-//        response = okResponsePost();
-//        response += "<h1>Hello, " + http_request.content + "!</h1>";
-//        response += "</body></html>";
-        //std::cout << response << std::endl;
-        //send(poll_fd[i].fd, response.c_str(), response.size(), 0);
+        // std::cout << "in here\n";
 
         http_response.status_code = 200;
 
@@ -98,8 +81,12 @@ std::string Webserv::post_getdata(int i) {
         response += "</body></html>";
 
         // Set the content length in the headers
-        http_response.headers["Content-Length"] = std::to_string(response.size());
-        std::string full_response = "HTTP/1.1 " + std::to_string(http_response.status_code) + " OK\r\n";
+        std::ostringstream oss;
+        oss << response.size();
+        http_response.headers["Content-Length"] = oss.str();
+        std::string full_response = "HTTP/1.1 " + intToString(http_response.status_code) + " OK\r\n";
+
+        // Iterate over headers
         for (std::map<std::string, std::string>::const_iterator it = http_response.headers.begin(); it != http_response.headers.end(); ++it) {
             full_response += it->first + ": " + it->second + "\r\n";
         }
@@ -108,14 +95,14 @@ std::string Webserv::post_getdata(int i) {
         return full_response;
     }
 
-    std::cout << i << std::endl;
-    //for form
-//    if (http_request.path == "/over42/upload") {
-//        processForm(http_request, i);
-//        response = "HTTP/1.1 303 See Other\r\n";
-//        response += "Location: http://localhost:9999/over42/upload.html\r\n\r\n";
-//        return response;
-//
-//    }
+    // for form
+    // if (http_request.path == "/over42/upload") {
+    //     processForm(http_request, i);
+    //     response = "HTTP/1.1 303 See Other\r\n";
+    //     response += "Location: http://localhost:9999/over42/upload.html\r\n\r\n";
+    //     return response;
+    // }
+
     return response;
 }
+

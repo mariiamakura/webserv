@@ -491,17 +491,20 @@ void Webserv::run()
                                      http_requests[poll_fd[i].fd] = http_request;
 
                                      std::cout << "START CONTENT" << std::endl;
-                                     //out_response[poll_fd[i].fd] = "HTTP/1.1 200 OK\r\n";
+                                     std::cout << "CONTENT : " << http_request.content << std::endl;
 
                                  }
-                                 size_t content_length = std::stoi(http_request.headers["Content-Length"]);
+                                 const char *ContLen = http_request.headers["Content-Length"].c_str();
+                                 size_t content_length = static_cast<size_t>(std::atoi(ContLen));
+
                                  if (http_request.content.size() == content_length) {
                                      http_requests.erase(poll_fd[i].fd);
                                      std::cout << "FINISH CONTENT" << std::endl;
-                                     out_response[poll_fd[i].fd] = post_getdata(i);
-                                     //out_response[poll_fd[i].fd] = create_http_response(); //fix it to the user name
+                                     out_response[poll_fd[i].fd] = post_getdata();
+
                                  }
                                  else if (http_request.content.size() > content_length) {
+                                     std::cout << "content size " << http_request.content.size() << std::endl;
                                      http_requests.erase(poll_fd[i].fd);
                                      out_response[poll_fd[i].fd] = "HTTP/1.1 400 Bad Request\r\n";
 
