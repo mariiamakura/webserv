@@ -168,78 +168,8 @@ void Webserv::init_servers()
 
 }
 
-std::string Webserv::create_http_response(void)
-{
-	std::ostringstream sstream;
-	http_response.http_version = http_request.http_version;
-
-	// std::cout << "http_request.path: " << http_request.path << std::endl;
-	if (http_request.path.find(".html") != std::string::npos)
-	{
-		http_response.headers["Content-Type"] = "text/html";
-		// http_request.path = "." + http_request.path;
-	}
-	// else if it is a css file, set it to text/css
-	else if (http_request.path.find(".css") != std::string::npos)
-	{
-		http_response.headers["Content-Type"] = "text/css";
-		// http_request.path = "." + http_request.path;
-	}
-	else if (http_request.path.find(".jpg") != std::string::npos)
-	{
-		http_response.headers["Content-Type"] = "image/jpeg";
-		// http_request.path = "." + http_request.path;
-	}
-	// else set it to text/plain
-	else
-	{
-		http_response.headers["Content-Type"] = "text/html";
-		// http_request.path =  http_request.path;
-	}
-
-		
-	
-	// http_response.headers["Content-Type"] = "text/html";
-
-	// http_request.path = "." + http_request.path;
-	//Check if it is a file (static website), if not it's a cgi script
-	if (access(http_request.path.c_str(), F_OK) != 0)
-		http_response.body = http_request.path ;
-	else
-	{
-		std::ifstream file(http_request.path.c_str());
-		std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-		// std::cout << "str: " << str << std::endl;
-		http_response.body = str;
-		
-	}
-	http_response.headers["Content-Length"] = int_to_string(http_response.body.size());
-
-	// The status line format is: HTTP/VERSION STATUS_CODE STATUS_MESSAGE
-	sstream << http_response.http_version << " " << http_response.status_code << " " << http_response.status_message << "\r\n";
-
-	// Write each header line
-	for (std::map<std::string, std::string>::const_iterator it = http_response.headers.begin(); it != http_response.headers.end(); ++it)
-	{
-		sstream << it->first << ": " << it->second << "\r\n";
-	}
-
-	// Write the body
-	sstream << "\r\n"
-			<< http_response.body;
-
-	return sstream.str();
-}
 int Webserv::handle_pollin(int i)
 {
-    // check events on fd
-    // if (poll_fd[i].events & POLLIN)
-    // if (poll_fd[i].events == POLLIN)
-
-
-
-
-
 
     if (poll_fd[i].events & POLLIN) //reading data from client
     {
@@ -378,24 +308,8 @@ void Webserv::run()
 						break;
 					if (poll_fd[i].events | POLLOUT)
 					{
-//                        std::cout << "request before\n " << in_request[poll_fd[i].fd] << std::endl;
-//                        if (in_request[poll_fd[i].fd].find("\r\n\r\n") != std::string::npos)
-//						{
-//							logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
-//							http_request = parse_http_request(in_request[poll_fd[i].fd]);
-//							logging("request :\n" + in_request[poll_fd[i].fd] + "\n", DEBUG);
                             logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
-                            if (http_requests.count(poll_fd[i].fd) > 0) {
-                                http_request = http_requests[poll_fd[i].fd]; //this all should be copy of the pointer in the end for optimization
-                                std::cout << "Content size before append: " << http_request.content.size() <<std::endl;
-                                http_request.content += in_request[poll_fd[i].fd];
-                                http_requests[poll_fd[i].fd] = http_request;
-                                std::cout << "APPEND REQUEST" << std::endl;
-                                std::cout << "Content size after append: " << http_request.content.size() <<std::endl;
-                            } else {
-                                http_request = parse_http_request(in_request[poll_fd[i].fd]);
-                                std::cout << "NEW REQUEST" << std::endl;
-                            }
+                            newOrAppendRequest(i);
 							 if (http_request.method == "GET")
 							{
 								logging("GET request", DEBUG);

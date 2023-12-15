@@ -67,7 +67,7 @@ std::string intToString(int value) {
 
 std::string Webserv::post_getdata() {
     std::string response;
-    if (http_request.path == "/cgi-bin/index.py" || http_request.path == "/over42/upload" || http_request.path == "/over42/submit/") {
+    if (http_request.path == "/cgi-bin/index.py" || http_request.path == "/over42/upload" || http_request.path == "/submit/") {
         // std::cout << "in here\n";
 
         http_response.status_code = 200;

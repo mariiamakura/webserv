@@ -167,7 +167,8 @@ class Webserv
 		int check_sockfds(std::vector<int> sockfds, int i);
 		std::string autoindex(const std::string& path) ;
 
-        //POST CALL
+        //REQUEST HTTP METHODS
         std::string post_getdata();
         void processForm(const HttpRequest &http_request, int i);
+        void newOrAppendRequest(int i);
 };
