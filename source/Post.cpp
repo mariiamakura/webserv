@@ -1,18 +1,34 @@
 #include "Webserv.hpp"
 
-//static std::string okResponsePost() {
-//    // Initialize response string outside the loop
-//    std::string response = "HTTP/1.1 200 OK\r\n";
-//    response += "Content-Type: text/html\r\n\r\n";
-//    response += "<html><head>";
-//    response += "<style>";
-//    response += "body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px; }";
-//    response += "h1 { color: #3498db; }";
-//    response += "</style>";
-//    response += "</head><body>";
-//    return (response);
-//}
+void Webserv::postMethod(int i) {
+    if (http_requests.count(poll_fd[i].fd) == 0) {
+        http_requests[poll_fd[i].fd] = http_request;
 
+        std::cout << "START CONTENT" << std::endl;
+        std::cout << "CONTENT : " << http_request.content << std::endl;
+
+    }
+    const char *ContLen = http_request.headers["Content-Length"].c_str();
+    size_t content_length = static_cast<size_t>(std::atoi(ContLen));
+
+    if (http_request.content.size() == content_length) {
+        http_requests.erase(poll_fd[i].fd);
+        std::cout << "FINISH CONTENT" << std::endl;
+        out_response[poll_fd[i].fd] = post_getdata();
+
+    }
+    else if (http_request.content.size() > content_length) {
+        std::cout << "content size " << http_request.content.size() << std::endl;
+        http_requests.erase(poll_fd[i].fd);
+        out_response[poll_fd[i].fd] = "HTTP/1.1 400 Bad Request\r\n";
+
+        std::cout << "CORRUPTED CONTENT" << std::endl;
+    } else {
+        std::cout << "PARTIAL CONTENT " << http_request.content.size() << " of " << content_length << std::endl;
+        out_response[poll_fd[i].fd] = "HTTP/1.1 200 OK\r\n";
+
+    }
+}
 
 void Webserv::processForm(const HttpRequest &http_request, int i) {
     std::map<std::string, std::string> headers = http_request.headers;

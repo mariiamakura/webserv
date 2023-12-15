@@ -171,4 +171,6 @@ class Webserv
         std::string post_getdata();
         void processForm(const HttpRequest &http_request, int i);
         void newOrAppendRequest(int i);
+        void getMethod(int i);
+        void postMethod(int i);
 };
