@@ -1,5 +1,12 @@
 #include "Webserv.hpp"
 
+
+void dump_string(std::string string) {
+    std::cout << string << std::endl;
+    std::cout << "size=" << string.size() << std::endl;
+    std::cout << "length=" << string.length() << std::endl;
+}
+
 HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request)
 {
 
@@ -23,8 +30,8 @@ HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request)
             std::string value = line.substr(colonPos + 2);
 
             // Remove leading and trailing whitespace from the value
-            value.erase(0, value.find_first_not_of(" \t"));
-            value.erase(value.find_last_not_of(" \t") + 1);
+            value.erase(0, value.find_first_not_of(" \t\r"));
+            value.erase(value.find_last_not_of(" \t\r") + 1);
 
             http_request.headers[key] = value;
         }
@@ -42,17 +49,9 @@ HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request)
             std::string boundarySelf = contentType.substr(boundaryOffset, boundaryLen);
             http_request.boundBeg = "--" + boundarySelf;
             http_request.boundEnd = "--" + boundarySelf + "--";
-
-            std::cout << "AAAAAAAAAAAAAA" << std::endl;
-            std::cout << boundarySelf << std::endl;
-            std::cout << "size=" << boundarySelf.size() << std::endl;
-            std::cout << "length=" << boundarySelf.length() << std::endl;
-            std::cout << http_request.boundBeg << std::endl;
-            std::cout << "size=" << http_request.boundBeg.size() << std::endl;
-            std::cout << "length=" << http_request.boundBeg.length() << std::endl;
-            std::cout << http_request.boundEnd << std::endl;
-            std::cout << "size=" << http_request.boundEnd.size() << std::endl;
-            std::cout << "length=" << http_request.boundEnd.length() << std::endl;
+            dump_string(boundarySelf);
+            dump_string(http_request.boundBeg);
+            dump_string(http_request.boundEnd);
             std::cout << "BBBBBBBBBBBBBB" << std::endl;
         }
     }
