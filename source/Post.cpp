@@ -51,7 +51,11 @@ void Webserv::processForm(const HttpRequest &http_request, int i) {
         }
     }
     std::string linePost;
-    std::istringstream iss(in_request[poll_fd[i].fd]);
+
+    std::vector<uint8_t>& requestData = in_request[poll_fd[i].fd];
+    std::string requestString(requestData.begin(), requestData.end());
+
+    std::istringstream iss(requestString);
     bool foundBoundary = false;
     std::cout << "boundaryStart: " << boundaryStart << std::endl;
 

@@ -171,17 +171,33 @@ void Webserv::init_servers()
 int Webserv::handle_pollin(int i)
 {
 
+    int clientID = poll_fd[i].fd;
     if (poll_fd[i].events & POLLIN) //reading data from client
     {
-        rc = recv(poll_fd[i].fd, buffer, sizeof(buffer) - 1, 0);
-        logging("POLLIN fd" + int_to_string(poll_fd[i].fd) + ": added " + int_to_string(rc) + " bytes into buffer", DEBUG);
-        //http_request = parse_http_request(in_request[poll_fd[i].fd]);
+        rc = recv(clientID, buffer, sizeof(buffer) - 1, 0);
+        logging("POLLIN fd" + int_to_string(clientID) + ": added " + int_to_string(rc) + " bytes into buffer", DEBUG);
+        //http_request = parse_http_request(in_request[clientID]);
         //std::cout << http_request.method << std::endl;
-        //std::cout << in_request[poll_fd[i].fd] << std::endl; //this works with POST
+        //std::cout << in_request[clientID] << std::endl; //this works with POST
         if (rc > 0)
         {
-            buffer[rc] = '\0';
-            in_request[poll_fd[i].fd] += buffer;
+            //buffer[rc] = '\0';
+            //in_request[clientID] += buffer;
+
+            size_t currentSize = in_request[clientID].size();
+            in_request[clientID].resize(currentSize + rc);
+            for (int i = 0; i < rc; ++i) {
+                in_request[clientID][currentSize + i] = static_cast<uint8_t>(buffer[i]);
+            }
+
+            //print vector content
+//            std::cout << "Vector content: ";
+//            for (size_t i = 0; i < in_request[clientID].size(); ++i) {
+//                std::cout << static_cast<char>(in_request[clientID][i]);
+//            }
+//            std::cout << std::endl;
+//            std::cout << "size of vector : " << in_request[clientID].size() << std::endl;
+
         }
         // logging("buffer:\n" + std::string(buffer), DEBUG);
     }
@@ -330,7 +346,13 @@ void Webserv::run()
 
 							// -------------------------------------------------------------------------------------------------------------
 							// for debugging, print out what is in buffer
-							logging("request :\n" + in_request[poll_fd[i].fd] + "\n", DEBUG);
+
+                            //vector to string
+
+                            std::vector<uint8_t>& requestData = in_request[poll_fd[i].fd];
+                            std::string requestString(requestData.begin(), requestData.end());
+
+							logging("request :\n" + requestString + "\n", DEBUG);
 							// -------------------------------------------------------------------------------------------------------------
 
 							rc = send(poll_fd[i].fd, out_response[poll_fd[i].fd].c_str(), out_response[poll_fd[i].fd].size(), 0);
@@ -364,28 +386,9 @@ void Webserv::run()
 						close_conn = TRUE;
 						break;
 					}
-					if (rc < 0)
-					{
-						if (errno == EWOULDBLOCK)
-						{
-							// Socket buffer is full, continue with other tasks or wait
-							break;
-						}
-						else
-						{
-							// Handle other errors
-							logging("Error: send() failed", ERROR);
-							// std::cout << "Error: send() failed" << std::endl;
-							close_conn = TRUE;
-							break;
-						}
-					}
-
-					ft_memset(buffer, 0, sizeof(buffer));
-					// } while (TRUE);
-				
 				} while (!close_conn);
-				in_request[poll_fd[i].fd] = "";
+				//in_request[poll_fd[i].fd] = "";
+                in_request[poll_fd[i].fd].clear();
 
 				// If the close_conn flag was turned on, we need to clean up this active connection. This clean up process includes removing the descriptor
 				if (close_conn)
