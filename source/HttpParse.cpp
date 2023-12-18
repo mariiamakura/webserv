@@ -1,12 +1,6 @@
 #include "Webserv.hpp"
 
 
-void dump_string(std::string string) {
-    std::cout << string << std::endl;
-    std::cout << "size=" << string.size() << std::endl;
-    std::cout << "length=" << string.length() << std::endl;
-}
-
 HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request)
 {
 
@@ -46,13 +40,7 @@ HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request)
         if (boundaryOffset != std::string::npos) {
             boundaryOffset += boundaryPrefix.length();
             size_t boundaryLen = contentType.length() - boundaryOffset;
-            std::string boundarySelf = contentType.substr(boundaryOffset, boundaryLen);
-            http_request.boundBeg = "--" + boundarySelf;
-            http_request.boundEnd = "--" + boundarySelf + "--";
-            dump_string(boundarySelf);
-            dump_string(http_request.boundBeg);
-            dump_string(http_request.boundEnd);
-            std::cout << "BBBBBBBBBBBBBB" << std::endl;
+            http_request.boundary = contentType.substr(boundaryOffset, boundaryLen);
         }
     }
 //    std::cout << "CONTENT PARSE\n"<< std::endl;

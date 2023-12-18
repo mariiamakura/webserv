@@ -17,8 +17,7 @@ void Webserv::postMethod(int i) {
         http_requests.erase(clientFD);
         std::cout << "FINISH CONTENT" << std::endl;
         out_response[clientFD] = post_getdata();
-    }
-    else if (http_request.content.size() > content_length || http_request.content.size() > content_length) {
+    } else if (http_request.content.size() > content_length || http_request.content.size() > content_length) {
         std::cout << "SUPPOSED content_length : " << content_length << std::endl;
         std::cout << "content size " << http_request.content.size() << std::endl;
         http_requests.erase(clientFD);
@@ -35,8 +34,7 @@ void Webserv::postMethod(int i) {
 std::string Webserv::post_getdata() {
     if (http_request.path == "/cgi-bin/index.py" || http_request.path == "/submit/") {
         return formPostResponse();
-    }
-    else if (http_request.path == "/over42/upload") {
+    } else if (http_request.path == "/over42/upload") {
         postContentProcess();
     }
     return formPostResponse();
@@ -44,35 +42,44 @@ std::string Webserv::post_getdata() {
 
 void Webserv::postContentProcess() {
     MetaData metaD;
-    std::string first4lines;
+    std::string boundaryLine;
+    std::string contentHeader;
     size_t newLineCount = 0;
-    size_t sizePureContent = 0;
 
     for (std::vector<uint8_t>::const_iterator it = http_request.content.begin();
-    it != http_request.content.end(); ++it) {
-        first4lines += static_cast<char>(*it);
-        sizePureContent++;
+         it != http_request.content.end(); ++it) {
+        contentHeader += static_cast<char>(*it);
         if (*it == '\n') {
             newLineCount++;
+            if (newLineCount == 1) {
+                boundaryLine = contentHeader;
+            }
             if (newLineCount == 4)
                 break;
         }
     }
-    //std::cout << "FIRST 4 LINES OF CONTENT:\n" << first4lines << std::endl;
-    std::istringstream lineStream(first4lines);
+
+    std::string boundarySurrounding = "--";
+    size_t leadingBoundarySize = boundaryLine.size();
+    size_t boundaryEndLineSize = leadingBoundarySize -
+                                 boundarySurrounding.size() -
+                                 http_request.boundary.size();
+    size_t trailingBoundarySize = http_request.boundary.size() +
+                                  2 * boundaryEndLineSize +
+                                  2 * boundarySurrounding.size();
+
+    std::istringstream lineStream(contentHeader);
     std::string line;
     while (std::getline(lineStream, line) && !line.empty()) {
         size_t filenamePtr = line.find("filename=");
-        if (filenamePtr != std::string::npos)
-        {
+        if (filenamePtr != std::string::npos) {
             filenamePtr += 10;
             size_t fileLen = line.length() - filenamePtr;
             metaD.filename = line.substr(filenamePtr, fileLen);
             std::remove(metaD.filename.begin(), metaD.filename.end(), '"');
         }
         size_t typePtr = line.find("Content-Type: ");
-        if (typePtr != std::string::npos)
-        {
+        if (typePtr != std::string::npos) {
             typePtr += 14;
             size_t typeLen = line.length() - typePtr;
             metaD.content_type = line.substr(typePtr, typeLen);
@@ -82,25 +89,21 @@ void Webserv::postContentProcess() {
     metaD.fullPath = metaD.location + metaD.filename;
 
     std::ofstream outputFile(metaD.fullPath, std::ios::binary);
-    if (outputFile.is_open())
-    {
-
-        size_t contEnd = http_request.content.size() - http_request.boundEnd.size();
+    if (outputFile.is_open()) {
         std::cout << "File created successfully: " << metaD.fullPath << std::endl;
 
-        while (sizePureContent < contEnd) {
-            outputFile.write(reinterpret_cast<const char*>(&http_request.content[sizePureContent]), 1);
-            sizePureContent++;
+        size_t contentSize = http_request.content.size() - trailingBoundarySize;
+        for (size_t i = contentHeader.size(); i < contentSize; i++) {
+            outputFile.write(reinterpret_cast<const char *>(&http_request.content[i]), 1);
         }
 
         // Close the file when done
         outputFile.close();
     } else {
-        std::cerr << "Failed to create file: " << metaD.fullPath  << std::endl;
+        std::cerr << "Failed to create file: " << metaD.fullPath << std::endl;
     }
 
 }
-
 
 
 // Helper function to convert integer to string
@@ -130,7 +133,8 @@ std::string Webserv::formPostResponse() {
     std::string full_response = "HTTP/1.1 " + intToString(http_response.status_code) + " OK\r\n";
 
     // Iterate over headers
-    for (std::map<std::string, std::string>::const_iterator it = http_response.headers.begin(); it != http_response.headers.end(); ++it) {
+    for (std::map<std::string, std::string>::const_iterator it = http_response.headers.begin();
+         it != http_response.headers.end(); ++it) {
         full_response += it->first + ": " + it->second + "\r\n";
     }
 

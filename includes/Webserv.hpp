@@ -81,8 +81,7 @@ struct HttpRequest {
     std::string method;
     std::string path;
     std::map<std::string, std::string> headers;
-    std::string boundBeg;
-    std::string boundEnd;
+    std::string boundary;
     std::vector<uint8_t> content;
 };
 
