@@ -14,7 +14,7 @@ HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request)
     {
         // Check if the line contains ": "
         http_reqSize += line.length() + 1; //for right size calculation
-        std::cout << "line len " << line.length() << "line itself : " << line << std::endl;
+        //std::cout << "line len " << line.length() << "line itself : " << line << std::endl;
         size_t colonPos = line.find(": ");
         if (colonPos != std::string::npos)
         {
@@ -29,18 +29,39 @@ HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request)
             http_request.headers[key] = value;
         }
     }
+    std::cout << "http_reqSize " << http_reqSize << std::endl;
+    http_request.content.insert(http_request.content.end(), request.begin() + http_reqSize, request.end());
 
-        std::cout << "http_reqSize " << http_reqSize << std::endl;
-        http_request.content.insert(http_request.content.end(), request.begin() + http_reqSize, request.end());
-        //break;
+    if (http_request.headers.find("Content-Type") != http_request.headers.end()) {
+        std::string boundaryPrefix = "boundary=";
+        std::string contentType = http_request.headers["Content-Type"];
+        size_t boundaryOffset = contentType.find(boundaryPrefix);
+        if (boundaryOffset != std::string::npos) {
+            boundaryOffset += boundaryPrefix.length();
+            size_t boundaryLen = contentType.length() - boundaryOffset;
+            std::string boundarySelf = contentType.substr(boundaryOffset, boundaryLen);
+            http_request.boundBeg = "--" + boundarySelf;
+            http_request.boundEnd = "--" + boundarySelf + "--";
 
-    //std::cout << "\n\nCONTENT PARSE: ";
-    //std::cout << http_request.content << "the end ofCONTENT PARSE\n"<< std::endl;
-    std::cout << "CONTENT PARSE\n"<< std::endl;
-    for (std::vector<uint8_t>::iterator it = http_request.content.begin(); it != http_request.content.end(); ++it) {
-        std::cout << *it;
+            std::cout << "AAAAAAAAAAAAAA" << std::endl;
+            std::cout << boundarySelf << std::endl;
+            std::cout << "size=" << boundarySelf.size() << std::endl;
+            std::cout << "length=" << boundarySelf.length() << std::endl;
+            std::cout << http_request.boundBeg << std::endl;
+            std::cout << "size=" << http_request.boundBeg.size() << std::endl;
+            std::cout << "length=" << http_request.boundBeg.length() << std::endl;
+            std::cout << http_request.boundEnd << std::endl;
+            std::cout << "size=" << http_request.boundEnd.size() << std::endl;
+            std::cout << "length=" << http_request.boundEnd.length() << std::endl;
+            std::cout << "BBBBBBBBBBBBBB" << std::endl;
+        }
     }
-    std::cout << "\nthe end of CONTENT PARSE\n" << std::endl;
+//    std::cout << "CONTENT PARSE\n"<< std::endl;
+//    for (std::vector<uint8_t>::iterator it = http_request.content.begin(); it != http_request.content.end(); ++it) {
+//        std::cout << *it;
+//    }
+//    std::cout << "\nthe end of CONTENT PARSE\n" << std::endl;
+
     return http_request;
 }
 

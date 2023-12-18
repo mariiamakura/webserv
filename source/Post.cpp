@@ -1,8 +1,9 @@
 #include "Webserv.hpp"
 
 void Webserv::postMethod(int i) {
-    if (http_requests.count(poll_fd[i].fd) == 0) {
-        http_requests[poll_fd[i].fd] = http_request;
+    int clientFD = poll_fd[i].fd;
+    if (http_requests.count(clientFD) == 0) {
+        http_requests[clientFD] = http_request;
 
         std::cout << "START CONTENT" << std::endl;
         //std::cout << "CONTENT : " << http_request.content << std::endl;
@@ -13,118 +14,128 @@ void Webserv::postMethod(int i) {
 //    if (http_request.content.size() == content_length + 1) //LONG TEXT 1 BYTE ADDED WRONG ON MY SIDE !!!!!!!!!!!!!!!
 //        content_length += 1;
     if (http_request.content.size() == content_length) {
-        http_requests.erase(poll_fd[i].fd);
+        http_requests.erase(clientFD);
         std::cout << "FINISH CONTENT" << std::endl;
-        out_response[poll_fd[i].fd] = post_getdata();
+        out_response[clientFD] = post_getdata();
     }
     else if (http_request.content.size() > content_length || http_request.content.size() > content_length) {
         std::cout << "SUPPOSED content_length : " << content_length << std::endl;
         std::cout << "content size " << http_request.content.size() << std::endl;
-        http_requests.erase(poll_fd[i].fd);
-        out_response[poll_fd[i].fd] = "HTTP/1.1 400 Bad Request\r\n";
+        http_requests.erase(clientFD);
+        out_response[clientFD] = "HTTP/1.1 400 Bad Request\r\n";
 
         std::cout << "CORRUPTED CONTENT" << std::endl;
     } else {
         std::cout << "PARTIAL CONTENT " << http_request.content.size() << " of " << content_length << std::endl;
-        out_response[poll_fd[i].fd] = "HTTP/1.1 200 OK\r\n";
+        out_response[clientFD] = "HTTP/1.1 200 OK\r\n";
 
     }
 }
 
-void Webserv::processForm(const HttpRequest &http_request, int i) {
-    std::map<std::string, std::string> headers = http_request.headers;
-    std::string boundaryValue;
-    std::string boundaryStart;
-    std::string boundaryEnd;
-    for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it) {
-        if (it->first == "Content-Type") {
-            size_t boundaryPtr = it->second.find("boundary=");
-            if (boundaryPtr != std::string::npos) {
-                boundaryPtr += 9;
-                size_t boundaryLen = it->second.size() - boundaryPtr;
-                boundaryValue = it->second.substr(boundaryPtr, boundaryLen);
-                boundaryStart = "--" + boundaryValue;
-                boundaryEnd = boundaryStart + "--";
-                //std::cout << "boundaryStart in for loop: " << boundaryStart << std::endl;
+std::string Webserv::post_getdata() {
+    if (http_request.path == "/cgi-bin/index.py" || http_request.path == "/submit/") {
+        return formPostResponse();
+    }
+    else if (http_request.path == "/over42/upload") {
+        postContentProcess();
+    }
+    return formPostResponse();
+}
+
+void Webserv::postContentProcess() {
+    MetaData metaD;
+    std::string first4lines;
+    size_t newLineCount = 0;
+    size_t sizePureContent = 0;
+
+    for (std::vector<uint8_t>::const_iterator it = http_request.content.begin();
+    it != http_request.content.end(); ++it) {
+        first4lines += static_cast<char>(*it);
+        sizePureContent++;
+        if (*it == '\n') {
+            newLineCount++;
+            if (newLineCount == 4)
                 break;
-            }
         }
     }
-    std::string linePost;
-
-    std::vector<uint8_t>& requestData = in_request[poll_fd[i].fd];
-    std::string requestString(requestData.begin(), requestData.end());
-
-    std::istringstream iss(requestString);
-    bool foundBoundary = false;
-    std::cout << "boundaryStart: " << boundaryStart << std::endl;
-
-    std::cout << "BODY OF REQUEST\n" << iss << std::endl;
-    while (getline(iss, linePost)) {
-        if (foundBoundary) {
-            // Process or save the line as needed
-            std::cout << "foundBoundary TRUE: " << linePost << std::endl;
+    //std::cout << "FIRST 4 LINES OF CONTENT:\n" << first4lines << std::endl;
+    std::istringstream lineStream(first4lines);
+    std::string line;
+    while (std::getline(lineStream, line) && !line.empty()) {
+        size_t filenamePtr = line.find("filename=");
+        if (filenamePtr != std::string::npos)
+        {
+            filenamePtr += 10;
+            size_t fileLen = line.length() - filenamePtr;
+            metaD.filename = line.substr(filenamePtr, fileLen);
+            std::remove(metaD.filename.begin(), metaD.filename.end(), '"');
         }
-
-        size_t boundaryStBody;
-        //std::cout << "Boundary empty? " << boundaryStart.empty() << std::endl;
-        if (!boundaryStart.empty()) {
-            boundaryStBody = linePost.find(boundaryStart);
-            //std::cout << boundaryStBody << std::endl;
-        }
-        if (!boundaryStart.empty() && boundaryStBody != std::string::npos) {
-            foundBoundary = true; // Set the flag to start saving lines after finding the boundary
-            //std::cout << "Boundary found!" << std::endl;
+        size_t typePtr = line.find("Content-Type: ");
+        if (typePtr != std::string::npos)
+        {
+            typePtr += 14;
+            size_t typeLen = line.length() - typePtr;
+            metaD.content_type = line.substr(typePtr, typeLen);
         }
     }
+    metaD.location = "download/";
+    metaD.fullPath = metaD.location + metaD.filename;
+
+    std::ofstream outputFile(metaD.fullPath, std::ios::binary);
+    if (outputFile.is_open())
+    {
+
+        size_t contEnd = http_request.content.size() - http_request.boundEnd.size();
+        std::cout << "File created successfully: " << metaD.fullPath << std::endl;
+
+        while (sizePureContent < contEnd) {
+            outputFile.write(reinterpret_cast<const char*>(&http_request.content[sizePureContent]), 1);
+            sizePureContent++;
+        }
+
+        // Close the file when done
+        outputFile.close();
+    } else {
+        std::cerr << "Failed to create file: " << metaD.fullPath  << std::endl;
+    }
+
 }
+
+
 
 // Helper function to convert integer to string
-std::string intToString(int value) {
+static std::string intToString(int value) {
     std::ostringstream oss;
     oss << value;
     return oss.str();
 }
 
-std::string Webserv::post_getdata() {
+std::string Webserv::formPostResponse() {
     std::string response;
-    if (http_request.path == "/cgi-bin/index.py" || http_request.path == "/over42/upload" || http_request.path == "/submit/") {
-        // std::cout << "in here\n";
+    http_response.status_code = 200;
 
-        http_response.status_code = 200;
+    // Set the content type to HTML
+    http_response.headers["Content-Type"] = "text/html";
 
-        // Set the content type to HTML
-        http_response.headers["Content-Type"] = "text/html";
+    // Build the response body
+    response += "<html><body>";
+    response += "Your data received by us";
+    //response += http_request.content; //UNCPMENT
+    response += "</body></html>";
 
-        // Build the response body
-        response += "<html><body>";
-        response += "Your data received by us";
-        //response += http_request.content; //UNCPMENT
-        response += "</body></html>";
+    // Set the content length in the headers
+    std::ostringstream oss;
+    oss << response.size();
+    http_response.headers["Content-Length"] = oss.str();
+    std::string full_response = "HTTP/1.1 " + intToString(http_response.status_code) + " OK\r\n";
 
-        // Set the content length in the headers
-        std::ostringstream oss;
-        oss << response.size();
-        http_response.headers["Content-Length"] = oss.str();
-        std::string full_response = "HTTP/1.1 " + intToString(http_response.status_code) + " OK\r\n";
-
-        // Iterate over headers
-        for (std::map<std::string, std::string>::const_iterator it = http_response.headers.begin(); it != http_response.headers.end(); ++it) {
-            full_response += it->first + ": " + it->second + "\r\n";
-        }
-
-        full_response += "\r\n" + response;
-        return full_response;
+    // Iterate over headers
+    for (std::map<std::string, std::string>::const_iterator it = http_response.headers.begin(); it != http_response.headers.end(); ++it) {
+        full_response += it->first + ": " + it->second + "\r\n";
     }
 
-    // for form
-    // if (http_request.path == "/over42/upload") {
-    //     processForm(http_request, i);
-    //     response = "HTTP/1.1 303 See Other\r\n";
-    //     response += "Location: http://localhost:9999/over42/upload.html\r\n\r\n";
-    //     return response;
-    // }
-
-    return response;
+    full_response += "\r\n" + response;
+    return full_response;
 }
+
 

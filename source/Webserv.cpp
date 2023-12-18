@@ -309,6 +309,11 @@ void Webserv::run()
 						break;
 					if (poll_fd[i].events | POLLOUT)
 					{
+                        std::vector<uint8_t>& requestData = in_request[poll_fd[i].fd];
+                        std::string requestString(requestData.begin(), requestData.end());
+
+                        logging("request :\n" + requestString + "\n", DEBUG);
+
                             logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
                             newOrAppendRequest(i);
 							 if (http_request.method == "GET")
@@ -334,16 +339,16 @@ void Webserv::run()
 
                             //vector to string
 
-                            std::vector<uint8_t>& requestData = in_request[poll_fd[i].fd];
-                            std::string requestString(requestData.begin(), requestData.end());
-
-							logging("request :\n" + requestString + "\n", DEBUG);
+//                            std::vector<uint8_t>& requestData = in_request[poll_fd[i].fd];
+//                            std::string requestString(requestData.begin(), requestData.end());
+//
+//							logging("request :\n" + requestString + "\n", DEBUG);
 							// -------------------------------------------------------------------------------------------------------------
 
 							rc = send(poll_fd[i].fd, out_response[poll_fd[i].fd].c_str(), out_response[poll_fd[i].fd].size(), 0);
 							logging(" ---- response: " + int_to_string(rc) + " bytes sent  ----", DEBUG);
 							logging("response :\n" + out_response[poll_fd[i].fd] + "\n", DEBUG);
-                            out_response.erase(poll_fd[i].fd);
+                            out_response[poll_fd[i].fd].clear();
 							break;
 						//}
 						// rc = send(p_iter.fd, buffer, len, 0);

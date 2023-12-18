@@ -81,6 +81,8 @@ struct HttpRequest {
     std::string method;
     std::string path;
     std::map<std::string, std::string> headers;
+    std::string boundBeg;
+    std::string boundEnd;
     std::vector<uint8_t> content;
 };
 
@@ -92,7 +94,12 @@ struct HttpResponse {
     std::string body;
 };
 
-
+struct MetaData {
+    std::string filename;
+    std::string location;
+    std::string content_type;
+    std::string fullPath;
+};
 
 
 class Webserv
@@ -167,8 +174,9 @@ class Webserv
         //REQUEST HTTP METHODS
         HttpRequest parse_http_request(const std::vector<uint8_t> &request);
         std::string post_getdata();
-        void processForm(const HttpRequest &http_request, int i);
         void newOrAppendRequest(int i);
         void getMethod(int i);
         void postMethod(int i);
+        std::string formPostResponse();
+        void postContentProcess();
 };

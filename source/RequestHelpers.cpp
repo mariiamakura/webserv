@@ -10,15 +10,6 @@ void Webserv::newOrAppendRequest(int i) {
 
         http_request.content.insert(http_request.content.end(), in_request[clientFD].begin(),
                                     in_request[clientFD].end());
-//
-//        adding content left bytes
-//        size_t currentSize = http_request.content.size();
-//        size_t contentSize = in_request[clientFD].size();
-
-//        http_request.content.resize(currentSize + contentSize);
-//        for (size_t j = 0; j < contentSize; ++j) {
-//            http_request.content[currentSize + j] = in_request[clientFD][j];
-//        }
 
         http_requests[clientFD] = http_request;
         std::cout << "APPEND REQUEST" << std::endl;
