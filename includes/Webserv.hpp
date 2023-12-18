@@ -98,6 +98,7 @@ struct MetaData {
     std::string location;
     std::string content_type;
     std::string fullPath;
+    //std::ifstream content: add here name of file
 };
 
 

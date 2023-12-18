@@ -68,15 +68,21 @@ void Webserv::postContentProcess() {
                                   2 * boundaryEndLineSize +
                                   2 * boundarySurrounding.size();
 
+    std::cout << contentHeader << std::endl;
+
     std::istringstream lineStream(contentHeader);
     std::string line;
     while (std::getline(lineStream, line) && !line.empty()) {
-        size_t filenamePtr = line.find("filename=");
-        if (filenamePtr != std::string::npos) {
-            filenamePtr += 10;
-            size_t fileLen = line.length() - filenamePtr;
-            metaD.filename = line.substr(filenamePtr, fileLen);
-            std::remove(metaD.filename.begin(), metaD.filename.end(), '"');
+        std::string fileNamePrefix = "filename=\"";
+        std::string fileNameSuffix = "\"";
+        size_t fileNameStartOffset = line.find(fileNamePrefix);
+        if (fileNameStartOffset != std::string::npos) {
+            fileNameStartOffset += fileNamePrefix.length();
+            size_t fileNameEndOffset = line.find(fileNameSuffix, fileNameStartOffset);
+            if (fileNameEndOffset != std::string::npos) {
+                size_t fileNameLength = fileNameEndOffset - fileNameStartOffset;
+                metaD.filename = line.substr(fileNameStartOffset, fileNameLength);
+            }
         }
         size_t typePtr = line.find("Content-Type: ");
         if (typePtr != std::string::npos) {
@@ -99,6 +105,7 @@ void Webserv::postContentProcess() {
 
         // Close the file when done
         outputFile.close();
+
     } else {
         std::cerr << "Failed to create file: " << metaD.fullPath << std::endl;
     }
