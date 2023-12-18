@@ -17,6 +17,8 @@ void Webserv::postMethod(int i) {
         http_requests.erase(clientFD);
         std::cout << "FINISH CONTENT" << std::endl;
         out_response[clientFD] = post_getdata();
+        //file formed to temporary location
+        //business logic decide to safe it to permanent folder while saving check if all requirements are meet
     } else if (http_request.content.size() > content_length || http_request.content.size() > content_length) {
         std::cout << "SUPPOSED content_length : " << content_length << std::endl;
         std::cout << "content size " << http_request.content.size() << std::endl;
