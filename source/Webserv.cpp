@@ -176,30 +176,15 @@ int Webserv::handle_pollin(int i)
     {
         rc = recv(clientID, buffer, sizeof(buffer) - 1, 0);
         logging("POLLIN fd" + int_to_string(clientID) + ": added " + int_to_string(rc) + " bytes into buffer", DEBUG);
-        //http_request = parse_http_request(in_request[clientID]);
-        //std::cout << http_request.method << std::endl;
-        //std::cout << in_request[clientID] << std::endl; //this works with POST
         if (rc > 0)
         {
-            //buffer[rc] = '\0';
-            //in_request[clientID] += buffer;
-
             size_t currentSize = in_request[clientID].size();
             in_request[clientID].resize(currentSize + rc);
             for (int i = 0; i < rc; ++i) {
                 in_request[clientID][currentSize + i] = static_cast<uint8_t>(buffer[i]);
             }
-
-            //print vector content
-//            std::cout << "Vector content: ";
-//            for (size_t i = 0; i < in_request[clientID].size(); ++i) {
-//                std::cout << static_cast<char>(in_request[clientID][i]);
-//            }
-//            std::cout << std::endl;
-//            std::cout << "size of vector : " << in_request[clientID].size() << std::endl;
-
         }
-        // logging("buffer:\n" + std::string(buffer), DEBUG);
+
     }
     else if (poll_fd[i].events == POLLHUP)
     {

@@ -81,9 +81,7 @@ struct HttpRequest {
     std::string method;
     std::string path;
     std::map<std::string, std::string> headers;
-    //size_t contentLength;
-    std::string body;
-    std::string content; //this should be just stream
+    std::vector<uint8_t> content;
 };
 
 struct HttpResponse {
@@ -162,12 +160,12 @@ class Webserv
 		void run();
 		void logging(std::string str, int status);
 		int handle_pollin(int i);
-        HttpRequest parse_http_request(const std::string &request);
 		std::string create_http_response(void);
 		int check_sockfds(std::vector<int> sockfds, int i);
 		std::string autoindex(const std::string& path) ;
 
         //REQUEST HTTP METHODS
+        HttpRequest parse_http_request(const std::vector<uint8_t> &request);
         std::string post_getdata();
         void processForm(const HttpRequest &http_request, int i);
         void newOrAppendRequest(int i);

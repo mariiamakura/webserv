@@ -10,8 +10,8 @@ void Webserv::postMethod(int i) {
     }
     const char *ContLen = http_request.headers["Content-Length"].c_str();
     size_t content_length = static_cast<size_t>(std::atoi(ContLen));
-    if (http_request.content.size() == content_length + 1) //LONG TEXT 1 BYTE ADDED WRONG ON MY SIDE !!!!!!!!!!!!!!!
-        content_length += 1;
+//    if (http_request.content.size() == content_length + 1) //LONG TEXT 1 BYTE ADDED WRONG ON MY SIDE !!!!!!!!!!!!!!!
+//        content_length += 1;
     if (http_request.content.size() == content_length) {
         http_requests.erase(poll_fd[i].fd);
         std::cout << "FINISH CONTENT" << std::endl;
@@ -98,7 +98,8 @@ std::string Webserv::post_getdata() {
 
         // Build the response body
         response += "<html><body>";
-        response += http_request.content;
+        response += "Your data received by us";
+        //response += http_request.content; //UNCPMENT
         response += "</body></html>";
 
         // Set the content length in the headers

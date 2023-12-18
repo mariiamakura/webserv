@@ -1,19 +1,20 @@
 #include "Webserv.hpp"
 
-HttpRequest Webserv::parse_http_request(const std::string &request)
+HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request)
 {
 
-    std::istringstream sstream(request);
+    std::istringstream sstream(std::string(request.begin(), request.end()));
     HttpRequest http_request;
-
     // The request line format is: METHOD PATH HTTP/VERSION
     sstream >> http_request.method >> http_request.path >> http_request.http_version;
-
+    size_t http_reqSize = sstream.tellg();
     // Parse each header line
     std::string line;
     while (std::getline(sstream, line) && !line.empty())
     {
         // Check if the line contains ": "
+        http_reqSize += line.length() + 1; //for right size calculation
+        std::cout << "line len " << line.length() << "line itself : " << line << std::endl;
         size_t colonPos = line.find(": ");
         if (colonPos != std::string::npos)
         {
@@ -27,26 +28,19 @@ HttpRequest Webserv::parse_http_request(const std::string &request)
 
             http_request.headers[key] = value;
         }
-        else
-        {
-            // No ": " found, treat the line as part of the body
-            if (http_request.headers["Content-Type"].find("application/x-www-form-urlencoded") != std::string::npos) {
-                line.erase(0, line.find_first_not_of(" \r"));
-                line.erase(line.find_last_not_of(" \r") + 1);
-                http_request.content += line;
-            }
-            else if (http_request.headers["Content-Type"].find("multipart/form-data") != std::string::npos) {
-                while (std::getline(sstream, line)) {
-                    http_request.content += line + '\n';
-                    //std::cout << "content line: " << line << std::endl;
-                }
-            }
-        }
-
-
     }
+
+        std::cout << "http_reqSize " << http_reqSize << std::endl;
+        http_request.content.insert(http_request.content.end(), request.begin() + http_reqSize, request.end());
+        //break;
+
     //std::cout << "\n\nCONTENT PARSE: ";
     //std::cout << http_request.content << "the end ofCONTENT PARSE\n"<< std::endl;
+    std::cout << "CONTENT PARSE\n"<< std::endl;
+    for (std::vector<uint8_t>::iterator it = http_request.content.begin(); it != http_request.content.end(); ++it) {
+        std::cout << *it;
+    }
+    std::cout << "\nthe end of CONTENT PARSE\n" << std::endl;
     return http_request;
 }
 
