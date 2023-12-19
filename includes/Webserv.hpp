@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <dirent.h>
+#include <algorithm>
 
 
 #include "ASocket.hpp"
@@ -82,6 +83,7 @@ struct HttpRequest {
     std::string path;
     std::map<std::string, std::string> headers;
     std::string boundary;
+    std::vector<uint8_t> body;
     std::vector<uint8_t> content;
 };
 
@@ -179,4 +181,5 @@ class Webserv
         void postMethod(int i);
         std::string formPostResponse();
         void postContentProcess();
+        void parseBodyReq(const std::vector<uint8_t> &body, HttpRequest &http_request);
 };

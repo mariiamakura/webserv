@@ -1,20 +1,23 @@
 #include "Webserv.hpp"
 
+bool isDelim(const std::vector<uint8_t>& request, std::size_t position, const std::vector<uint8_t>& delimiter) {
+    for (size_t i = 0; i < delimiter.size(); ++i) {
+        if (position + i >= request.size() || request[position + i] != delimiter[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 
-HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request)
-{
-
-    std::istringstream sstream(std::string(request.begin(), request.end()));
-    HttpRequest http_request;
+void Webserv::parseBodyReq(const std::vector<uint8_t> &body, HttpRequest &http_request) {
+    std::istringstream sstream(std::string(body.begin(), body.end()));
     // The request line format is: METHOD PATH HTTP/VERSION
     sstream >> http_request.method >> http_request.path >> http_request.http_version;
-    size_t http_reqSize = sstream.tellg();
     // Parse each header line
     std::string line;
     while (std::getline(sstream, line) && !line.empty())
     {
-        // Check if the line contains ": "
-        http_reqSize += line.length() + 1; //for right size calculation
+
         //std::cout << "line len " << line.length() << "line itself : " << line << std::endl;
         size_t colonPos = line.find(": ");
         if (colonPos != std::string::npos)
@@ -30,9 +33,6 @@ HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request)
             http_request.headers[key] = value;
         }
     }
-    std::cout << "http_reqSize " << http_reqSize << std::endl;
-    http_request.content.insert(http_request.content.end(), request.begin() + http_reqSize, request.end());
-
     if (http_request.headers.find("Content-Type") != http_request.headers.end()) {
         std::string boundaryPrefix = "boundary=";
         std::string contentType = http_request.headers["Content-Type"];
@@ -43,15 +43,34 @@ HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request)
             http_request.boundary = contentType.substr(boundaryOffset, boundaryLen);
         }
     }
-//    std::cout << "CONTENT PARSE\n"<< std::endl;
-//    for (std::vector<uint8_t>::iterator it = http_request.content.begin(); it != http_request.content.end(); ++it) {
-//        std::cout << *it;
-//    }
-//    std::cout << "\nthe end of CONTENT PARSE\n" << std::endl;
-
-    return http_request;
+    std::cout
 }
 
+HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request) {
+
+    HttpRequest http_request;
+    const uint8_t delimArray[] = {13, 10, 13, 10};
+    const std::vector<uint8_t> delim(delimArray, delimArray + sizeof(delimArray) / sizeof(delimArray[0]));
+
+    std::size_t delimIndex = 0;
+    bool foundDelim = false;
+
+    for (size_t i = 0; i < request.size(); ++i) {
+        if (isDelim(request, i, delim)) {
+            delimIndex = i;
+            foundDelim = true;
+            break;
+        }
+    }
+    if (foundDelim) {
+        http_request.body.assign(request.begin(), request.begin() + delimIndex + 4);
+        http_request.content.assign(request.begin() + delimIndex + 4, request.end());
+    }
+    if (http_request.body.size() > 0) {
+        parseBodyReq(http_request.body, http_request);
+    }
+    return http_request;
+}
 
 std::string Webserv::create_http_response(void)
 {
