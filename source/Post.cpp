@@ -96,7 +96,8 @@ void Webserv::postContentProcess() {
     metaD.location = "download/";
     metaD.fullPath = metaD.location + metaD.filename;
 
-    std::ofstream outputFile(metaD.fullPath, std::ios::binary);
+    std::ofstream outputFile;
+    outputFile.open(metaD.fullPath.c_str(), std::ios::binary);
     if (outputFile.is_open()) {
         std::cout << "File created successfully: " << metaD.fullPath << std::endl;
 
