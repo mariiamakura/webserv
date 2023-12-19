@@ -69,7 +69,12 @@ void Webserv::postContentProcess() {
     size_t trailingBoundarySize = http_request.boundary.size() +
                                   2 * boundaryEndLineSize +
                                   2 * boundarySurrounding.size();
-
+//    std:cout << "Orig baoundary: ";
+//    for (size_t i = 0; i < http_request.boundary.size(); i++)
+//    {
+//        std::cout << http_request.boundary[i] << " ";
+//    }
+//    std:cout << "\n";
     std::cout << contentHeader << std::endl;
 
     std::istringstream lineStream(contentHeader);

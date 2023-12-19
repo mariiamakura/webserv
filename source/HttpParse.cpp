@@ -43,7 +43,12 @@ void Webserv::parseBodyReq(const std::vector<uint8_t> &body, HttpRequest &http_r
             http_request.boundary = contentType.substr(boundaryOffset, boundaryLen);
         }
     }
-    std::cout
+    std:cout << "Orig baoundary: ";
+    for (size_t i = 0; i < http_request.boundary.size(); i++)
+    {
+        std::cout << http_request.boundary[i] << " ";
+    }
+    std:cout << "\n";
 }
 
 HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request) {
