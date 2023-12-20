@@ -112,7 +112,7 @@ class Webserv
 		int		sockfd;
 		int		new_sd ;
 		// char	buffer[256];
-		char 	buffer[4096];
+		char 	buffer[4000096];
 		int		rc;
 		int 	end_server ;
 		int		close_conn ;
