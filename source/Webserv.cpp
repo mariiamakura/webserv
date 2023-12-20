@@ -20,6 +20,8 @@ Webserv::Webserv()
 
 Webserv::~Webserv()
 {
+    if (http_request)
+        delete http_request;
 }
 
 Webserv::Webserv(Webserv const &src)

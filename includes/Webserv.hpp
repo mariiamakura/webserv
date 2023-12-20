@@ -43,6 +43,7 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include "helpers.hpp"
+#include "Request.hpp"
 
 #define DEF_CONF		"configs/default.conf"
 #define DEF_PORT		9999
@@ -76,18 +77,19 @@
 class Config;
 class Client;
 class Server;
+class Request;
 
-struct HttpRequest {
-    std::string http_version;
-    std::string method;
-    std::string path;
-    std::map<std::string, std::string> headers;
-    std::string boundary;
-    std::vector<uint8_t> body;
-    std::vector<uint8_t> content;
-    std::vector<uint8_t> contentHead;
-    //mb add referance to correcsponding meta data
-};
+//struct HttpRequest {
+//    std::string http_version;
+//    std::string method;
+//    std::string path;
+//    std::map<std::string, std::string> headers;
+//    std::string boundary;
+//    std::vector<uint8_t> body;
+//    std::vector<uint8_t> content;
+//    std::vector<uint8_t> contentHead;
+//    //mb add referance to correcsponding meta data
+//};
 
 struct HttpResponse {
     std::string http_version;
@@ -97,12 +99,12 @@ struct HttpResponse {
     std::string body;
 };
 
-struct MetaData {
-    std::string filename;
-    std::string location;
-    std::string content_type;
-    std::string fullPath;
-};
+//struct MetaData {
+//    std::string filename;
+//    std::string location;
+//    std::string content_type;
+//    std::string fullPath;
+//};
 
 
 class Webserv
@@ -116,9 +118,9 @@ class Webserv
 		int		rc;
 		int 	end_server ;
 		int		close_conn ;
-		HttpRequest http_request;
+		Request *http_request;
 		HttpResponse http_response;
-        MetaData metaD;
+//        MetaData metaD;
 		
 		std::vector<Server> server;
 		std::vector<Server>::iterator s_iter;
@@ -133,7 +135,7 @@ class Webserv
 		std::vector<pollfd>::iterator p_iter;
 		
 		std::map <int, std::vector<uint8_t> > in_request; //this should be something like <int, char[]>
-        std::map <int, HttpRequest> http_requests;
+        std::map <int, Request *> http_requests;
 		std::map <int, std::string> out_response;
 
 	
@@ -176,15 +178,15 @@ class Webserv
 		std::string autoindex(const std::string& path) ;
 
         //REQUEST HTTP METHODS
-        HttpRequest parse_http_request(const std::vector<uint8_t> &request);
-        std::string post_getdata();
+        Request *parse_http_request(const std::vector<uint8_t> &request);
+//        std::string post_getdata();
         void newOrAppendRequest(int i);
-        void getMethod(int i);
-        void postMethod(int i);
-        std::string formPostResponse();
-        void postContentProcess();
-        void parseBodyReq(const std::vector<uint8_t> &body, HttpRequest &http_request);
-        bool isDelim(const std::vector<uint8_t>& request, std::size_t position, const std::vector<uint8_t>& delimiter);
-        bool canSeparate(const std::vector<uint8_t> &request, size_t &delimIndex);
-        void setMetaData();
+//        void getMethod(int i);
+//        void postMethod(int i);
+//        std::string formPostResponse();
+//        void postContentProcess();
+//        void parseBodyReq(const std::vector<uint8_t> &body, HttpRequest &http_request);
+//        bool isDelim(const std::vector<uint8_t>& request, std::size_t position, const std::vector<uint8_t>& delimiter);
+//        bool canSeparate(const std::vector<uint8_t> &request, size_t &delimIndex);
+//        void setMetaData();
 };
