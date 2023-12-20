@@ -14,7 +14,8 @@ void Webserv::postMethod(int i) {
     if (http_request.content.size() == content_length) {
         http_requests.erase(clientFD);
         std::cout << "FINISH CONTENT" << std::endl;
-        out_response[clientFD] = post_getdata();
+        postContentProcess();
+        out_response[clientFD] = formPostResponse();
         //file formed to temporary location
         //business logic decide to safe it to permanent folder while saving check if all requirements are meet
     } else if (http_request.content.size() > content_length || http_request.content.size() > content_length) {
@@ -29,15 +30,6 @@ void Webserv::postMethod(int i) {
         out_response[clientFD] = "HTTP/1.1 200 OK\r\n";
 
     }
-}
-
-std::string Webserv::post_getdata() {
-    if (http_request.path == "/cgi-bin/index.py" || http_request.path == "/submit/") {
-        return formPostResponse();
-    } else if (http_request.path == "/over42/upload") {
-        postContentProcess();
-    }
-    return formPostResponse();
 }
 
 void Webserv::setMetaData() {
@@ -111,7 +103,6 @@ std::string Webserv::formPostResponse() {
     // Build the response body
     response += "<html><body>";
     response += "Your data received by us";
-    //response += http_request.content; //UNCPMENT
     response += "</body></html>";
 
     // Set the content length in the headers

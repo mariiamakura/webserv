@@ -18,7 +18,6 @@ void Webserv::parseBodyReq(const std::vector<uint8_t> &body, HttpRequest &http_r
     while (std::getline(sstream, line) && !line.empty())
     {
 
-        //std::cout << "line len " << line.length() << "line itself : " << line << std::endl;
         size_t colonPos = line.find(": ");
         if (colonPos != std::string::npos)
         {
@@ -44,12 +43,6 @@ void Webserv::parseBodyReq(const std::vector<uint8_t> &body, HttpRequest &http_r
             http_request.boundary += "\r\n";
         }
     }
-//    std::cout << "Orig baoundary after parsing: ";
-//    for (size_t i = 0; i < http_request.boundary.size(); i++)
-//    {
-//        std::cout << (int)http_request.boundary[i] << " ";
-//    }
-//    std::cout << "\n";
 }
 
 bool Webserv::canSeparate(const std::vector<uint8_t> &request, size_t &delimIndex) {
@@ -74,27 +67,6 @@ HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request) {
         http_request.body.assign(request.begin(), request.begin() + delimIndex + 4);
         http_request.content.assign(request.begin() + delimIndex + 4, request.end());
     }
-
-//    std::cout << "Raw body: ";
-//    for (size_t i = 0; i < http_request.body.size(); i++)
-//    {
-//        std::cout << (int)http_request.body[i] << " ";
-//        if ((int)http_request.boundary[i] == 10) {
-//            std::cout << '\n';
-//        }
-//    }
-//    std::cout << '\n';
-//
-//    std::cout << "Raw content: ";
-//    for (size_t i = 0; i < http_request.content.size(); i++)
-//    {
-//        std::cout << (int)http_request.content[i] << " ";
-//        if ((int)http_request.content[i] == 10) {
-//            std::cout << '\n';
-//        }
-//    }
-//    std::cout << '\n';
-
     if (http_request.body.size() > 0) {
         parseBodyReq(http_request.body, http_request);
     }
