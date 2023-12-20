@@ -312,7 +312,7 @@ void Webserv::run()
                         std::vector<uint8_t>& requestData = in_request[poll_fd[i].fd];
                         std::string requestString(requestData.begin(), requestData.end());
 
-                        logging("request :\n" + requestString + "\n", DEBUG);
+                        //logging("request :\n" + requestString + "\n", DEBUG);
 
                             logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
                             newOrAppendRequest(i);

@@ -1,6 +1,6 @@
 #include "Webserv.hpp"
 
-bool isDelim(const std::vector<uint8_t>& request, std::size_t position, const std::vector<uint8_t>& delimiter) {
+bool Webserv::isDelim(const std::vector<uint8_t>& request, std::size_t position, const std::vector<uint8_t>& delimiter) {
     for (size_t i = 0; i < delimiter.size(); ++i) {
         if (position + i >= request.size() || request[position + i] != delimiter[i]) {
             return false;
@@ -41,36 +41,60 @@ void Webserv::parseBodyReq(const std::vector<uint8_t> &body, HttpRequest &http_r
             boundaryOffset += boundaryPrefix.length();
             size_t boundaryLen = contentType.length() - boundaryOffset;
             http_request.boundary = contentType.substr(boundaryOffset, boundaryLen);
+            http_request.boundary += "\r\n";
         }
     }
-    std:cout << "Orig baoundary: ";
-    for (size_t i = 0; i < http_request.boundary.size(); i++)
-    {
-        std::cout << http_request.boundary[i] << " ";
+//    std::cout << "Orig baoundary after parsing: ";
+//    for (size_t i = 0; i < http_request.boundary.size(); i++)
+//    {
+//        std::cout << (int)http_request.boundary[i] << " ";
+//    }
+//    std::cout << "\n";
+}
+
+bool Webserv::canSeparate(const std::vector<uint8_t> &request, size_t &delimIndex) {
+    const uint8_t delimArray[] = {13, 10, 13, 10};
+    const std::vector<uint8_t> delim(delimArray, delimArray + sizeof(delimArray) / sizeof(delimArray[0]));
+
+    for (size_t i = 0; i < request.size(); ++i) {
+        if (isDelim(request, i, delim)) {
+            delimIndex = i;
+            return true;
+        }
     }
-    std:cout << "\n";
+    return false;
 }
 
 HttpRequest Webserv::parse_http_request(const std::vector<uint8_t> &request) {
 
     HttpRequest http_request;
-    const uint8_t delimArray[] = {13, 10, 13, 10};
-    const std::vector<uint8_t> delim(delimArray, delimArray + sizeof(delimArray) / sizeof(delimArray[0]));
+    size_t delimIndex = 0;
 
-    std::size_t delimIndex = 0;
-    bool foundDelim = false;
-
-    for (size_t i = 0; i < request.size(); ++i) {
-        if (isDelim(request, i, delim)) {
-            delimIndex = i;
-            foundDelim = true;
-            break;
-        }
-    }
-    if (foundDelim) {
+    if (canSeparate(request, delimIndex)) {
         http_request.body.assign(request.begin(), request.begin() + delimIndex + 4);
         http_request.content.assign(request.begin() + delimIndex + 4, request.end());
     }
+
+//    std::cout << "Raw body: ";
+//    for (size_t i = 0; i < http_request.body.size(); i++)
+//    {
+//        std::cout << (int)http_request.body[i] << " ";
+//        if ((int)http_request.boundary[i] == 10) {
+//            std::cout << '\n';
+//        }
+//    }
+//    std::cout << '\n';
+//
+//    std::cout << "Raw content: ";
+//    for (size_t i = 0; i < http_request.content.size(); i++)
+//    {
+//        std::cout << (int)http_request.content[i] << " ";
+//        if ((int)http_request.content[i] == 10) {
+//            std::cout << '\n';
+//        }
+//    }
+//    std::cout << '\n';
+
     if (http_request.body.size() > 0) {
         parseBodyReq(http_request.body, http_request);
     }

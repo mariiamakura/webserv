@@ -12,7 +12,7 @@
 
 NAME		=	webserv
 
-CC			=	c++
+CC			=	clang++
 CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -g3 #-fsanitize=address
 
 SRC_DIR		=	source/

@@ -85,6 +85,7 @@ struct HttpRequest {
     std::string boundary;
     std::vector<uint8_t> body;
     std::vector<uint8_t> content;
+    std::vector<uint8_t> contentHead;
 };
 
 struct HttpResponse {
@@ -100,7 +101,6 @@ struct MetaData {
     std::string location;
     std::string content_type;
     std::string fullPath;
-    //std::ifstream content: add here name of file
 };
 
 
@@ -117,6 +117,7 @@ class Webserv
 		int		close_conn ;
 		HttpRequest http_request;
 		HttpResponse http_response;
+        MetaData metaD;
 		
 		std::vector<Server> server;
 		std::vector<Server>::iterator s_iter;
@@ -182,4 +183,7 @@ class Webserv
         std::string formPostResponse();
         void postContentProcess();
         void parseBodyReq(const std::vector<uint8_t> &body, HttpRequest &http_request);
+        bool isDelim(const std::vector<uint8_t>& request, std::size_t position, const std::vector<uint8_t>& delimiter);
+        bool canSeparate(const std::vector<uint8_t> &request, size_t &delimIndex);
+        void setMetaData();
 };

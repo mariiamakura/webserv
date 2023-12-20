@@ -11,8 +11,6 @@ void Webserv::postMethod(int i) {
     }
     const char *ContLen = http_request.headers["Content-Length"].c_str();
     size_t content_length = static_cast<size_t>(std::atoi(ContLen));
-//    if (http_request.content.size() == content_length + 1) //LONG TEXT 1 BYTE ADDED WRONG ON MY SIDE !!!!!!!!!!!!!!!
-//        content_length += 1;
     if (http_request.content.size() == content_length) {
         http_requests.erase(clientFD);
         std::cout << "FINISH CONTENT" << std::endl;
@@ -42,42 +40,8 @@ std::string Webserv::post_getdata() {
     return formPostResponse();
 }
 
-void Webserv::postContentProcess() {
-    MetaData metaD;
-    std::string boundaryLine;
-    std::string contentHeader;
-    size_t newLineCount = 0;
-
-    for (std::vector<uint8_t>::const_iterator it = http_request.content.begin();
-         it != http_request.content.end(); ++it) {
-        contentHeader += static_cast<char>(*it);
-        if (*it == '\n') {
-            newLineCount++;
-            if (newLineCount == 1) {
-                boundaryLine = contentHeader;
-            }
-            if (newLineCount == 4)
-                break;
-        }
-    }
-
-    std::string boundarySurrounding = "--";
-    size_t leadingBoundarySize = boundaryLine.size();
-    size_t boundaryEndLineSize = leadingBoundarySize -
-                                 boundarySurrounding.size() -
-                                 http_request.boundary.size();
-    size_t trailingBoundarySize = http_request.boundary.size() +
-                                  2 * boundaryEndLineSize +
-                                  2 * boundarySurrounding.size();
-//    std:cout << "Orig baoundary: ";
-//    for (size_t i = 0; i < http_request.boundary.size(); i++)
-//    {
-//        std::cout << http_request.boundary[i] << " ";
-//    }
-//    std:cout << "\n";
-    std::cout << contentHeader << std::endl;
-
-    std::istringstream lineStream(contentHeader);
+void Webserv::setMetaData() {
+    std::istringstream lineStream(std::string(http_request.contentHead.begin(), http_request.contentHead.end()));
     std::string line;
     while (std::getline(lineStream, line) && !line.empty()) {
         std::string fileNamePrefix = "filename=\"";
@@ -100,26 +64,35 @@ void Webserv::postContentProcess() {
     }
     metaD.location = "download/";
     metaD.fullPath = metaD.location + metaD.filename;
+}
+
+void Webserv::postContentProcess() {
+    if (http_request.content.empty())
+        return;
+    size_t delimIndex = 0;
+    if (!canSeparate(http_request.content, delimIndex))
+        return;
+    http_request.contentHead.assign(http_request.content.begin(), http_request.content.begin() + delimIndex + 4);
+    setMetaData();
+    //erase header from content and last boundary
+    http_request.content.erase(http_request.content.begin(), http_request.content.begin() + delimIndex + 4);
+    //+4 for "--" in the beginning and end + 1013 after the content
+    http_request.content.erase(http_request.content.end() - (http_request.boundary.size() + 6), http_request.content.end());
 
     std::ofstream outputFile;
     outputFile.open(metaD.fullPath.c_str(), std::ios::binary);
     if (outputFile.is_open()) {
-        std::cout << "File created successfully: " << metaD.fullPath << std::endl;
 
-        size_t contentSize = http_request.content.size() - trailingBoundarySize;
-        for (size_t i = contentHeader.size(); i < contentSize; i++) {
-            outputFile.write(reinterpret_cast<const char *>(&http_request.content[i]), 1);
-        }
+        outputFile.write(reinterpret_cast<const char *>(&http_request.content[0]), http_request.content.size());
 
         // Close the file when done
         outputFile.close();
-
+        std::cout << "File created successfully: " << metaD.fullPath << std::endl;
     } else {
         std::cerr << "Failed to create file: " << metaD.fullPath << std::endl;
     }
 
 }
-
 
 // Helper function to convert integer to string
 static std::string intToString(int value) {
