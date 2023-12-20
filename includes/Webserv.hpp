@@ -86,6 +86,7 @@ struct HttpRequest {
     std::vector<uint8_t> body;
     std::vector<uint8_t> content;
     std::vector<uint8_t> contentHead;
+    //mb add referance to correcsponding meta data
 };
 
 struct HttpResponse {
