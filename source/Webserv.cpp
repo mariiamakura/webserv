@@ -269,7 +269,7 @@ void Webserv::run()
 		}
 
 		// loop through all the descriptors to see which ones are ready
-		std::vector<pollfd>::size_type size = poll_fd.size();
+		size = poll_fd.size();
 		// std::cout << "size: " << size << std::endl;
 		for (std::vector<pollfd>::size_type i = 0; i < size; i++)
 		{
@@ -318,14 +318,14 @@ void Webserv::run()
 
                             logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
                             newOrAppendRequest(i);
-							 if (http_request.method == "GET")
+							 if (http_request->method == "GET")
 							{
                                 getMethod(i); //set outresponse inside
 							}
-                             else if  (http_request.method == "POST") {
+                             else if  (http_request->method == "POST") {
                                  postMethod(i);
                              }
-							else if (http_request.method == "DELETE")
+							else if (http_request->method == "DELETE")
 							{
 								logging("DELETE request", DEBUG);
 								// std::cout << "DELETE request" << std::endl;

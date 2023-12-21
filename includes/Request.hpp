@@ -29,11 +29,6 @@ private:
         friend class Webserv; //do we need it?
 
     //REQUEST HTTP METHODS
-    //Request *parse_http_request(const std::vector<uint8_t> &request);
-    std::string post_getdata();
-    void getMethod(int i);
-    void postMethod(int i);
-    std::string formPostResponse();
     void postContentProcess();
     void parseBodyReq();
     void setMetaData();

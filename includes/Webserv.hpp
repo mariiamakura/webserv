@@ -113,8 +113,8 @@ class Webserv
 		char 	**env;
 		int		sockfd;
 		int		new_sd ;
-		// char	buffer[256];
-		char 	buffer[4000096];
+		//char	buffer[256];
+		char 	buffer[4096];
 		int		rc;
 		int 	end_server ;
 		int		close_conn ;
@@ -179,14 +179,9 @@ class Webserv
 
         //REQUEST HTTP METHODS
         Request *parse_http_request(const std::vector<uint8_t> &request);
-//        std::string post_getdata();
-        void newOrAppendRequest(int i);
-//        void getMethod(int i);
-//        void postMethod(int i);
-//        std::string formPostResponse();
-//        void postContentProcess();
-//        void parseBodyReq(const std::vector<uint8_t> &body, HttpRequest &http_request);
-//        bool isDelim(const std::vector<uint8_t>& request, std::size_t position, const std::vector<uint8_t>& delimiter);
-//        bool canSeparate(const std::vector<uint8_t> &request, size_t &delimIndex);
-//        void setMetaData();
+        void getMethod(size_t i);
+        void postMethod(size_t i);
+        std::string formPostResponse();
+        void newOrAppendRequest(size_t i);
+        void deleteRequest(int i);
 };

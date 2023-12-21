@@ -1,8 +1,8 @@
 #include "Webserv.hpp"
 
-void Webserv::getMethod(int i) {
+void Webserv::getMethod(size_t i) {
     logging("GET request", DEBUG);
-    char *tmp = string_to_chararray(http_request.path);
+    char *tmp = string_to_chararray(http_request->path);
 
     if (access(tmp, F_OK) == 0)
     {
@@ -29,7 +29,7 @@ void Webserv::getMethod(int i) {
                     std::string tmp2 = "/cgi-bin/index.py";
                     delete[] tmp;
                     tmp = string_to_chararray(tmp2);
-                    http_request.path = tmp2;
+                    http_request->path = tmp2;
                     char *const args[] = {tmp, NULL};
                     execve(tmp, args, env);
                 }
@@ -45,7 +45,7 @@ void Webserv::getMethod(int i) {
                         scriptOutput += buffer;
                     }
                     // std::cout << "scriptOutput: " << scriptOutput << std::endl;
-                    http_request.path = scriptOutput;
+                    http_request->path = scriptOutput;
                     // std::cout << "scripted http_request.path: " << http_request.path << std::endl;
                     waitpid(-1, NULL, WUNTRACED);
 
@@ -58,13 +58,13 @@ void Webserv::getMethod(int i) {
             if (access(tmp, R_OK) == 0)
             {
                 std::cout << "file exists" << std::endl;
-                http_request.path = tmp;
+                http_request->path = tmp;
             }
             else
             {
                 http_response.status_code = 403;
                 http_response.status_message = "Forbidden";
-                http_request.path = "/403.html";
+                http_request->path = "/403.html";
                 // out_response[poll_fd[i].fd] = create_http_response();
                 std::cout << "file doesn't exist" << std::endl;
             }
@@ -72,8 +72,8 @@ void Webserv::getMethod(int i) {
         }
         else if (is_directory)
         {
-            std::string tmp2 = "." + http_request.path;
-            http_request.path = autoindex(tmp2);
+            std::string tmp2 = "." + http_request->path;
+            http_request->path = autoindex(tmp2);
             // std::cout << "autoindex http_request.path: " << http_request.path << std::endl;
         }
         out_response[poll_fd[i].fd] = create_http_response();
@@ -83,7 +83,7 @@ void Webserv::getMethod(int i) {
     {
         http_response.status_code = 404;
         http_response.status_message = "Not Found";
-        http_request.path = "./404.html";
+        http_request->path = "./404.html";
         out_response[poll_fd[i].fd] = create_http_response();
         std::cout << "file doesn't exist" << std::endl;
     }

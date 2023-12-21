@@ -68,8 +68,8 @@ Request *Webserv::parse_http_request(const std::vector<uint8_t> &request) {
         http_request->body.assign(request.begin(), request.begin() + delimIndex + 4);
         http_request->content.assign(request.begin() + delimIndex + 4, request.end());
     }
-    if (http_request->body.size() > 0) {
-        http_request.parseBodyReq();
+    if (!http_request->body.empty()) {
+        http_request->parseBodyReq();
     }
     return http_request;
 }
@@ -77,21 +77,21 @@ Request *Webserv::parse_http_request(const std::vector<uint8_t> &request) {
 std::string Webserv::create_http_response(void)
 {
     std::ostringstream sstream;
-    http_response.http_version = http_request.http_version;
+    http_response.http_version = http_request->http_version;
 
     // std::cout << "http_request.path: " << http_request.path << std::endl;
-    if (http_request.path.find(".html") != std::string::npos)
+    if (http_request->path.find(".html") != std::string::npos)
     {
         http_response.headers["Content-Type"] = "text/html";
         // http_request.path = "." + http_request.path;
     }
         // else if it is a css file, set it to text/css
-    else if (http_request.path.find(".css") != std::string::npos)
+    else if (http_request->path.find(".css") != std::string::npos)
     {
         http_response.headers["Content-Type"] = "text/css";
         // http_request.path = "." + http_request.path;
     }
-    else if (http_request.path.find(".jpg") != std::string::npos)
+    else if (http_request->path.find(".jpg") != std::string::npos)
     {
         http_response.headers["Content-Type"] = "image/jpeg";
         // http_request.path = "." + http_request.path;
@@ -109,11 +109,11 @@ std::string Webserv::create_http_response(void)
 
     // http_request.path = "." + http_request.path;
     //Check if it is a file (static website), if not it's a cgi script
-    if (access(http_request.path.c_str(), F_OK) != 0)
-        http_response.body = http_request.path ;
+    if (access(http_request->path.c_str(), F_OK) != 0)
+        http_response.body = http_request->path ;
     else
     {
-        std::ifstream file(http_request.path.c_str());
+        std::ifstream file(http_request->path.c_str());
         std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         // std::cout << "str: " << str << std::endl;
         http_response.body = str;

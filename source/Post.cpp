@@ -1,6 +1,6 @@
 #include "Webserv.hpp"
 
-void Webserv::postMethod(int i) {
+void Webserv::postMethod(size_t i) {
     int clientFD = poll_fd[i].fd;
     if (http_requests.count(clientFD) == 0) {
         http_requests[clientFD] = http_request;
@@ -9,31 +9,36 @@ void Webserv::postMethod(int i) {
         //std::cout << "CONTENT : " << http_request.content << std::endl;
 
     }
-    const char *ContLen = http_request.headers["Content-Length"].c_str();
+    const char *ContLen = http_request->headers["Content-Length"].c_str();
     size_t content_length = static_cast<size_t>(std::atoi(ContLen));
-    if (http_request.content.size() == content_length) {
-        http_requests.erase(clientFD);
+    if (http_request->content.size() == content_length) {
+
+        //http_requests.erase(clientFD);
         std::cout << "FINISH CONTENT" << std::endl;
-        postContentProcess();
+        http_request->postContentProcess();
         out_response[clientFD] = formPostResponse();
+
+        deleteRequest(clientFD);
+
         //file formed to temporary location
         //business logic decide to safe it to permanent folder while saving check if all requirements are meet
-    } else if (http_request.content.size() > content_length || http_request.content.size() > content_length) {
+    } else if (http_request->content.size() > content_length || http_request->content.size() > content_length) {
         std::cout << "SUPPOSED content_length : " << content_length << std::endl;
-        std::cout << "content size " << http_request.content.size() << std::endl;
-        http_requests.erase(clientFD);
+        std::cout << "content size " << http_request->content.size() << std::endl;
+        deleteRequest(clientFD);
+
         out_response[clientFD] = "HTTP/1.1 400 Bad Request\r\n";
 
         std::cout << "CORRUPTED CONTENT" << std::endl;
     } else {
-        std::cout << "PARTIAL CONTENT " << http_request.content.size() << " of " << content_length << std::endl;
+        std::cout << "PARTIAL CONTENT " << http_request->content.size() << " of " << content_length << std::endl;
         out_response[clientFD] = "HTTP/1.1 200 OK\r\n";
 
     }
 }
 
-void Webserv::setMetaData() {
-    std::istringstream lineStream(std::string(http_request.contentHead.begin(), http_request.contentHead.end()));
+void Request::setMetaData() {
+    std::istringstream lineStream(std::string(this->contentHead.begin(),this->contentHead.end()));
     std::string line;
     while (std::getline(lineStream, line) && !line.empty()) {
         std::string fileNamePrefix = "filename=\"";
@@ -44,44 +49,44 @@ void Webserv::setMetaData() {
             size_t fileNameEndOffset = line.find(fileNameSuffix, fileNameStartOffset);
             if (fileNameEndOffset != std::string::npos) {
                 size_t fileNameLength = fileNameEndOffset - fileNameStartOffset;
-                metaD.filename = line.substr(fileNameStartOffset, fileNameLength);
+                this->MetaD.filename = line.substr(fileNameStartOffset, fileNameLength);
             }
         }
         size_t typePtr = line.find("Content-Type: ");
         if (typePtr != std::string::npos) {
             typePtr += 14;
             size_t typeLen = line.length() - typePtr;
-            metaD.content_type = line.substr(typePtr, typeLen);
+            this->MetaD.content_type = line.substr(typePtr, typeLen);
         }
     }
-    metaD.location = "download/";
-    metaD.fullPath = metaD.location + metaD.filename;
+    this->MetaD.location = "download/";
+    this->MetaD.fullPath = this->MetaD.location + this->MetaD.filename;
 }
 
-void Webserv::postContentProcess() {
-    if (http_request.content.empty())
+void Request::postContentProcess() {
+    if (this->content.empty())
         return;
     size_t delimIndex = 0;
-    if (!canSeparate(http_request.content, delimIndex))
+    if (!canSeparate(this->content, delimIndex))
         return;
-    http_request.contentHead.assign(http_request.content.begin(), http_request.content.begin() + delimIndex + 4);
+    this->contentHead.assign(this->content.begin(), this->content.begin() + delimIndex + 4);
     setMetaData();
     //erase header from content and last boundary
-    http_request.content.erase(http_request.content.begin(), http_request.content.begin() + delimIndex + 4);
+    this->content.erase(this->content.begin(), this->content.begin() + delimIndex + 4);
     //+4 for "--" in the beginning and end + 1013 after the content
-    http_request.content.erase(http_request.content.end() - (http_request.boundary.size() + 6), http_request.content.end());
+    this->content.erase(this->content.end() - (this->boundary.size() + 6), this->content.end());
 
     std::ofstream outputFile;
-    outputFile.open(metaD.fullPath.c_str(), std::ios::binary);
+    outputFile.open(this->MetaD.fullPath.c_str(), std::ios::binary);
     if (outputFile.is_open()) {
 
-        outputFile.write(reinterpret_cast<const char *>(&http_request.content[0]), http_request.content.size());
+        outputFile.write(reinterpret_cast<const char *>(&this->content[0]), this->content.size());
 
         // Close the file when done
         outputFile.close();
-        std::cout << "File created successfully: " << metaD.fullPath << std::endl;
+        std::cout << "File created successfully: " << this->MetaD.fullPath << std::endl;
     } else {
-        std::cerr << "Failed to create file: " << metaD.fullPath << std::endl;
+        std::cerr << "Failed to create file: " << this->MetaD.fullPath << std::endl;
     }
 
 }
@@ -121,4 +126,18 @@ std::string Webserv::formPostResponse() {
     return full_response;
 }
 
+void Webserv::deleteRequest(int i) {
+    std::map<int, Request*>::iterator it = http_requests.find(i);
+
+    if (it != http_requests.end()) {
+        Request *http_request = it->second;
+
+        // Delete the object (free the memory)
+        delete http_request;
+
+        // Erase the entry from the map
+        http_requests.erase(it);
+    }
+
+}
 
