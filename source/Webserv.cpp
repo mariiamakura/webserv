@@ -178,7 +178,8 @@ int Webserv::handle_pollin(int i)
     {
         rc = recv(clientID, buffer, sizeof(buffer) - 1, 0);
         logging("POLLIN fd" + int_to_string(clientID) + ": added " + int_to_string(rc) + " bytes into buffer", DEBUG);
-        if (rc > 0)
+        //if (rc > 0)
+        while (rc > 0)
         {
             size_t currentSize = in_request[clientID].size();
             in_request[clientID].resize(currentSize + rc);

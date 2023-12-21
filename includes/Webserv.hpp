@@ -113,7 +113,9 @@ class Webserv
 		char 	**env;
 		int		sockfd;
 		int		new_sd ;
-		//char	buffer[256];
+		//char	buffer[256]; small buffer doesnt work with my request parsing
+        //since i have to parse the whole request
+        //should i redo it?
 		char 	buffer[4096];
 		int		rc;
 		int 	end_server ;
