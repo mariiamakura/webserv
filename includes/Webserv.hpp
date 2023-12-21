@@ -79,18 +79,6 @@ class Client;
 class Server;
 class Request;
 
-//struct HttpRequest {
-//    std::string http_version;
-//    std::string method;
-//    std::string path;
-//    std::map<std::string, std::string> headers;
-//    std::string boundary;
-//    std::vector<uint8_t> body;
-//    std::vector<uint8_t> content;
-//    std::vector<uint8_t> contentHead;
-//    //mb add referance to correcsponding meta data
-//};
-
 struct HttpResponse {
     std::string http_version;
     int status_code;
@@ -98,13 +86,6 @@ struct HttpResponse {
     std::map<std::string, std::string> headers;
     std::string body;
 };
-
-//struct MetaData {
-//    std::string filename;
-//    std::string location;
-//    std::string content_type;
-//    std::string fullPath;
-//};
 
 
 class Webserv
@@ -114,7 +95,6 @@ class Webserv
 		int		sockfd;
 		int		new_sd ;
 		//char	buffer[256]; small buffer doesnt work with my request parsing
-        //since i have to parse the whole request
         //should i redo it?
 		char 	buffer[4096];
 		int		rc;
@@ -122,7 +102,6 @@ class Webserv
 		int		close_conn ;
 		Request *http_request;
 		HttpResponse http_response;
-//        MetaData metaD;
 		
 		std::vector<Server> server;
 		std::vector<Server>::iterator s_iter;

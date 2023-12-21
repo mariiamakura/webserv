@@ -4,7 +4,7 @@ void Webserv::newOrAppendRequest(size_t i) {
     int clientFD = poll_fd[i].fd;
 
     if (http_requests.count(clientFD) > 0) {
-        http_request = http_requests[clientFD]; //this all should be copy of the pointer in the end for optimization
+        http_request = http_requests[clientFD];
         std::cout << "Content size before append: " << http_request->content.size() <<std::endl;
 
 
@@ -15,9 +15,6 @@ void Webserv::newOrAppendRequest(size_t i) {
         std::cout << "APPEND REQUEST" << std::endl;
         std::cout << "Content size after append: " << http_request->content.size() <<std::endl;
     } else {
-        //std::cout << "NEW HTTP PARSE" << std::endl;
-//        if (http_request)
-//            delete http_request;
         http_request = parse_http_request(in_request[clientFD]);
         std::cout << "NEW REQUEST" << std::endl;
     }
