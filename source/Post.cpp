@@ -15,7 +15,7 @@ void Webserv::postMethod(size_t i) {
 
         //http_requests.erase(clientFD);
         std::cout << "FINISH CONTENT" << std::endl;
-        http_request->postContentProcess();
+//        http_request->postContentProcess();
         //out_response[clientFD] = formPostResponse();
 
         deleteRequest(clientFD);
@@ -27,11 +27,14 @@ void Webserv::postMethod(size_t i) {
         std::cout << "content size " << http_request->content.size() << std::endl;
         deleteRequest(clientFD);
 
+        //REDO
         //out_response[clientFD] = "HTTP/1.1 400 Bad Request\r\n";
 
         std::cout << "CORRUPTED CONTENT" << std::endl;
     } else {
         std::cout << "PARTIAL CONTENT " << http_request->content.size() << " of " << content_length << std::endl;
+
+        //REDO
         //out_response[clientFD] = "HTTP/1.1 200 OK\r\n";
 
     }
@@ -90,14 +93,14 @@ void Request::postContentProcess() {
     }
 
 }
-
-// Helper function to convert integer to string
+//
+//// Helper function to convert integer to string
 //static std::string intToString(int value) {
 //    std::ostringstream oss;
 //    oss << value;
 //    return oss.str();
 //}
-
+//
 //Response *Webserv::formPostResponse() {
 //    std::string response;
 //    http_response->status_code = 200;
@@ -123,7 +126,7 @@ void Request::postContentProcess() {
 //    }
 //
 //    full_response += "\r\n" + response;
-//    return full_response;
+//    return http_response;
 //}
 
 void Webserv::deleteRequest(int i) {

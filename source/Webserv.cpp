@@ -22,6 +22,8 @@ Webserv::~Webserv()
 {
     if (http_request)
         delete http_request;
+    if (http_response)
+        delete http_response;
 }
 
 Webserv::Webserv(Webserv const &src)
@@ -315,13 +317,17 @@ void Webserv::run()
                         std::string requestString(requestData.begin(), requestData.end());
 
                         logging("request :\n" + requestString + "\n", DEBUG);
-
                             logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
-                            newOrAppendRequest(i);
+
+                            if (http_response)
+                                delete http_response;
                             http_response = new Response();
+
+                            newOrAppendRequest(i);
 							 if (http_request->method == "GET")
 							{
                                 getMethod(i); //set outresponse inside
+
 							}
                              else if  (http_request->method == "POST") {
                                  postMethod(i);

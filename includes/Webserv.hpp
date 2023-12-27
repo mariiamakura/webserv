@@ -156,10 +156,11 @@ class Webserv
 		void run();
 		void logging(std::string str, int status);
 		int handle_pollin(int i);
-		Response *create_http_response(void);
 		int check_sockfds(std::vector<int> sockfds, int i);
 		std::string autoindex(const std::string& path) ;
 
+
+    Response *create_http_response(void);
         //REQUEST HTTP METHODS
         Request *parse_http_request(const std::vector<uint8_t> &request);
         void getMethod(size_t i);

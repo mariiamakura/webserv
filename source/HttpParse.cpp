@@ -135,7 +135,8 @@ Response *Webserv::create_http_response(void)
 //            << http_response->body;
 //
 //    return sstream.str();
-return http_response;
+
+    return http_response;
 }
 
 void Webserv::deleteResponse(int i) {
