@@ -16,7 +16,7 @@ void Webserv::postMethod(size_t i) {
         //http_requests.erase(clientFD);
         std::cout << "FINISH CONTENT" << std::endl;
         http_request->postContentProcess();
-        out_response[clientFD] = formPostResponse();
+        //out_response[clientFD] = formPostResponse();
 
         deleteRequest(clientFD);
 
@@ -27,12 +27,12 @@ void Webserv::postMethod(size_t i) {
         std::cout << "content size " << http_request->content.size() << std::endl;
         deleteRequest(clientFD);
 
-        out_response[clientFD] = "HTTP/1.1 400 Bad Request\r\n";
+        //out_response[clientFD] = "HTTP/1.1 400 Bad Request\r\n";
 
         std::cout << "CORRUPTED CONTENT" << std::endl;
     } else {
         std::cout << "PARTIAL CONTENT " << http_request->content.size() << " of " << content_length << std::endl;
-        out_response[clientFD] = "HTTP/1.1 200 OK\r\n";
+        //out_response[clientFD] = "HTTP/1.1 200 OK\r\n";
 
     }
 }
@@ -92,39 +92,39 @@ void Request::postContentProcess() {
 }
 
 // Helper function to convert integer to string
-static std::string intToString(int value) {
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
-}
+//static std::string intToString(int value) {
+//    std::ostringstream oss;
+//    oss << value;
+//    return oss.str();
+//}
 
-std::string Webserv::formPostResponse() {
-    std::string response;
-    http_response.status_code = 200;
-
-    // Set the content type to HTML
-    http_response.headers["Content-Type"] = "text/html";
-
-    // Build the response body
-    response += "<html><body>";
-    response += "Your data received by us";
-    response += "</body></html>";
-
-    // Set the content length in the headers
-    std::ostringstream oss;
-    oss << response.size();
-    http_response.headers["Content-Length"] = oss.str();
-    std::string full_response = "HTTP/1.1 " + intToString(http_response.status_code) + " OK\r\n";
-
-    // Iterate over headers
-    for (std::map<std::string, std::string>::const_iterator it = http_response.headers.begin();
-         it != http_response.headers.end(); ++it) {
-        full_response += it->first + ": " + it->second + "\r\n";
-    }
-
-    full_response += "\r\n" + response;
-    return full_response;
-}
+//Response *Webserv::formPostResponse() {
+//    std::string response;
+//    http_response->status_code = 200;
+//
+//    // Set the content type to HTML
+//    http_response->headers["Content-Type"] = "text/html";
+//
+//    // Build the response body
+//    response += "<html><body>";
+//    response += "Your data received by us";
+//    response += "</body></html>";
+//
+//    // Set the content length in the headers
+//    std::ostringstream oss;
+//    oss << response.size();
+//    http_response->headers["Content-Length"] = oss.str();
+//    std::string full_response = "HTTP/1.1 " + intToString(http_response->status_code) + " OK\r\n";
+//
+//    // Iterate over headers
+//    for (std::map<std::string, std::string>::const_iterator it = http_response->headers.begin();
+//         it != http_response->headers.end(); ++it) {
+//        full_response += it->first + ": " + it->second + "\r\n";
+//    }
+//
+//    full_response += "\r\n" + response;
+//    return full_response;
+//}
 
 void Webserv::deleteRequest(int i) {
     std::map<int, Request*>::iterator it = http_requests.find(i);

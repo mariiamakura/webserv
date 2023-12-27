@@ -318,6 +318,7 @@ void Webserv::run()
 
                             logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
                             newOrAppendRequest(i);
+                            http_response = new Response();
 							 if (http_request->method == "GET")
 							{
                                 getMethod(i); //set outresponse inside
@@ -335,10 +336,18 @@ void Webserv::run()
 								logging("Unknown request", DEBUG);
 								// std::cout << "Unknown request" << std::endl;
 							}
-							rc = send(poll_fd[i].fd, out_response[poll_fd[i].fd].c_str(), out_response[poll_fd[i].fd].size(), 0);
+                            //out_response[poll_fd[i].fd].c_str() - turn inside of the class to string
+
+                            size_t res_size = out_response[poll_fd[i].fd]->toString().size();
+                            const std::string responseStr = out_response[poll_fd[i].fd]->toString();
+                            const char *resStr = responseStr.c_str();
+
+							rc = send(poll_fd[i].fd, resStr, res_size, 0);
 							logging(" ---- response: " + int_to_string(rc) + " bytes sent  ----", DEBUG);
-							logging("response :\n" + out_response[poll_fd[i].fd] + "\n", DEBUG);
-                            out_response[poll_fd[i].fd].clear();
+							logging("response :\n" + out_response[poll_fd[i].fd]->toString() + "\n", DEBUG);
+
+                            deleteResponse(i);
+                            //out_response[poll_fd[i].fd].clear();
 							break;
 					}
 					else if (poll_fd[i].events | POLLHUP)

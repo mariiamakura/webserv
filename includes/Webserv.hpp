@@ -44,6 +44,7 @@
 #include "Client.hpp"
 #include "helpers.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 
 #define DEF_CONF		"configs/default.conf"
 #define DEF_PORT		9999
@@ -78,14 +79,15 @@ class Config;
 class Client;
 class Server;
 class Request;
+class Response;
 
-struct HttpResponse {
-    std::string http_version;
-    int status_code;
-    std::string status_message;
-    std::map<std::string, std::string> headers;
-    std::string body;
-};
+//struct HttpResponse {
+//    std::string http_version;
+//    int status_code;
+//    std::string status_message;
+//    std::map<std::string, std::string> headers;
+//    std::string body;
+//};
 
 
 class Webserv
@@ -101,7 +103,7 @@ class Webserv
 		int 	end_server ;
 		int		close_conn ;
 		Request *http_request;
-		HttpResponse http_response;
+		Response *http_response;
 		
 		std::vector<Server> server;
 		std::vector<Server>::iterator s_iter;
@@ -117,7 +119,7 @@ class Webserv
 		
 		std::map <int, std::vector<uint8_t> > in_request; //this should be something like <int, char[]>
         std::map <int, Request *> http_requests;
-		std::map <int, std::string> out_response;
+		std::map <int, Response *> out_response;
 
 	
 	public:
@@ -154,7 +156,7 @@ class Webserv
 		void run();
 		void logging(std::string str, int status);
 		int handle_pollin(int i);
-		std::string create_http_response(void);
+		Response *create_http_response(void);
 		int check_sockfds(std::vector<int> sockfds, int i);
 		std::string autoindex(const std::string& path) ;
 
@@ -162,7 +164,8 @@ class Webserv
         Request *parse_http_request(const std::vector<uint8_t> &request);
         void getMethod(size_t i);
         void postMethod(size_t i);
-        std::string formPostResponse();
+        Response *formPostResponse();
         void newOrAppendRequest(size_t i);
         void deleteRequest(int i);
+        void deleteResponse(int i);
 };

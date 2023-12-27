@@ -11,8 +11,8 @@ void Webserv::getMethod(size_t i) {
         stat(tmp, &path_stat);
         bool is_directory = S_ISDIR(path_stat.st_mode);
 
-        http_response.status_code = 200;
-        http_response.status_message = "OK";
+        http_response->status_code = 200;
+        http_response->status_message = "OK";
         if (ft_strcmp(tmp, "./cgi-bin/index.py") == 0 && access("./cgi-bin/index.py", F_OK) == 0)
         {
             std::cout << "cgi-bin/index.py exists" << std::endl;
@@ -62,8 +62,8 @@ void Webserv::getMethod(size_t i) {
             }
             else
             {
-                http_response.status_code = 403;
-                http_response.status_message = "Forbidden";
+                http_response->status_code = 403;
+                http_response->status_message = "Forbidden";
                 http_request->path = "/403.html";
                 // out_response[poll_fd[i].fd] = create_http_response();
                 std::cout << "file doesn't exist" << std::endl;
@@ -81,8 +81,8 @@ void Webserv::getMethod(size_t i) {
     }
     else
     {
-        http_response.status_code = 404;
-        http_response.status_message = "Not Found";
+        http_response->status_code = 404;
+        http_response->status_message = "Not Found";
         http_request->path = "./404.html";
         out_response[poll_fd[i].fd] = create_http_response();
         std::cout << "file doesn't exist" << std::endl;
