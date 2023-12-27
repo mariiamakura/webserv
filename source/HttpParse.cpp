@@ -58,7 +58,7 @@ bool canSeparate(const std::vector<uint8_t> &request, size_t &delimIndex) {
     return false;
 }
 
-void Webserv::parse_http_request(const std::vector<uint8_t> &request) {
+Request *Webserv::parse_http_request(const std::vector<uint8_t> &request) {
 
     http_request = new Request();
 
@@ -71,7 +71,7 @@ void Webserv::parse_http_request(const std::vector<uint8_t> &request) {
     if (!http_request->body.empty()) {
         http_request->parseBodyReq();
     }
-    //return http_request;
+    return http_request;
 }
 
 Response *Webserv::create_http_response(void)
@@ -145,11 +145,11 @@ void Webserv::deleteResponse(int i) {
     if (it != out_response.end()) {
         Response *http_delete = it->second;
 
-        // Delete the object (free the memory)
-        delete http_delete;
-
         // Erase the entry from the map
         out_response.erase(it);
+
+        // Delete the object (free the memory)
+        delete http_delete;
     }
 
 }

@@ -140,6 +140,8 @@ void Webserv::deleteRequest(int i) {
 
         // Erase the entry from the map
         http_requests.erase(it);
+    } else {
+        std::cout << "I DELETE REQUEST\n";
     }
 
 }

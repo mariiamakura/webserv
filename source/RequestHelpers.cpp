@@ -15,9 +15,9 @@ void Webserv::newOrAppendRequest(size_t i) {
         std::cout << "APPEND REQUEST" << std::endl;
         std::cout << "Content size after append: " << http_request->content.size() <<std::endl;
     } else {
-        if (http_request)
-            delete http_request;
-        parse_http_request(in_request[clientFD]);
+//        if (http_request)
+//            delete http_request;
+        http_request = parse_http_request(in_request[clientFD]);
         //http_request = parse_http_request(in_request[clientFD]);
         std::cout << "NEW REQUEST" << std::endl;
     }

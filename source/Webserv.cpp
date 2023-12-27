@@ -319,14 +319,15 @@ void Webserv::run()
                         logging("request :\n" + requestString + "\n", DEBUG);
                             logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
 
-                            if (http_response)
-                                delete http_response;
+//                            if (http_response)
+//                                delete http_response;
                             http_response = new Response();
 
                             newOrAppendRequest(i);
 							 if (http_request->method == "GET")
 							{
                                 getMethod(i); //set outresponse inside
+                                //deleteRequest(poll_fd[i].fd);
 
 							}
                              else if  (http_request->method == "POST") {
@@ -336,6 +337,7 @@ void Webserv::run()
 							{
 								logging("DELETE request", DEBUG);
 								// std::cout << "DELETE request" << std::endl;
+                                //deleteRequest(poll_fd[i].fd);
 							}
 							else
 							{
@@ -352,8 +354,7 @@ void Webserv::run()
 							logging(" ---- response: " + int_to_string(rc) + " bytes sent  ----", DEBUG);
 							logging("response :\n" + out_response[poll_fd[i].fd]->toString() + "\n", DEBUG);
 
-                            deleteResponse(i);
-                            //out_response[poll_fd[i].fd].clear();
+                            deleteResponse(poll_fd[i].fd);
 							break;
 					}
 					else if (poll_fd[i].events | POLLHUP)
