@@ -162,7 +162,8 @@ class Webserv
 
     Response *create_http_response(void);
         //REQUEST HTTP METHODS
-        Request *parse_http_request(const std::vector<uint8_t> &request);
+        void parse_http_request(const std::vector<uint8_t> &request);
+        //Request *parse_http_request(const std::vector<uint8_t> &request);
         void getMethod(size_t i);
         void postMethod(size_t i);
         Response *formPostResponse();

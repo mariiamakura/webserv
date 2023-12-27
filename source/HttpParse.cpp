@@ -58,9 +58,9 @@ bool canSeparate(const std::vector<uint8_t> &request, size_t &delimIndex) {
     return false;
 }
 
-Request *Webserv::parse_http_request(const std::vector<uint8_t> &request) {
+void Webserv::parse_http_request(const std::vector<uint8_t> &request) {
 
-    Request *http_request = new Request();
+    http_request = new Request();
 
     size_t delimIndex = 0;
 
@@ -71,7 +71,7 @@ Request *Webserv::parse_http_request(const std::vector<uint8_t> &request) {
     if (!http_request->body.empty()) {
         http_request->parseBodyReq();
     }
-    return http_request;
+    //return http_request;
 }
 
 Response *Webserv::create_http_response(void)
