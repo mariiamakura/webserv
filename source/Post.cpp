@@ -79,23 +79,5 @@ void Request::postContentProcess() {
     } else {
         std::cerr << "Failed to create file: " << this->MetaD.fullPath << std::endl;
     }
-
-}
-
-void Webserv::deleteRequest(int i) {
-    std::map<int, Request*>::iterator it = http_requests.find(i);
-
-    if (it != http_requests.end()) {
-        Request *http_request = it->second;
-
-        // Erase the entry from the map
-        http_requests.erase(it);
-
-        // Delete the object (free the memory)
-        delete http_request;
-
-    } else {
-        std::cout << "I DONT DELETE REQUEST\n";
-    }
 }
 

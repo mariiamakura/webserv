@@ -20,7 +20,7 @@ OBJ_DIR		=	object/
 INC_DIR		=	includes/
 
 SRC_FILES	=	main.cpp Webserv.cpp ASocket.cpp Server.cpp Client.cpp \
- 		Config.cpp helpers.cpp Post.cpp HttpParse.cpp RequestHelpers.cpp Get.cpp \
+ 		Config.cpp helpers.cpp Post.cpp ResponseHelpers.cpp RequestHelpers.cpp Get.cpp \
 
 
 
