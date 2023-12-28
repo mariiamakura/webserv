@@ -1,6 +1,6 @@
 #include "Webserv.hpp"
 
-void Webserv::postMethod(size_t i) {
+int Webserv::postMethod(size_t i) {
     int clientFD = poll_fd[i].fd;
     if (http_requests.count(clientFD) == 0) {
         http_requests[clientFD] = http_request;
@@ -16,30 +16,33 @@ void Webserv::postMethod(size_t i) {
         //http_requests.erase(clientFD);
         std::cout << "FINISH CONTENT" << std::endl;
         http_request->postContentProcess();
-        out_response[clientFD] = formPostResponse();
-
-        deleteRequest(clientFD);
+        //out_response[clientFD] = formPostResponse();
+        //http_response->status_code = 201;
+        //deleteRequest(clientFD);
 
         //file formed to temporary location
         //business logic decide to safe it to permanent folder while saving check if all requirements are meet
+        return 201;
     } else if (http_request->content.size() > content_length || http_request->content.size() > content_length) {
         std::cout << "SUPPOSED content_length : " << content_length << std::endl;
         std::cout << "content size " << http_request->content.size() << std::endl;
-        deleteRequest(clientFD);
+        //deleteRequest(clientFD);
 
-        http_response->http_version = http_request->http_version;
-        http_response->status_code = 400;
-        http_response->status_message = "Bad Request";
-        out_response[clientFD] =  http_response;
+        //http_response->http_version = http_request->http_version;
+        //http_response->status_code = 400;
+        //http_response->status_message = "Bad Request";
+        //out_response[clientFD] =  http_response;
 
         std::cout << "CORRUPTED CONTENT" << std::endl;
+        return 400;
     } else {
         std::cout << "PARTIAL CONTENT " << http_request->content.size() << " of " << content_length << std::endl;
 
-        http_response->http_version = http_request->http_version;
-        http_response->status_code = 200;
-        http_response->status_message = "OK";
-        out_response[clientFD] =  http_response;
+        //http_response->http_version = http_request->http_version;
+        //http_response->status_code = 206;
+        //http_response->status_message = "OK";
+        //out_response[clientFD] =  http_response;
+        return 206;
 
     }
 }
@@ -97,13 +100,6 @@ void Request::postContentProcess() {
     }
 
 }
-
-//// Helper function to convert integer to string
-//static std::string intToString(int value) {
-//    std::ostringstream oss;
-//    oss << value;
-//    return oss.str();
-//}
 
 Response *Webserv::formPostResponse() {
     http_response->status_code = 200;

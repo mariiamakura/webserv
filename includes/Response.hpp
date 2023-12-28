@@ -9,6 +9,7 @@ class Response {
         std::string status_message;
         std::map<std::string, std::string> headers;
         std::string body;
+        std::string path;
 public:
     Response() {};
     ~Response() {};

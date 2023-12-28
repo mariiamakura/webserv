@@ -174,7 +174,7 @@ void Webserv::init_servers()
 
 int Webserv::handle_pollin(int i)
 {
-
+    //in_request.clear(); //do we need it?
     int clientID = poll_fd[i].fd;
     if (poll_fd[i].events & POLLIN) //reading data from client
     {
@@ -253,7 +253,7 @@ void Webserv::run()
 	for (std::vector<pollfd>::size_type i = 0; i < size; i++)
 		sockfds.push_back(poll_fd[i].fd);
 
-	//in_request.clear();
+	in_request.clear();
 	// logging("Listening socket is " + int_to_string(sockfd), DEBUG);
 	do
 	{
@@ -324,12 +324,20 @@ void Webserv::run()
                             newOrAppendRequest(i);
 							 if (http_request->method == "GET")
 							{
-                                getMethod(i); //set outresponse inside
+                                http_response->status_code = getMethod(); //set outresponse inside
+
+                                //create a response
+                                out_response[poll_fd[i].fd] = create_http_response();
                                 deleteRequest(poll_fd[i].fd);
 
 							}
                              else if  (http_request->method == "POST") {
-                                 postMethod(i);
+                                 http_response->status_code = postMethod(i);
+
+                                 //create a response
+                                 out_response[poll_fd[i].fd] = create_http_response();
+                                 if (http_response->status_code == 201 || http_response->status_code == 400)
+                                     deleteRequest(poll_fd[i].fd);
                              }
 							else if (http_request->method == "DELETE")
 							{
@@ -342,7 +350,6 @@ void Webserv::run()
 								logging("Unknown request", DEBUG);
 								// std::cout << "Unknown request" << std::endl;
 							}
-                            //out_response[poll_fd[i].fd].c_str() - turn inside of the class to string
 
                             size_t res_size = out_response[poll_fd[i].fd]->toString().size();
                             const std::string responseStr = out_response[poll_fd[i].fd]->toString();
