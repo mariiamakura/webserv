@@ -27,15 +27,19 @@ void Webserv::postMethod(size_t i) {
         std::cout << "content size " << http_request->content.size() << std::endl;
         deleteRequest(clientFD);
 
-        //REDO
-        //out_response[clientFD] = "HTTP/1.1 400 Bad Request\r\n";
+        http_response->http_version = http_request->http_version;
+        http_response->status_code = 400;
+        http_response->status_message = "Bad Request";
+        out_response[clientFD] =  http_response;
 
         std::cout << "CORRUPTED CONTENT" << std::endl;
     } else {
         std::cout << "PARTIAL CONTENT " << http_request->content.size() << " of " << content_length << std::endl;
 
-        //REDO
-        //out_response[clientFD] = "HTTP/1.1 200 OK\r\n";
+        http_response->http_version = http_request->http_version;
+        http_response->status_code = 200;
+        http_response->status_message = "OK";
+        out_response[clientFD] =  http_response;
 
     }
 }

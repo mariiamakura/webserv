@@ -17,15 +17,21 @@ public:
     std::string toString() const {
         std::stringstream ss;
 
-        ss << http_version << " ";
-        ss << status_code << " ";
-        ss << status_message << "\r\n";
-
-        for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it) {
-            ss << it->first << ": " << it->second << "\r\n";
+        if (!http_version.empty() && !status_message.empty()) {
+            ss << http_version << " ";
+            ss << status_code << " ";
+            ss << status_message << "\r\n";
         }
 
-        ss << "\r\n" << body;
+        if (!headers.empty()) {
+            for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it) {
+                ss << it->first << ": " << it->second << "\r\n";
+            }
+        }
+
+        if (!body.empty()) {
+            ss << "\r\n" << body;
+        }
 
         return ss.str();
     }
