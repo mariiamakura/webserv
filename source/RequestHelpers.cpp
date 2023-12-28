@@ -18,6 +18,7 @@ void Webserv::newOrAppendRequest(size_t i) {
 //        if (http_request)
 //            delete http_request;
         http_request = parse_http_request(in_request[clientFD]);
+        http_requests[clientFD] = http_request;
         //http_request = parse_http_request(in_request[clientFD]);
         std::cout << "NEW REQUEST" << std::endl;
     }

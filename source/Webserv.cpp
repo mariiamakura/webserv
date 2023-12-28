@@ -253,7 +253,7 @@ void Webserv::run()
 	for (std::vector<pollfd>::size_type i = 0; i < size; i++)
 		sockfds.push_back(poll_fd[i].fd);
 
-	in_request.clear();
+	//in_request.clear();
 	// logging("Listening socket is " + int_to_string(sockfd), DEBUG);
 	do
 	{
