@@ -319,8 +319,6 @@ void Webserv::run()
                         logging("request :\n" + requestString + "\n", DEBUG);
                             logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
 
-//                            if (http_response)
-//                                delete http_response;
                             http_response = new Response();
 
                             newOrAppendRequest(i);
