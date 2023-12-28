@@ -166,8 +166,8 @@ class Webserv
         //Request *parse_http_request(const std::vector<uint8_t> &request);
         int getMethod();
         int postMethod(size_t i);
-        Response *formPostResponse();
         void newOrAppendRequest(size_t i);
         void deleteRequest(int i);
         void deleteResponse(int i);
+
 };

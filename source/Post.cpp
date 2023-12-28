@@ -6,42 +6,23 @@ int Webserv::postMethod(size_t i) {
         http_requests[clientFD] = http_request;
 
         std::cout << "START CONTENT" << std::endl;
-        //std::cout << "CONTENT : " << http_request.content << std::endl;
-
     }
+
     const char *ContLen = http_request->headers["Content-Length"].c_str();
     size_t content_length = static_cast<size_t>(std::atoi(ContLen));
-    if (http_request->content.size() == content_length) {
 
-        //http_requests.erase(clientFD);
+    if (http_request->content.size() == content_length) {
         std::cout << "FINISH CONTENT" << std::endl;
         http_request->postContentProcess();
-        //out_response[clientFD] = formPostResponse();
-        //http_response->status_code = 201;
-        //deleteRequest(clientFD);
-
-        //file formed to temporary location
-        //business logic decide to safe it to permanent folder while saving check if all requirements are meet
         return 201;
     } else if (http_request->content.size() > content_length || http_request->content.size() > content_length) {
         std::cout << "SUPPOSED content_length : " << content_length << std::endl;
         std::cout << "content size " << http_request->content.size() << std::endl;
-        //deleteRequest(clientFD);
-
-        //http_response->http_version = http_request->http_version;
-        //http_response->status_code = 400;
-        //http_response->status_message = "Bad Request";
-        //out_response[clientFD] =  http_response;
 
         std::cout << "CORRUPTED CONTENT" << std::endl;
         return 400;
     } else {
         std::cout << "PARTIAL CONTENT " << http_request->content.size() << " of " << content_length << std::endl;
-
-        //http_response->http_version = http_request->http_version;
-        //http_response->status_code = 206;
-        //http_response->status_message = "OK";
-        //out_response[clientFD] =  http_response;
         return 206;
 
     }
@@ -99,27 +80,6 @@ void Request::postContentProcess() {
         std::cerr << "Failed to create file: " << this->MetaD.fullPath << std::endl;
     }
 
-}
-
-Response *Webserv::formPostResponse() {
-    http_response->status_code = 200;
-    http_response->status_message = "OK";
-    http_response->http_version = http_request->http_version;
-
-    // Set the content type to HTML
-    http_response->headers["Content-Type"] = "text/html";
-
-    // Build the response body
-    http_response->body += "<html><body>";
-    http_response->body += "Your data received by us";
-    http_response->body += "</body></html>";
-
-    // Set the content length in the headers
-    std::ostringstream oss;
-    oss << http_response->body.size();
-    http_response->headers["Content-Length"] = oss.str();
-
-    return http_response;
 }
 
 void Webserv::deleteRequest(int i) {

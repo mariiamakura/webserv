@@ -77,7 +77,7 @@ Request *Webserv::parse_http_request(const std::vector<uint8_t> &request) {
 Response *Webserv::create_http_response(void)
 {
     //std::ostringstream sstream;
-    std::cout << "create response start\n";
+    //std::cout << "create response start\n";
     //std::cout << http_request->http_version << std::endl;
     http_response->http_version = http_request->http_version;
 
@@ -100,49 +100,39 @@ Response *Webserv::create_http_response(void)
     } else if (http_response->status_code == 206) {
         http_response->status_message = "Partial Content";
     }
-    std::cout << "status code checked\n";
-    // std::cout << "http_request.path: " << http_request.path << std::endl;
-    if (http_response->path.find(".html") != std::string::npos)
+    //std::cout << "status code checked\n";
+
+    if (http_request->path.find(".html") != std::string::npos)
     {
         http_response->headers["Content-Type"] = "text/html";
         // http_request.path = "." + http_request.path;
     }
         // else if it is a css file, set it to text/css
-    else if (http_response->path.find(".css") != std::string::npos)
+    else if (http_request->path.find(".css") != std::string::npos)
     {
         http_response->headers["Content-Type"] = "text/css";
         // http_request.path = "." + http_request.path;
     }
-    else if (http_response->path.find(".jpg") != std::string::npos)
-    {
-        http_response->headers["Content-Type"] = "image/jpeg";
-        // http_request.path = "." + http_request.path;
-    }
-        // else set it to text/plain
-    else
-    {
-        http_response->headers["Content-Type"] = "text/html";
-        // http_request.path =  http_request.path;
-    }
-
-    // http_response.headers["Content-Type"] = "text/html";
-
     // http_request.path = "." + http_request.path;
     //Check if it is a file (static website), if not it's a cgi script
     if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403) {
         if (access(http_response->path.c_str(), F_OK) != 0)
             http_response->body = http_response->path;
         else {
-            std::ifstream file(http_response->path.c_str());
+            std::ifstream file(http_response->path.c_str(), std::ios::binary);
             std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             // std::cout << "str: " << str << std::endl;
             http_response->body = str;
 
             http_response->headers["Content-Length"] = int_to_string(http_response->body.size());
+            if (http_response->path.find("download") != std::string::npos) {
+                std::cout << "Dispostition added\n";
+                    http_response->headers["Content-Disposition"] = "attachment; filename=\"" + http_response->path + "\"";
+            }
         }
     }
 
-    std::cout << "create response finish\n";
+    //std::cout << "create response finish\n";
     return http_response;
 }
 

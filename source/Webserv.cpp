@@ -100,24 +100,38 @@ char **Webserv::getEnv()
 
 // methods
 
-std::string Webserv::autoindex(const std::string& path) 
+std::string Webserv::autoindex(const std::string& path)
 {
+    // Open the directory
     DIR* dir;
     struct dirent* ent;
     struct stat st;
 
+    // Start building the HTML string
     std::ostringstream html;
     html << "<html><body><ul>";
 
     if ((dir = opendir(path.c_str())) != NULL) {
+        // Loop through the directory entries
         while ((ent = readdir(dir)) != NULL) {
+            // Get the file name and full path
             std::string file_name = ent->d_name;
             std::string full_path = path + "/" + file_name;
 
+            //std::cout << "PATH: " << path << std::endl;
+            // Get file information
             if (stat(full_path.c_str(), &st) == 0) {
+                // Check if it's a directory or a file
                 if (S_ISDIR(st.st_mode)) {
+                    // Add a list item with a link for directories
                     html << "<li><a href=\"" << file_name << "/\">" << file_name << "/</a></li>";
-                } else {
+                } else if (path.find("download") != std::string::npos && (file_name.find("jpg") != std::string::npos || file_name.find("png") != std::string::npos)){
+                    // Add a list item with a link for files
+                    std::cout << "download files\n";
+                    html << "<li><a href=\"" << file_name << "\" download>" << file_name << "</a></li>";
+                }
+                else {
+                    //other files
                     html << "<li><a href=\"" << file_name << "\">" << file_name << "</a></li>";
                 }
             }
@@ -125,9 +139,13 @@ std::string Webserv::autoindex(const std::string& path)
         closedir(dir);
     }
 
+    // Finish building the HTML string
     html << "</ul></body></html>";
+
+    // Convert the HTML stringstream to a string and return
     return html.str();
 }
+
 
 std::map<std::string, std::string> Webserv::parse_form_data(const std::string &formData)
 {

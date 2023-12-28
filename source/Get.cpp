@@ -3,7 +3,7 @@
 int Webserv::getMethod() {
     logging("GET request", DEBUG);
     char *tmp = string_to_chararray(http_request->path);
-
+    //std::cout << "PATH IN REQUEST: " << tmp << std::endl;
     if (access(tmp, F_OK) == 0)
     {
 
@@ -11,8 +11,6 @@ int Webserv::getMethod() {
         stat(tmp, &path_stat);
         bool is_directory = S_ISDIR(path_stat.st_mode);
 
-//        http_response->status_code = 200;
-//        http_response->status_message = "OK";
         if (ft_strcmp(tmp, "./cgi-bin/index.py") == 0 && access("./cgi-bin/index.py", F_OK) == 0)
         {
             std::cout << "cgi-bin/index.py exists" << std::endl;
@@ -62,10 +60,6 @@ int Webserv::getMethod() {
             }
             else
             {
-                //http_response->status_code = 403;
-                //http_response->status_message = "Forbidden";
-                //http_response->path = "/403.html";
-                // out_response[poll_fd[i].fd] = create_http_response();
                 std::cout << "file doesn't exist" << std::endl;
                 delete[] tmp;
                 return 403;
@@ -78,17 +72,13 @@ int Webserv::getMethod() {
             http_response->path = autoindex(tmp2);
             // std::cout << "autoindex http_request.path: " << http_request.path << std::endl;
         }
-        //out_response[poll_fd[i].fd] = create_http_response();
         delete[] tmp;
+        //std::cout << "PATH IN REQUEST END: " << http_response->path << std::endl;
         return 200;
 
     }
     else
     {
-        //http_response->status_code = 404;
-        //http_response->status_message = "Not Found";
-        //http_response->path = "./404.html";
-        //out_response[poll_fd[i].fd] = create_http_response();
         std::cout << "file doesn't exist" << std::endl;
     }
     delete[] tmp;
