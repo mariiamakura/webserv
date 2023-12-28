@@ -121,21 +121,6 @@ Response *Webserv::create_http_response(void)
     }
     http_response->headers["Content-Length"] = int_to_string(http_response->body.size());
 
-    // The status line format is: HTTP/VERSION STATUS_CODE STATUS_MESSAGE
-    //sstream << http_response->http_version << " " << http_response->status_code << " " << http_response->status_message << "\r\n";
-
-    // Write each header line
-//    for (std::map<std::string, std::string>::const_iterator it = http_response->headers.begin(); it != http_response->headers.end(); ++it)
-//    {
-//        sstream << it->first << ": " << it->second << "\r\n";
-//    }
-//
-//    // Write the body
-//    sstream << "\r\n"
-//            << http_response->body;
-//
-//    return sstream.str();
-
     return http_response;
 }
 

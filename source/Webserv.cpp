@@ -327,7 +327,7 @@ void Webserv::run()
 							 if (http_request->method == "GET")
 							{
                                 getMethod(i); //set outresponse inside
-                                //deleteRequest(poll_fd[i].fd);
+                                deleteRequest(poll_fd[i].fd);
 
 							}
                              else if  (http_request->method == "POST") {
