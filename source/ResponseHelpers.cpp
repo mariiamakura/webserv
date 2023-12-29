@@ -70,6 +70,7 @@ std::string Webserv::autoindex(const std::string& path)
     struct dirent* ent;
     struct stat st;
 
+    //std::cout << "PATH: " << path << std::endl;
     // Start building the HTML string
     std::ostringstream html;
     html << "<html><body><ul>";
@@ -81,7 +82,6 @@ std::string Webserv::autoindex(const std::string& path)
             std::string file_name = ent->d_name;
             std::string full_path = path + "/" + file_name;
 
-            //std::cout << "PATH: " << path << std::endl;
             // Get file information
             if (stat(full_path.c_str(), &st) == 0) {
                 // Check if it's a directory or a file
