@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>File Upload!</title>
+
+    <!--    <script>-->
+    <!--        function clearFileInput() {-->
+    <!--            // Get the file input element by its ID-->
+    <!--            var fileInput = document.getElementById('file');-->
+
+    <!--            // Reset the file input (clear the selected file)-->
+    <!--            fileInput.value = '';-->
+    <!--        }-->
+    <!--    </script>-->
+</head>
+<body>
+<h1>Upload your files</h1>
+<form method="post" action="/over42/upload" enctype="multipart/form-data" onsubmit="clearFileInput()">
+    <input type="file" name="file" id="file" required>
+    <input type="submit">
+</form>
+</body>
+</html>
