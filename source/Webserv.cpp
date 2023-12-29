@@ -311,7 +311,8 @@ void Webserv::run()
                              }
 							else if (http_request->method == "DELETE")
 							{
-								logging("DELETE request", DEBUG);
+                                logging("request :\n" + requestString + "\n", DEBUG);
+                                break;
 								// std::cout << "DELETE request" << std::endl;
                                 //deleteRequest(poll_fd[i].fd);
 							}
