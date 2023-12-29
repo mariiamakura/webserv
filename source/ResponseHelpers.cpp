@@ -87,7 +87,8 @@ std::string Webserv::autoindex(const std::string& path)
                 if (S_ISDIR(st.st_mode)) {
                     // Add a list item with a link for directories
                     html << "<li><a href=\"" << file_name << "/\">" << file_name << "/</a></li>";
-                } else if (file_name.find("jpg") != std::string::npos || file_name.find("png") != std::string::npos){
+                } else if (file_name.find("jpg") != std::string::npos || file_name.find("png") != std::string::npos ||
+                file_name.find("gif") != std::string::npos){
                     // Add a list item with a link for files
                     std::cout << "download files\n";
                     html << "<li><a href=\"/download/" << file_name << "\" download>" << file_name << "</a></li>";
