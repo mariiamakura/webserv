@@ -12,19 +12,25 @@ Response *Webserv::create_http_response(void)
     }
     else if (http_response->status_code == 403) {
         http_response->status_message = "Forbidden";
-        http_response->path = "/403.html";
+        http_response->path = "./over42/404.html";
     } else if (http_response->status_code == 404) {
         http_response->status_message = "Not Found";
-        http_response->path = "./404.html";
+        http_response->path =  "./over42/404.html";
     } else if (http_response->status_code == 201) {
         http_response->body += "<html><body>";
         http_response->body += "Your data received by us";
         http_response->body += "</body></html>";
         http_response->status_message = "OK";
+
     } else if (http_response->status_code == 400) {
         http_response->status_message = "Bad Request";
     } else if (http_response->status_code == 206) {
         http_response->status_message = "Partial Content";
+    } else if (http_response->status_code == 204) {
+        http_response->status_message = "No Content";
+    } else if (http_response->status_code == 202) {
+        http_response->body += "File deleted";
+        http_response->status_message = "OK";
     }
     //std::cout << "status code checked\n";
 
@@ -41,10 +47,14 @@ Response *Webserv::create_http_response(void)
     }
     // http_request.path = "." + http_request.path;
     //Check if it is a file (static website), if not it's a cgi script
+
     if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403) {
-        if (access(http_response->path.c_str(), F_OK) != 0)
+        if (access(http_response->path.c_str(), F_OK) != 0) {
+            //std::cout << "ACCES OK\n";
             http_response->body = http_response->path;
+        }
         else {
+            //std::cout << "ACCES ELSE\n";
             std::ifstream file(http_response->path.c_str(), std::ios::binary);
             std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             // std::cout << "str: " << str << std::endl;

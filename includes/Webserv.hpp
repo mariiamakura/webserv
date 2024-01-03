@@ -36,6 +36,7 @@
 #include <sys/wait.h>
 #include <dirent.h>
 #include <algorithm>
+#include <cstdio>
 
 
 #include "ASocket.hpp"

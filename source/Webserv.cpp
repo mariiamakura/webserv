@@ -309,13 +309,16 @@ void Webserv::run()
                                  if (http_response->status_code == 201 || http_response->status_code == 400)
                                      deleteRequest(poll_fd[i].fd);
                              }
-							else if (http_request->method == "DELETE")
-							{
-                                logging("request :\n" + requestString + "\n", DEBUG);
-                                break;
-								// std::cout << "DELETE request" << std::endl;
-                                //deleteRequest(poll_fd[i].fd);
-							}
+							else if (http_request->method == "DELETE") {
+                                 std::cout << "DELETE request" << std::endl;
+                                 logging("request :\n" + requestString + "\n", DEBUG);
+
+                                 //std::cout << "DELETE PATH: " << http_request->path << std::endl;
+
+                                 http_response->status_code = http_request->deleteMethod();
+                                 out_response[poll_fd[i].fd] = create_http_response();
+                                 deleteRequest(poll_fd[i].fd);
+                             }
 							else
 							{
 								logging("Unknown request", DEBUG);

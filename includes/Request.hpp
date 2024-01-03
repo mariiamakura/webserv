@@ -32,6 +32,7 @@ private:
     void postContentProcess();
     void parseBodyReq();
     void setMetaData();
+    int deleteMethod();
 };
 
 bool canSeparate(const std::vector<uint8_t> &request, size_t &delimIndex);

@@ -21,6 +21,7 @@ INC_DIR		=	includes/
 
 SRC_FILES	=	main.cpp Webserv.cpp ASocket.cpp Server.cpp Client.cpp \
  		Config.cpp helpers.cpp Post.cpp ResponseHelpers.cpp RequestHelpers.cpp Get.cpp \
+ 		Delete.cpp
 
 
 
