@@ -69,7 +69,7 @@ int Webserv::getMethod() {
         else if (is_directory)
         {
             std::string tmp2 = "." + http_request->path;
-            http_response->path = autoindex(tmp2);
+            http_response->path = autoindex(tmp2); //AUTOINDEX HERE
             // std::cout << "autoindex http_request.path: " << http_request.path << std::endl;
         }
         delete[] tmp;
