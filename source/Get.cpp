@@ -1,9 +1,56 @@
 #include "Webserv.hpp"
 
+
+std::string readFile(FILE* file) {
+    const size_t bufferSize = 1024;
+    char buffer[bufferSize];
+    std::ostringstream contentStream;
+
+    while (!feof(file) && !ferror(file)) {
+        size_t bytesRead = fread(buffer, 1, bufferSize, file);
+        if (bytesRead > 0) {
+            contentStream.write(buffer, bytesRead);
+        }
+    }
+
+    return contentStream.str();
+}
+
 int Webserv::getMethod() {
     logging("GET request", DEBUG);
+
+    //std::cout << "PATH: " << http_request->path << std::endl;
     char *tmp = string_to_chararray(http_request->path);
     //std::cout << "PATH IN REQUEST: " << tmp << std::endl;
+
+     if (http_request->path.find("download.php") != std::string::npos && access("./over42/download.php", F_OK) == 0) {
+         std::cout << "./over42/download.php exists" << std::endl;
+
+         std::string phpScriptPath = "./over42/download.php";
+
+         // Replace "your_filename.txt" with the actual filename you want to pass as a parameter
+         size_t filenamePTR = http_request->path.find("file=");
+         std::string filename = http_request->path.substr(filenamePTR + 5);
+
+        //std::cout << "filename: " << filename << std::endl;
+
+         //const char* filename = "text.txt";
+         std::string phpCommand = "php-cgi " + phpScriptPath + " file=" + filename;
+         //std::string phpCommand = "php-cgi " + http_request->path;
+         FILE *phpScript = popen(phpCommand.c_str(), "r");
+         if (phpScript) {
+             // Read the entire content of the file
+             std::string fileContent = readFile(phpScript);
+
+             // Assign the content to http_response->path
+             http_response->path = fileContent;
+
+             std::cout << "DOWNLOAD PATH SIZE: " << http_response->path.size() << std::endl;
+             pclose(phpScript);
+         }
+         return 777;
+     }
+
     if (access(tmp, F_OK) == 0) {
 
         struct stat path_stat;
@@ -25,6 +72,7 @@ int Webserv::getMethod() {
                     tmp = string_to_chararray(tmp2);
                     http_response->path = tmp2;
                     char *const args[] = {tmp, NULL};
+                    //std::cout << "tmp: " << tmp << " args: " << args[0] << std::endl;
                     execve(tmp, args, env);
                 } else {
                     close(pipefd[1]);
@@ -42,7 +90,8 @@ int Webserv::getMethod() {
 
                 }
             }
-        } else if (ft_strcmp(tmp, "./over42/get_files.php") == 0 && access("./over42/get_files.php", F_OK) == 0) {
+        }
+        else if (ft_strcmp(tmp, "./over42/get_files.php") == 0 && access("./over42/get_files.php", F_OK) == 0) {
             std::cout << "/over42/get_files.php exists" << std::endl;
 
             FILE *phpScript = popen("php-cgi ./over42/get_files.php", "r");
@@ -58,9 +107,6 @@ int Webserv::getMethod() {
                 pclose(phpScript);
             }
         }
-
-
-
 
         else if (!is_directory)
         {

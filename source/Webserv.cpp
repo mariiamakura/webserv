@@ -296,7 +296,6 @@ void Webserv::run()
 							{
                                 http_response->status_code = getMethod(); //set outresponse inside
 
-                                //create a response
                                 out_response[poll_fd[i].fd] = create_http_response();
                                 deleteRequest(poll_fd[i].fd);
                                 close_conn = TRUE;
@@ -327,25 +326,13 @@ void Webserv::run()
 								// std::cout << "Unknown request" << std::endl;
 							}
 
-                            std::cout << "body : " << out_response[poll_fd[i].fd]->body << std::endl;
-                            if (out_response[poll_fd[i].fd]->path.find("json") != std::string::npos) {
-                                std::string fullRes = "HTTP/1.1 200 OK\r\n" + out_response[poll_fd[i].fd]->body;
-
-                                rc = send(poll_fd[i].fd, fullRes.c_str(), fullRes.size(), 0);
-                                logging(" ---- response json: " + int_to_string(rc) + " bytes sent  ----", DEBUG);
-                                logging("response :\n" + fullRes + "\n", DEBUG);
-
-                                deleteResponse(poll_fd[i].fd);
-                                break;
-                            }
-
                             size_t res_size = out_response[poll_fd[i].fd]->toString().size();
                             const std::string responseStr = out_response[poll_fd[i].fd]->toString();
                             const char *resStr = responseStr.c_str();
 
 							rc = send(poll_fd[i].fd, resStr, res_size, 0);
 							logging(" ---- response: " + int_to_string(rc) + " bytes sent  ----", DEBUG);
-							logging("response :\n" + out_response[poll_fd[i].fd]->toString() + "\n", DEBUG);
+							//logging("response :\n" + out_response[poll_fd[i].fd]->toString() + "\n", DEBUG);
 
                             deleteResponse(poll_fd[i].fd);
 							break;
