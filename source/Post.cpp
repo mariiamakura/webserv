@@ -50,6 +50,11 @@ void Request::setMetaData() {
             this->MetaD.content_type = line.substr(typePtr, typeLen);
         }
     }
+    struct stat info;
+    if (!(stat("download", &info) == 0 && S_ISDIR(info.st_mode))) {
+        if(mkdir("download",  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0)
+            exit(EXIT_FAILURE);
+    }
     this->MetaD.location = "download/";
     this->MetaD.fullPath = this->MetaD.location + this->MetaD.filename;
 }
