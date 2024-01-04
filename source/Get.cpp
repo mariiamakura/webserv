@@ -4,24 +4,20 @@ int Webserv::getMethod() {
     logging("GET request", DEBUG);
     char *tmp = string_to_chararray(http_request->path);
     //std::cout << "PATH IN REQUEST: " << tmp << std::endl;
-    if (access(tmp, F_OK) == 0)
-    {
+    if (access(tmp, F_OK) == 0) {
 
         struct stat path_stat;
         stat(tmp, &path_stat);
         bool is_directory = S_ISDIR(path_stat.st_mode);
 
-        if (ft_strcmp(tmp, "./cgi-bin/index.py") == 0 && access("./cgi-bin/index.py", F_OK) == 0)
-        {
+        if (ft_strcmp(tmp, "./cgi-bin/index.py") == 0 && access("./cgi-bin/index.py", F_OK) == 0) {
             std::cout << "cgi-bin/index.py exists" << std::endl;
-            if (access("./cgi-bin/index.py", X_OK) == 0)
-            {
+            if (access("./cgi-bin/index.py", X_OK) == 0) {
 
                 std::cout << "cgi-bin/index.py exists" << std::endl;
                 int pipefd[2];
                 pipe(pipefd);
-                if (fork() == 0)
-                {
+                if (fork() == 0) {
                     close(pipefd[0]);
                     dup2(pipefd[1], STDOUT_FILENO);
                     std::string tmp2 = "/cgi-bin/index.py";
@@ -30,15 +26,12 @@ int Webserv::getMethod() {
                     http_response->path = tmp2;
                     char *const args[] = {tmp, NULL};
                     execve(tmp, args, env);
-                }
-                else
-                {
+                } else {
                     close(pipefd[1]);
                     char buffer[1024];
                     std::string scriptOutput;
                     ssize_t bytesRead;
-                    while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
-                    {
+                    while ((bytesRead = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0) {
                         buffer[bytesRead] = '\0';
                         scriptOutput += buffer;
                     }
@@ -49,7 +42,26 @@ int Webserv::getMethod() {
 
                 }
             }
+        } else if (ft_strcmp(tmp, "./over42/get_files.php") == 0 && access("./over42/get_files.php", F_OK) == 0) {
+            std::cout << "/over42/get_files.php exists" << std::endl;
+
+            FILE *phpScript = popen("php-cgi ./over42/get_files.php", "r");
+
+            if (phpScript) {
+                char buffer[1024];
+                std::string scriptOutput;
+                while (fgets(buffer, sizeof(buffer), phpScript) != NULL) {
+                    scriptOutput += buffer;
+                }
+                http_response->path = scriptOutput;
+                //std::cout << "PATH: " << http_response->path << std::endl;
+                pclose(phpScript);
+            }
         }
+
+
+
+
         else if (!is_directory)
         {
 

@@ -45,12 +45,20 @@ Response *Webserv::create_http_response(void)
         http_response->headers["Content-Type"] = "text/css";
         // http_request.path = "." + http_request.path;
     }
+
     // http_request.path = "." + http_request.path;
     //Check if it is a file (static website), if not it's a cgi script
-
+    //std::cout << "PATH: " << http_response->path << std::endl;
     if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403) {
         if (access(http_response->path.c_str(), F_OK) != 0) {
             //std::cout << "ACCES OK\n";
+            if (http_response->path.find("json") != std::string::npos)
+            {
+                size_t jsonPosition = http_response->path.find("json");
+                http_response->body = http_response->path.substr(jsonPosition + 4);
+                //std::cout << "Body: " << http_response->body << std::endl;
+                return http_response;
+            }
             http_response->body = http_response->path;
         }
         else {
@@ -68,7 +76,7 @@ Response *Webserv::create_http_response(void)
         }
     }
 
-    //std::cout << "create response finish\n";
+    //std::cout << "response body: " << http_response->body;
     return http_response;
 }
 

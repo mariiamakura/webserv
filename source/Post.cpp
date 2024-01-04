@@ -14,12 +14,14 @@ int Webserv::postMethod(size_t i) {
     if (http_request->content.size() == content_length) {
         std::cout << "FINISH CONTENT" << std::endl;
         http_request->postContentProcess();
+        close_conn = TRUE;
         return 201;
     } else if (http_request->content.size() > content_length || http_request->content.size() > content_length) {
         std::cout << "SUPPOSED content_length : " << content_length << std::endl;
         std::cout << "content size " << http_request->content.size() << std::endl;
 
         std::cout << "CORRUPTED CONTENT" << std::endl;
+        close_conn = TRUE;
         return 400;
     } else {
         std::cout << "PARTIAL CONTENT " << http_request->content.size() << " of " << content_length << std::endl;
