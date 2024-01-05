@@ -103,6 +103,7 @@ class Webserv
 		int		rc;
 		int 	end_server ;
 		int		close_conn ;
+        bool    autoindexBool;
 		Request *http_request;
 		Response *http_response;
 		
@@ -169,6 +170,11 @@ class Webserv
         void newOrAppendRequest(size_t i);
         void deleteRequest(int i);
         void deleteResponse(int i);
-        int getCgiFilesList();
 
-};
+
+        int getCgiFilesList();
+        int getDownloadCgi();
+
+
+
+    };

@@ -17,6 +17,34 @@ void Response::jsonFileResponse() {
     //std::cout << "Body: " << http_response->body << std::endl;
 }
 
+void Response::downloadFileResponse() {
+    this->status_code = 200;
+    this->status_message = "OK";
+
+    std::string httpResponseText = this->path;
+    size_t doubleNewlinePos = httpResponseText.find("\r\n\r\n");
+    if (doubleNewlinePos != std::string::npos) {
+        // Extract headers
+        std::string headersStr = httpResponseText.substr(0, doubleNewlinePos);
+        std::istringstream headersStream(headersStr);
+        std::string line;
+
+        while (std::getline(headersStream, line, '\n')) {
+            size_t colonPos = line.find(':');
+            if (colonPos != std::string::npos) {
+                std::string headerName = line.substr(0, colonPos);
+                std::string headerValue = line.substr(colonPos + 2); // Skip ': ' after the header name
+                this->headers[headerName] = headerValue;
+            }
+        }
+        // Extract body
+        this->body = httpResponseText.substr(doubleNewlinePos + 5); // Skip '\r\n\r\n' after headers
+        //std::cout << "body size: " << this->body.size() << std::endl;
+        //std::cout << "Content Size: " << this->headers["Content-Length"] << std::endl;
+
+    }
+}
+
 Response *Webserv::create_http_response(void)
 {
     //std::ostringstream sstream;
@@ -29,7 +57,7 @@ Response *Webserv::create_http_response(void)
     }
     else if (http_response->status_code == 403) {
         http_response->status_message = "Forbidden";
-        http_response->path = "./over42/404.html";
+        http_response->path = "./over42/403.html";
     } else if (http_response->status_code == 404) {
         http_response->status_message = "Not Found";
         http_response->path =  "./over42/404.html";
@@ -57,35 +85,9 @@ Response *Webserv::create_http_response(void)
     }
 
     else if (http_response->status_code == 777) {
-        http_response->status_code = 200;
-        http_response->status_message = "OK";
-
-        std::string httpResponseText = http_response->path;
-        size_t doubleNewlinePos = httpResponseText.find("\r\n\r\n");
-        if (doubleNewlinePos != std::string::npos) {
-            // Extract headers
-            std::string headersStr = httpResponseText.substr(0, doubleNewlinePos);
-            std::istringstream headersStream(headersStr);
-            std::string line;
-
-            while (std::getline(headersStream, line, '\n')) {
-                size_t colonPos = line.find(':');
-                if (colonPos != std::string::npos) {
-                    std::string headerName = line.substr(0, colonPos);
-                    std::string headerValue = line.substr(colonPos + 2); // Skip ': ' after the header name
-                    http_response->headers[headerName] = headerValue;
-                }
-            }
-
-            // Extract body
-            http_response->body = httpResponseText.substr(doubleNewlinePos + 5); // Skip '\r\n\r\n' after headers
-            std::cout << "body size: " << http_response->body.size() << std::endl;
-            std::cout << "Content Size: " << http_response->headers["Content-Length"] << std::endl;
-            return http_response;
-
-        }
+        http_response->downloadFileResponse();
+        return http_response;
     }
-
 
     //std::cout << "status code checked\n";
 
