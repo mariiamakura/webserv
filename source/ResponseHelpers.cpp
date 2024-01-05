@@ -1,5 +1,22 @@
 #include "Webserv.hpp"
 
+void Response::jsonFileResponse() {
+
+    if (this->path.find("Status:") != std::string::npos) {
+        this->status_message = "Internal Server Error";
+        this->status_code = 500;
+    }
+    else {
+        this->status_code = 200;
+        this->status_message = "OK";
+    }
+    size_t jsonPosition = this->path.find("json");
+    this->body = this->path.substr(jsonPosition + 4);
+    this->path.clear();
+    return;
+    //std::cout << "Body: " << http_response->body << std::endl;
+}
+
 Response *Webserv::create_http_response(void)
 {
     //std::ostringstream sstream;
@@ -31,7 +48,15 @@ Response *Webserv::create_http_response(void)
     } else if (http_response->status_code == 202) {
         http_response->body += "File deleted";
         http_response->status_message = "OK";
-    } else if (http_response->status_code == 777) {
+    } else if (http_response->status_code == 500) {
+        http_response->status_message = "Internal Server Error";
+        http_response->path =  "./over42/500.html";
+    } else if (http_response->status_code == 999) { //php cgi files list
+        http_response->jsonFileResponse();
+        return http_response;
+    }
+
+    else if (http_response->status_code == 777) {
         http_response->status_code = 200;
         http_response->status_message = "OK";
 
@@ -53,10 +78,11 @@ Response *Webserv::create_http_response(void)
             }
 
             // Extract body
-            http_response->body = httpResponseText.substr(doubleNewlinePos + 4); // Skip '\r\n\r\n' after headers
+            http_response->body = httpResponseText.substr(doubleNewlinePos + 5); // Skip '\r\n\r\n' after headers
             std::cout << "body size: " << http_response->body.size() << std::endl;
             std::cout << "Content Size: " << http_response->headers["Content-Length"] << std::endl;
             return http_response;
+
         }
     }
 
@@ -75,19 +101,8 @@ Response *Webserv::create_http_response(void)
         // http_request.path = "." + http_request.path;
     }
 
-    // http_request.path = "." + http_request.path;
-    //Check if it is a file (static website), if not it's a cgi script
-    //std::cout << "PATH: " << http_response->path << std::endl;
-    if (http_response->path.find("json") != std::string::npos)
-    {
-
-        size_t jsonPosition = http_response->path.find("json");
-        http_response->body = http_response->path.substr(jsonPosition + 4);
-        http_response->path.clear();
-        //std::cout << "Body: " << http_response->body << std::endl;
-        return http_response;
-    }
-    if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403) {
+    if (http_response->status_code == 200 || http_response->status_code == 404
+    || http_response->status_code == 403) {
         if (access(http_response->path.c_str(), F_OK) != 0) {
             std::cout << "ACCES OK\n";
             http_response->body = http_response->path;

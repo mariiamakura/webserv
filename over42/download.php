@@ -1,3 +1,5 @@
+#!/usr/bin/php-cgi
+
 <?php
 // Enable error reporting for debugging
 error_reporting(E_ALL);

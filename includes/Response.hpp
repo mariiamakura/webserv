@@ -36,4 +36,6 @@ public:
 
         return ss.str();
     }
+
+    void jsonFileResponse();
 };

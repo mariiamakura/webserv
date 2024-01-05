@@ -161,14 +161,14 @@ class Webserv
 		std::string autoindex(const std::string& path) ;
 
 
-    Response *create_http_response(void);
+        Response *create_http_response(void);
         //REQUEST HTTP METHODS
         Request *parse_http_request(const std::vector<uint8_t> &request);
-        //Request *parse_http_request(const std::vector<uint8_t> &request);
         int getMethod();
         int postMethod(size_t i);
         void newOrAppendRequest(size_t i);
         void deleteRequest(int i);
         void deleteResponse(int i);
+        int getCgiFilesList();
 
 };

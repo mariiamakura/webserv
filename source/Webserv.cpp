@@ -296,6 +296,7 @@ void Webserv::run()
 							{
                                 http_response->status_code = getMethod(); //set outresponse inside
 
+                                //std::cout << "PATH: " << http_response->path << std::endl;
                                 out_response[poll_fd[i].fd] = create_http_response();
                                 deleteRequest(poll_fd[i].fd);
                                 close_conn = TRUE;
@@ -332,7 +333,7 @@ void Webserv::run()
 
 							rc = send(poll_fd[i].fd, resStr, res_size, 0);
 							logging(" ---- response: " + int_to_string(rc) + " bytes sent  ----", DEBUG);
-							//logging("response :\n" + out_response[poll_fd[i].fd]->toString() + "\n", DEBUG);
+							logging("response :\n" + out_response[poll_fd[i].fd]->toString() + "\n", DEBUG);
 
                             deleteResponse(poll_fd[i].fd);
 							break;
