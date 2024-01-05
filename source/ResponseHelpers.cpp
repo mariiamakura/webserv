@@ -56,9 +56,13 @@ Response *Webserv::create_http_response(void)
         http_response->status_message = "OK";
     }
     else if (http_response->status_code == 403) {
+        if (!http_response->isFile) //when autoindex is on to display page
+            http_response->isFile = true;
         http_response->status_message = "Forbidden";
         http_response->path = "./over42/403.html";
     } else if (http_response->status_code == 404) {
+        if (!http_response->isFile) //when autoindex is on to display page
+            http_response->isFile = true;
         http_response->status_message = "Not Found";
         http_response->path =  "./over42/404.html";
     } else if (http_response->status_code == 201) {

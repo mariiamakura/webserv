@@ -16,6 +16,7 @@ Webserv::Webserv()
 {
 	server.push_back(Server());
 	poll_fd.push_back(pollfd());
+    autoindexBool = true;
 }
 
 Webserv::~Webserv()
