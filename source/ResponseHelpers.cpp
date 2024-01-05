@@ -103,27 +103,23 @@ Response *Webserv::create_http_response(void)
         // http_request.path = "." + http_request.path;
     }
 
+    std::cout << "PATH : " << http_response->path << std::endl;
+
     if (http_response->status_code == 200 || http_response->status_code == 404
     || http_response->status_code == 403) {
-        if (access(http_response->path.c_str(), F_OK) != 0) {
-            std::cout << "ACCES OK\n";
-            http_response->body = http_response->path;
-        }
-        else {
-            std::cout << "ACCES ELSE\n";
+        if (http_response->isFile) {
+            std::cout << "is a file\n";
             std::ifstream file(http_response->path.c_str(), std::ios::binary);
             std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             // std::cout << "str: " << str << std::endl;
             http_response->body = str;
 
             http_response->headers["Content-Length"] = int_to_string(http_response->body.size());
-            if (http_response->path.find("jpg") != std::string::npos || http_response->path.find("png") != std::string::npos) {
-                std::cout << "Dispostition added\n";
-                http_response->headers["Content-Disposition"] = "attachment; filename=\"" + http_response->path + "\"";
-            }
+        } else {
+            std::cout << "not a file\n";
+            http_response->body = http_response->path;
         }
     }
-
     //std::cout << "response body: " << http_response->body;
     return http_response;
 }
@@ -154,15 +150,15 @@ std::string Webserv::autoindex(const std::string& path)
                 if (S_ISDIR(st.st_mode)) {
                     // Add a list item with a link for directories
                     html << "<li><a href=\"" << file_name << "/\">" << file_name << "/</a></li>";
-                } else if (file_name.find("jpg") != std::string::npos || file_name.find("png") != std::string::npos ||
-                file_name.find("gif") != std::string::npos){
-                    // Add a list item with a link for files
-                    std::cout << "download files\n";
-                    html << "<li><a href=\"/download/" << file_name << "\" download>" << file_name << "</a></li>";
-                }
-                else {
-                    //other files
-                    html << "<li><a href=\"" << file_name << "\">" << file_name << "</a></li>";
+                } else {
+                    if (file_name.find("html") != std::string::npos || file_name.find("txt") != std::string::npos) {
+                        html << "<li><a href=\"" << file_name << "\">" << file_name << "</a></li>";
+                    }
+                    else {
+                        //Add a list item with a download link for files
+                        std::cout << "download files\n";
+                        html << "<li><a href=\"" << file_name << "\" download>" << file_name << "</a></li>";
+                    }
                 }
             }
         }

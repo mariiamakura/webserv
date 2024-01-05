@@ -10,8 +10,11 @@ class Response {
         std::map<std::string, std::string> headers;
         std::string body;
         std::string path;
+        bool isFile;
 public:
-    Response() {};
+    Response() {
+        isFile = false;
+    };
     ~Response() {};
     friend class Webserv; //do we need it?
 

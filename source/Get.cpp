@@ -27,6 +27,7 @@ int Webserv::getMethod() {
             {
                 std::cout << "file exists" << std::endl;
                 http_response->path = tmp;
+                http_response->isFile = true;
                 delete[] tmp;
                 return 200;
             }
