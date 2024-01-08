@@ -6,22 +6,19 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 17:42:41 by sung-hle          #+#    #+#             */
-/*   Updated: 2023/12/19 15:35:30 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/08 13:15:45 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 
-Location::Location() {
-    
+Location::Location() : path(""), allowMethods(), root(""), cgi_path(), cgi_ext(), autoindex(false) {
 }
 
-Location::~Location()
-{
+Location::~Location() {
 }
 
-Location::Location(Location const &src)
-{
+Location::Location(Location const &src) : path(""), allowMethods(), root(""), cgi_path(), cgi_ext(), autoindex(false) {
   *this = src;
 }
 

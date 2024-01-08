@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/12/11 12:00:47 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/08 17:03:21 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ class Webserv
 		std::vector<Client> client;
 		std::vector<Server>::iterator cl_iter;
 
-		std::vector<Config> config;
+		std::vector<Config *> config;
 		std::vector<Server>::iterator co_iter;
 
 		std::vector<pollfd> poll_fd;
@@ -136,7 +136,7 @@ class Webserv
 		void setSockfd(int sockfd);
 		void setServer(std::vector<Server> server);
 		void setClient(std::vector<Client> client);
-		void setConfig(std::vector<Config> config);
+		void setConfig(std::vector<Config *> config);
 		void setInRequest(std::map <int, std::string> in_request);
 		void setOutResponse(std::map <int, std::string> out_response);
 		void setEnv(char **env);
@@ -146,7 +146,7 @@ class Webserv
 		int getSockfd();
 		std::vector<Server> getServer();
 		std::vector<Client> getClient();
-		std::vector<Config> getConfig();
+		std::vector<Config *> getConfig() const;
 		std::map <int, std::string> getInRequest() ;
 		std::map <int, std::string> getOutResponse();
 		char **getEnv();
@@ -154,7 +154,7 @@ class Webserv
 		
 		//methods
 		std::map<std::string, std::string> parse_form_data(const std::string& formData);
-		void parseConfig(char *path);
+		int parseConfig(std::string path);
 		void init_servers();
 		void run();
 		void logging(std::string str, int status);

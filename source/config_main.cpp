@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   config_main.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 13:47:45 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/12/30 16:46:43 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/08 17:08:59 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,23 @@ int main()	{ //minimum necessary port, ip, root location
     }
 
     std::vector<Config *> serverConfigs;
+    
+    // while (!configFile.eof()) {
+    //     Config *serverConfig = new Config();
+    //     serverConfig->parse(configFile);
+    //     serverConfigs.push_back(serverConfig);
+    // }
 
-    while (!configFile.eof()) {
-        Config *serverConfig = new Config();
-        serverConfig->parse(configFile);
-        serverConfigs.push_back(serverConfig);
-    }
+    // std::string line;
+    // while (std::getline(configFile, line)) {
+    //     // Check if the line contains the "server" keyword
+    //     if (line.find("server") != std::string::npos) {
+    //         // If the line contains "server", create a new Config object and parse it
+    //         Config* serverConfig = new Config();
+    //         serverConfig->parse(configFile);
+    //         serverConfigs.push_back(serverConfig);
+    //     }
+    // }
 
     configFile.close();
 
@@ -57,7 +68,7 @@ int main()	{ //minimum necessary port, ip, root location
 
     
 
-    if (serverConfigs[0]->getListen() == 0 ||
+    if (serverConfigs[0]->getListen() == "" ||
         serverConfigs[0]->getHost().empty() ||
         serverConfigs[0]->getLocation().find("/") == serverConfigs[0]->getLocation().end()) {
         std::cout << "Invalid configuration." << std::endl;

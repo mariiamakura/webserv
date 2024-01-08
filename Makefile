@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+         #
+#    By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/09 13:47:00 by fhassoun          #+#    #+#              #
-#    Updated: 2023/11/21 13:36:19 by fhassoun         ###   ########.fr        #
+#    Updated: 2024/01/08 17:25:30 by sung-hle         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,12 +20,12 @@ OBJ_DIR		=	object/
 INC_DIR		=	includes/
 
 
-SRC_FILES	=	config_main.cpp Webserv.cpp ASocket.cpp Server.cpp Client.cpp \
+# SRC_FILES	=	config_main.cpp Webserv.cpp ASocket.cpp Server.cpp Client.cpp \
  		Config.cpp helpers.cpp Post.cpp ResponseHelpers.cpp RequestHelpers.cpp Get.cpp \
  		Delete.cpp Location.cpp
 
  #for http methods
-# SRC_FILES	=	main.cpp Webserv.cpp ASocket.cpp Server.cpp Client.cpp \
+SRC_FILES	=	main.cpp Webserv.cpp ASocket.cpp Server.cpp Client.cpp \
          Config.cpp helpers.cpp Post.cpp ResponseHelpers.cpp RequestHelpers.cpp Get.cpp \
          Delete.cpp Location.cpp
 

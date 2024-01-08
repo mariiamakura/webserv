@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/12/11 11:56:01 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/08 17:36:32 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,10 @@ Webserv::Webserv()
 
 Webserv::~Webserv()
 {
-    if (http_request)
-        delete http_request;
-    if (http_response)
-        delete http_response;
+    // if (http_request)
+    //     delete http_request;
+    // if (http_response)
+    //     delete http_response;
 }
 
 Webserv::Webserv(Webserv const &src)
@@ -393,4 +393,41 @@ void Webserv::run()
 		p_iter++;
 	}
 	return;
+}
+
+void Webserv::setConfig(std::vector<Config *> _config)	{
+	config = _config;
+}
+
+std::vector<Config *> Webserv::getConfig() const {
+		return config;
+}
+
+int Webserv::parseConfig(std::string path) {
+	std::ifstream configFile(path.c_str());
+
+	if (!configFile.is_open()) {
+			std::cerr << "Error: Unable to open the server.conf file." << std::endl;
+			return 1;
+	}
+	std::vector<Config *> serverConfigs;
+	
+	while (!configFile.eof()) {
+		Config *serverConfig = new Config();
+		serverConfig->parse(configFile);
+		serverConfigs.push_back(serverConfig);
+	}
+	setConfig(serverConfigs);
+	configFile.close();
+	if (serverConfigs[0]->getListen() == "" ||
+		serverConfigs[0]->getHost().empty() ||
+		serverConfigs[0]->getLocation().find("/") == serverConfigs[0]->getLocation().end()) {
+		std::cout << "Invalid configuration." << std::endl;
+		std::cout << "Min requirements are Port, Host and Root-Location." << std::endl;
+		for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz) {
+				delete *itz;
+		}
+		return 2;
+	} 
+	return 0;
 }

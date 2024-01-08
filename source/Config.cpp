@@ -6,32 +6,54 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:44:28 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/12/30 16:50:54 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/08 17:36:50 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 
-Config::Config()
-{
+Config::Config()	: listen(""), root(""), autoindex(false), port(0), client_body_buffer_size(0){
 }
 
-Config::~Config()
-{
+Config::~Config()	{
 	for (std::map<std::string, Location*>::iterator it = location.begin(); it != location.end(); ++it) {
-        delete it->second;
-    }
+		delete it->second;
+	}
 }
 
-Config::Config(Config const &src)
-{
+Config::Config(Config const &src)	: listen(src.listen), root(src.root), autoindex(src.autoindex), port(src.port), client_body_buffer_size(src.client_body_buffer_size){
 	*this = src;
 }
 
 Config &Config::operator=(Config const &src)
 {
-	if (this == &src)
-		return (*this);
+	if (this == &src)	{
+		listen = src.listen;
+		serverNames = src.serverNames;
+		host = src.host;
+		root = src.root;
+		errorPage = src.errorPage;
+		location = src.location;
+		allowedMethods = src.allowedMethods;
+		index = src.index;
+		autoindex = src.autoindex;
+		port = src.port;
+		client_body_buffer_size = src.client_body_buffer_size;
+
+		// Delete existing Location objects
+		for (std::map<std::string, Location*>::iterator it = location.begin(); it != location.end(); ++it) {
+			delete it->second;
+		}
+
+		// Clear the map
+		location.clear();
+
+		// Copy Location objects
+		for (std::map<std::string, Location*>::const_iterator it = src.location.begin(); it != src.location.end(); ++it) {
+			Location *newLocation = new Location(*(it->second));
+			location[it->first] = newLocation;
+		}
+	}
 	return (*this);
 }
 
@@ -40,6 +62,7 @@ void Config::parse(std::ifstream& configFile) {
 	std::string line;
 	std::string tmp;
 	std::string tmp2;
+	// std::cout << "Parsing config file..." << std::endl;
 	while (std::getline(configFile, line)) {
 		std::istringstream iss(line);
 		std::string keyword;
@@ -78,32 +101,25 @@ void Config::parse(std::ifstream& configFile) {
 						keyword = "server_name";
 						iss.clear();
 						iss.str(line);
-						iss >> keyword >> tmp;
-						if (!tmp.empty()) {
-							if (tmp[tmp.size() - 1] == ';')
-								tmp.erase(tmp.size() - 1);
+						iss >> keyword;
+						while (iss >> tmp) {
+							formatString(tmp);
+							setServerNames(tmp);
 						}
-						setServerName(tmp);
 					} else if (line.find("host") != std::string::npos) {
 						keyword = "host";
 						iss.clear();
 						iss.str(line);
 						iss >> keyword >> tmp;
 						// std::cout << "TMP HOST: " << tmp << std::endl;
-						if (!tmp.empty()) {
-							if (tmp[tmp.size() - 1] == ';')
-								tmp.erase(tmp.size() - 1);
-						}
+						formatString(tmp);
 						host.push_back(tmp);
 					} else if (line.find("root") != std::string::npos) {
 						keyword = "root";
 						iss.clear();
 						iss.str(line);
 						iss >> keyword >> tmp;
-						if (!tmp.empty()) {
-							if (tmp[tmp.size() - 1] == ';')
-								tmp.erase(tmp.size() - 1);
-						}
+						formatString(tmp);
 						setRoot(tmp);
 					} else if (line.find("error_page") != std::string::npos) {
 						keyword = "error_page";
@@ -111,11 +127,15 @@ void Config::parse(std::ifstream& configFile) {
 						iss.str(line);
 						std::string tmp2;
 						iss >> keyword >> tmp >> tmp2;
-						if (!tmp2.empty()) {
-							if (tmp2[tmp2.size() - 1] == ';')
-								tmp2.erase(tmp2.size() - 1);
-						}
+						formatString(tmp2);
 						setErrorPage(tmp, tmp2);
+					} else if (line.find("client_max_body_size") != std::string::npos) {
+						keyword = "client_max_body_size";
+						iss.clear();
+						iss.str(line);
+						iss >> keyword >> tmp;
+						formatString(tmp);
+						setClientBodyBufferSize(tmp);
 					} else if (line.find("location") != std::string::npos) {
 						std::istringstream iss(line);
 						iss >> keyword;
@@ -147,10 +167,7 @@ void Config::parse(std::ifstream& configFile) {
 						iss.clear();
 						iss.str(line);
 						iss >> keyword >> tmp;
-						if (!tmp.empty()) {
-							if (tmp[tmp.size() - 1] == ';')
-								tmp.erase(tmp.size() - 1);
-						}
+						formatString(tmp);
 						if (tmp.compare("on") == 0)
 							this->autoindex = true;
 						else
@@ -159,12 +176,11 @@ void Config::parse(std::ifstream& configFile) {
 						keyword = "index";
 						iss.clear();
 						iss.str(line);
-						iss >> keyword >> tmp;
-						if (!tmp.empty()) {
-							if (tmp[tmp.size() - 1] == ';')
-								tmp.erase(tmp.size() - 1);
+						iss >> keyword;
+						while (iss >> tmp) {
+							formatString(tmp);
+							setIndex(tmp);
 						}
-						setIndex(tmp);
 					}
 				}
 				// End of server block
@@ -173,27 +189,21 @@ void Config::parse(std::ifstream& configFile) {
 }
 
 
-void Config::setListen(std::string str)
-{
-	int port = 0;
-			port = static_cast<int>(std::strtol(str.c_str(), NULL, 10));
-			this->listen = port;
-	
+void Config::setListen(std::string str) {
+	listen = str;
 }
 
-u_int16_t Config::getListen()  const
-{
-	return (this->listen);
+const std::string& Config::getListen()  const {
+	return listen;
 }
 
-void Config::setServerName(std::string str)
-{
-	this->serverName = str;
+void Config::setServerNames(std::string str) {
+	serverNames.push_back(str);
 }
 
-const std::string& Config::getServerName() const
+const std::vector<std::string>& Config::getServerNames() const
 {
-	return (this->serverName);
+	return serverNames;
 }
 
 void Config::setHost(std::string str)
@@ -204,6 +214,16 @@ void Config::setHost(std::string str)
 const std::vector<std::string>& Config::getHost() const
 {
 	return (this->host);
+}
+
+void Config::setPort(std::string str) {
+	int _port = 0;
+	_port = static_cast<int>(std::strtol(str.c_str(), NULL, 10));
+	port = _port;
+}
+
+int Config::getPorts() const {
+	return (this->port);
 }
 
 void Config::setRoot(std::string str)
@@ -226,6 +246,16 @@ void Config::setErrorPage(std::string str, std::string str2)
 const std::map<int, std::string>& Config::getErrorPage() const
 {
 	return (this->errorPage);
+}
+
+void Config::setClientBodyBufferSize(std::string str) {
+	unsigned long _client_body_buffer_size = 0;
+	_client_body_buffer_size = static_cast<unsigned long>(std::strtol(str.c_str(), NULL, 10));
+	client_body_buffer_size = _client_body_buffer_size;
+}
+
+unsigned long Config::getClientBodyBufferSize() const {
+	return (this->client_body_buffer_size);
 }
 
 void Config::setLocation(std::string str, std::ifstream& configFile) {
@@ -251,11 +281,8 @@ void Config::setLocation(std::string str, std::ifstream& configFile) {
 			std::set<std::string> methods;
 			std::string method;
 			while (iss >> method) {
-				if (!method.empty()) {
-					if (method[method.size() - 1] == ';')
-						method.erase(method.size() - 1);
-				}
-						methods.insert(method);
+				formatString(method);
+				methods.insert(method);
 			}
 			// for (std::set<std::string>::const_iterator it = methods.begin(); it != methods.end(); ++it) {
 			// 		std::cout << *it << " ";
@@ -267,20 +294,14 @@ void Config::setLocation(std::string str, std::ifstream& configFile) {
 			iss.clear();
 			iss.str(line);
 			iss >> keyword >> tmp;
-			if (!tmp.empty()) {
-				if (tmp[tmp.size() - 1] == ';')
-					tmp.erase(tmp.size() - 1);
-			}
+			formatString(tmp);
 			loc->setRoot(tmp);
 		} else if (line.find("autoindex") != std::string::npos) {
 			keyword = "autoindex";
 			iss.clear();
 			iss.str(line);
 			iss >> keyword >> tmp;
-			if (!tmp.empty()) {
-				if (tmp[tmp.size() - 1] == ';')
-					tmp.erase(tmp.size() - 1);
-			} 	
+			formatString(tmp); 	
 			if (tmp.compare("on") == 0)
 				loc->setAutoindex(true);
 			else
@@ -289,19 +310,16 @@ void Config::setLocation(std::string str, std::ifstream& configFile) {
 			keyword = "index";
 			iss.clear();
 			iss.str(line);
-			iss >> keyword >> tmp;
-			if (!tmp.empty()) {
-				if (tmp[tmp.size() - 1] == ';')
-					tmp.erase(tmp.size() - 1);
-			} 	
-			loc->setIndex(tmp);
+			iss >> keyword;
+			while (iss >> tmp) {
+				formatString(tmp);
+				loc->setIndex(tmp);
+			}
 		} else if ((pos = line.find("cgi_path")) != std::string::npos) {
 			std::istringstream iss(line.substr(pos + strlen("cgi_path") + 1));
 			std::vector<std::string> cgiPathMap;
 			while (iss >> tmp) {
-				if (!tmp.empty() && tmp[tmp.size() - 1] == ';') {
-					tmp.erase(tmp.size() - 1);
-				}
+				formatString(tmp);
 				cgiPathMap.push_back(tmp);
 			}
 			loc->setCGIPath(cgiPathMap);
@@ -309,9 +327,7 @@ void Config::setLocation(std::string str, std::ifstream& configFile) {
 			std::istringstream iss(line.substr(pos + strlen("cgi_ext") + 1));
 			std::vector<std::string> cgiExtVector;
 			while (iss >> tmp) {
-				if (!tmp.empty() && tmp[tmp.size() - 1] == ';') {
-					tmp.erase(tmp.size() - 1);
-				}
+				formatString(tmp);
 				cgiExtVector.push_back(tmp);
 			}
 			loc->setCGIExt(cgiExtVector);
@@ -350,12 +366,12 @@ const std::set<std::string>& Config::getAllowedMethods() const
 
 void Config::setIndex(std::string str)
 {
-	index = str;
+	index.push_back(str);
 }
 
-const std::string& Config::getIndex() const
+const std::vector<std::string>& Config::getIndex() const
 {
-	return (index);
+	return index;
 }
 
 void Config::setAutoindex(bool b)
@@ -382,24 +398,32 @@ void displayVector(const std::vector<std::string>& strVector) {
 }
 
 void Config::printConfigs(std::vector<Config *>& serverConfigs) {
-	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz) {
+	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); itz++) {
     std::cout << "Server Configuration:" << std::endl;
     std::cout << "Listen Port: ." << (*itz)->getListen() << "." << std::endl;
-    std::cout << "Server Name: ." << (*itz)->getServerName() << "." << std::endl;
-
+    // std::cout << "Server Name: ." << (*itz)->getServerNames() << "." << std::endl;
+    std::cout << "Server Name: .";
+		const std::vector<std::string>& serverNames = (*itz)->getServerNames();
+		displayVector(serverNames);
+		std::cout << "." << std::endl;
+		
     const std::vector<std::string>& hosts = (*itz)->getHost();
     std::cout << "Hosts: ";
     displayVector(hosts);
     std::cout << std::endl;
 
     std::cout << "Root: ." << (*itz)->getRoot() << "." << std::endl;
-		std::cout << "Index: ." << (*itz)->getIndex() << "." << std::endl;
+		std::cout << "Index: .";
+		const std::vector<std::string>& index = (*itz)->getIndex();
+		displayVector(index);
+		std::cout << "." << std::endl;
 		std::cout << "Autoindex: ." << ((*itz)->getAutoindex() ? "on" : "off") << std::endl;
     const std::map<int, std::string>& errorPages = (*itz)->getErrorPage();
     std::cout << "Error Pages:" << std::endl;
     for (std::map<int, std::string>::const_iterator it = errorPages.begin(); it != errorPages.end(); ++it) {
         std::cout << "\t." << it->first << ". => ." << it->second << "." << std::endl;
     }
+		std::cout << "Client Body Buffer Size: ." << (*itz)->getClientBodyBufferSize() << "." << std::endl;
 
 //Locations
 		const std::map<std::string, Location*>& locations = (*itz)->getLocation();
@@ -425,5 +449,12 @@ void Config::printConfigs(std::vector<Config *>& serverConfigs) {
 				std::cout << "\t\t." << *extIt << "." << std::endl;
 			}
 		}
+	}
+}
+
+void Config::formatString(std::string& str) {
+	if (!str.empty()) {
+		if (str[str.size() - 1] == ';')
+			str.erase(str.size() - 1);
 	}
 }
