@@ -19,9 +19,15 @@ SRC_DIR		=	source/
 OBJ_DIR		=	object/
 INC_DIR		=	includes/
 
-SRC_FILES	=	main.cpp Webserv.cpp ASocket.cpp Server.cpp Client.cpp \
+
+SRC_FILES	=	config_main.cpp Webserv.cpp ASocket.cpp Server.cpp Client.cpp \
  		Config.cpp helpers.cpp Post.cpp ResponseHelpers.cpp RequestHelpers.cpp Get.cpp \
- 		Delete.cpp
+ 		Delete.cpp Location.cpp
+
+ #for http methods
+# SRC_FILES	=	main.cpp Webserv.cpp ASocket.cpp Server.cpp Client.cpp \
+         Config.cpp helpers.cpp Post.cpp ResponseHelpers.cpp RequestHelpers.cpp Get.cpp \
+         Delete.cpp Location.cpp
 
 
 

@@ -37,6 +37,7 @@
 #include <dirent.h>
 #include <algorithm>
 #include <cstdio>
+#include <set>
 
 
 #include "ASocket.hpp"
