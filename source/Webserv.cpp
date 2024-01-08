@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/08 17:36:32 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/08 18:42:11 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -413,9 +413,14 @@ int Webserv::parseConfig(std::string path) {
 	std::vector<Config *> serverConfigs;
 	
 	while (!configFile.eof()) {
+		// std::cout << "parsing" << std::endl;
 		Config *serverConfig = new Config();
-		serverConfig->parse(configFile);
-		serverConfigs.push_back(serverConfig);
+		if (!serverConfig->parse(configFile)) {
+			// std::cout << "pushing" << std::endl;
+			serverConfigs.push_back(serverConfig);
+		}
+		else
+			delete serverConfig;
 	}
 	setConfig(serverConfigs);
 	configFile.close();

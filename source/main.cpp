@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 13:47:45 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/08 17:35:06 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/08 18:13:41 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ int main(int argc, char **argv, char **env)
     Config::printConfigs(serverConfigs);
 
     for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz) {
-        delete *itz;
+			delete *itz;
     }
 		
 		// std::vector<Config>::iterator iter = server._config.begin();

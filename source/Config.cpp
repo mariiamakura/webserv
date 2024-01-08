@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:44:28 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/08 17:36:50 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/08 18:42:57 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ Config &Config::operator=(Config const &src)
 }
 
 
-void Config::parse(std::ifstream& configFile) {
+int Config::parse(std::ifstream& configFile) {
 	std::string line;
 	std::string tmp;
 	std::string tmp2;
@@ -66,7 +66,7 @@ void Config::parse(std::ifstream& configFile) {
 	while (std::getline(configFile, line)) {
 		std::istringstream iss(line);
 		std::string keyword;
-		iss >> keyword;
+		iss >> std::ws >> keyword;
 
 		if (keyword == "server") {
 			// Start parsing the server block
@@ -85,107 +85,109 @@ void Config::parse(std::ifstream& configFile) {
 						}
 				}
 			}
-				while (std::getline(configFile, line)) {
-					if (line.find("}") != std::string::npos) {
+			while (std::getline(configFile, line)) {
+				if (line.find("}") != std::string::npos) {
+					return 0;
 //---------------------------                    
-						return ;
-					} else if (line.find("listen") != std::string::npos) {
-						keyword = "listen";
-						iss.clear();
-						iss.str(line);
-						iss >> keyword >> tmp;
-						setListen(tmp);
+				} else if (line.find("listen") != std::string::npos) {
+					keyword = "listen";
+					iss.clear();
+					iss.str(line);
+					iss >> keyword >> tmp;
+					setListen(tmp);
+				}
+				// Parse other server-related configuration here
+				else if (line.find("server_name") != std::string::npos) {
+					keyword = "server_name";
+					iss.clear();
+					iss.str(line);
+					iss >> keyword;
+					while (iss >> tmp) {
+						formatString(tmp);
+						setServerNames(tmp);
 					}
-					// Parse other server-related configuration here
-					else if (line.find("server_name") != std::string::npos) {
-						keyword = "server_name";
-						iss.clear();
-						iss.str(line);
-						iss >> keyword;
-						while (iss >> tmp) {
-							formatString(tmp);
-							setServerNames(tmp);
-						}
-					} else if (line.find("host") != std::string::npos) {
-						keyword = "host";
-						iss.clear();
-						iss.str(line);
-						iss >> keyword >> tmp;
-						// std::cout << "TMP HOST: " << tmp << std::endl;
-						formatString(tmp);
-						host.push_back(tmp);
-					} else if (line.find("root") != std::string::npos) {
-						keyword = "root";
-						iss.clear();
-						iss.str(line);
-						iss >> keyword >> tmp;
-						formatString(tmp);
-						setRoot(tmp);
-					} else if (line.find("error_page") != std::string::npos) {
-						keyword = "error_page";
-						iss.clear();
-						iss.str(line);
-						std::string tmp2;
-						iss >> keyword >> tmp >> tmp2;
-						formatString(tmp2);
-						setErrorPage(tmp, tmp2);
-					} else if (line.find("client_max_body_size") != std::string::npos) {
-						keyword = "client_max_body_size";
-						iss.clear();
-						iss.str(line);
-						iss >> keyword >> tmp;
-						formatString(tmp);
-						setClientBodyBufferSize(tmp);
-					} else if (line.find("location") != std::string::npos) {
-						std::istringstream iss(line);
-						iss >> keyword;
-						if (keyword == "location") {
-							size_t openingBracePos = line.find("{");
-							if (openingBracePos != std::string::npos) {
-								tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
-								std::istringstream issTmp(tmp);
-								issTmp >> std::ws;
-								std::getline(issTmp, tmp2, ' ');
-								line.erase(0, openingBracePos + 1);  // Erase everything before {
-							} else {
-								while (std::getline(configFile, line)) {
-									size_t openingBracePos = line.find("{");
-									if (openingBracePos != std::string::npos) {
-										tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
-										std::istringstream issTmp(tmp);
-										issTmp >> std::ws;
-										std::getline(issTmp, tmp2, ' ');
-										line.erase(0, openingBracePos + 1);  // Erase everything before {
-										break;
-									}
+				} else if (line.find("host") != std::string::npos) {
+					keyword = "host";
+					iss.clear();
+					iss.str(line);
+					iss >> keyword >> tmp;
+					// std::cout << "TMP HOST: " << tmp << std::endl;
+					formatString(tmp);
+					host.push_back(tmp);
+				} else if (line.find("root") != std::string::npos) {
+					keyword = "root";
+					iss.clear();
+					iss.str(line);
+					iss >> keyword >> tmp;
+					formatString(tmp);
+					setRoot(tmp);
+				} else if (line.find("error_page") != std::string::npos) {
+					keyword = "error_page";
+					iss.clear();
+					iss.str(line);
+					std::string tmp2;
+					iss >> keyword >> tmp >> tmp2;
+					formatString(tmp2);
+					setErrorPage(tmp, tmp2);
+				} else if (line.find("client_max_body_size") != std::string::npos) {
+					keyword = "client_max_body_size";
+					iss.clear();
+					iss.str(line);
+					iss >> keyword >> tmp;
+					formatString(tmp);
+					setClientBodyBufferSize(tmp);
+				} else if (line.find("location") != std::string::npos) {
+					std::istringstream iss(line);
+					iss >> keyword;
+					if (keyword == "location") {
+						size_t openingBracePos = line.find("{");
+						if (openingBracePos != std::string::npos) {
+							tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
+							std::istringstream issTmp(tmp);
+							issTmp >> std::ws;
+							std::getline(issTmp, tmp2, ' ');
+							line.erase(0, openingBracePos + 1);  // Erase everything before {
+						} else {
+							while (std::getline(configFile, line)) {
+								size_t openingBracePos = line.find("{");
+								if (openingBracePos != std::string::npos) {
+									tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
+									std::istringstream issTmp(tmp);
+									issTmp >> std::ws;
+									std::getline(issTmp, tmp2, ' ');
+									line.erase(0, openingBracePos + 1);  // Erase everything before {
+									break;
 								}
 							}
 						}
-						setLocation(tmp2, configFile);
-					} else if (line.find("autoindex") != std::string::npos) {
-						keyword = "autoindex";
-						iss.clear();
-						iss.str(line);
-						iss >> keyword >> tmp;
+					}
+					setLocation(tmp2, configFile);
+				} else if (line.find("autoindex") != std::string::npos) {
+					keyword = "autoindex";
+					iss.clear();
+					iss.str(line);
+					iss >> keyword >> tmp;
+					formatString(tmp);
+					if (tmp.compare("on") == 0)
+						this->autoindex = true;
+					else
+						this->autoindex = false;
+				} else if (line.find("index") != std::string::npos) {
+					keyword = "index";
+					iss.clear();
+					iss.str(line);
+					iss >> keyword;
+					while (iss >> tmp) {
 						formatString(tmp);
-						if (tmp.compare("on") == 0)
-							this->autoindex = true;
-						else
-							this->autoindex = false;
-					} else if (line.find("index") != std::string::npos) {
-						keyword = "index";
-						iss.clear();
-						iss.str(line);
-						iss >> keyword;
-						while (iss >> tmp) {
-							formatString(tmp);
-							setIndex(tmp);
-						}
+						setIndex(tmp);
 					}
 				}
-				// End of server block
-		}
+			}
+			// End of server block
+		} else
+			return 1;
 	}
+	return 2;
 }
 
 
@@ -400,7 +402,7 @@ void displayVector(const std::vector<std::string>& strVector) {
 void Config::printConfigs(std::vector<Config *>& serverConfigs) {
 	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); itz++) {
     std::cout << "Server Configuration:" << std::endl;
-    std::cout << "Listen Port: ." << (*itz)->getListen() << "." << std::endl;
+    std::cout << "Listen: ." << (*itz)->getListen() << "." << std::endl;
     // std::cout << "Server Name: ." << (*itz)->getServerNames() << "." << std::endl;
     std::cout << "Server Name: .";
 		const std::vector<std::string>& serverNames = (*itz)->getServerNames();
