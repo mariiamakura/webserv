@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:37:48 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/08 18:59:09 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/11 07:00:07 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ class Location;
 class Config
 {
 	private:
-		std::string													listen;//can contain ip-address and port - 127.0.0.1:8080;  # Listen on localhost, port 8080 or listen 0.0.0.0:8000;  # Listen on all available network interfaces, port 8000
+		std::string							listen;//can contain ip-address and port - 127.0.0.1:8080;  # Listen on localhost, port 8080 or listen 0.0.0.0:8000;  # Listen on all available network interfaces, port 8000
 		std::vector<std::string>            serverNames;//e.g. www.example.com example.com or ip-address
 		std::vector<std::string>            host;// does not exist in nginx but we need it for the host header or server_name or server_name_in_redirect
 		std::string                         root;//e.g. /var/www/example.com/htdocs

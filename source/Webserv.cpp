@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/08 18:42:11 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/11 07:42:35 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,15 @@ std::map<std::string, std::string> Webserv::parse_form_data(const std::string &f
 void Webserv::init_servers()
 {
 	std::vector<int> ports;
-	ports.push_back(DEF_PORT);
+	std::vector<Config *> serverConfigs = this->getConfig();
+	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
+	{
+		ports.push_back((*itz)->getPorts());
+		std::cout << "port: " << (*itz)->getPorts() << std::endl;
+	}
+	// ports.push_back(DEF_PORT);
+	std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
+	std::cout << "Number of server ports: " << ports.size() << std::endl;
 	// ports.push_back(8888);
 	// ports.push_back(7777);
 
@@ -130,6 +138,7 @@ void Webserv::init_servers()
 	for (std::vector<Server>::size_type i = 0; i < size; i++)
 	{
 		// instead of ports[i] we need to loop through config files and pass port and backlog
+		std::cout << "init server: " << ports[i] << std::endl;
 		server[i].init_server(ports[i], DEF_BACKLOG);
 		poll_fd[i].fd = server[i].getSockfd();
 		poll_fd[i].events = POLLIN;

@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+         #
+#    By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/09 13:47:00 by fhassoun          #+#    #+#              #
-#    Updated: 2024/01/08 17:25:30 by sung-hle         ###   ########.fr        #
+#    Updated: 2024/01/11 07:12:06 by fhassoun         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		=	webserv
 
-CC			=	clang++
+CC			=	c++
 CFLAGS		=	-Wall -Werror -Wextra -std=c++98 -g3 #-fsanitize=address
 
 SRC_DIR		=	source/
@@ -24,7 +24,7 @@ INC_DIR		=	includes/
  		Config.cpp helpers.cpp Post.cpp ResponseHelpers.cpp RequestHelpers.cpp Get.cpp \
  		Delete.cpp Location.cpp
 
- #for http methods
+#for http methods
 SRC_FILES	=	main.cpp Webserv.cpp ASocket.cpp Server.cpp Client.cpp \
          Config.cpp helpers.cpp Post.cpp ResponseHelpers.cpp RequestHelpers.cpp Get.cpp \
          Delete.cpp Location.cpp

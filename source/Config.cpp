@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:44:28 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/08 18:42:57 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/11 07:54:16 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,7 @@ int Config::parse(std::ifstream& configFile) {
 					iss.str(line);
 					iss >> keyword >> tmp;
 					setListen(tmp);
+					setPort(tmp);
 				}
 				// Parse other server-related configuration here
 				else if (line.find("server_name") != std::string::npos) {
