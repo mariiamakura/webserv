@@ -95,6 +95,7 @@ int Config::parse(std::ifstream& configFile) {
 					iss.str(line);
 					iss >> keyword >> tmp;
 					setListen(tmp);
+                    //get only the port of this
 					setPort(tmp);
 				}
 				// Parse other server-related configuration here

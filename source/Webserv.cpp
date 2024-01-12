@@ -334,6 +334,10 @@ void Webserv::run()
 							else
 							{
 								logging("Unknown request", DEBUG);
+                                //set the response for internal server error
+                                http_response->status_code = 500;
+                                deleteRequest(poll_fd[i].fd);
+                                close_conn = TRUE;
 								// std::cout << "Unknown request" << std::endl;
 							}
 
