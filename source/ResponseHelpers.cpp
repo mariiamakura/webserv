@@ -226,6 +226,50 @@ void Webserv::deleteResponse(int i)
 	}
 }
 
+
+Config Webserv::checkConfig()
+{
+	// http_request->headers["Port"]
+	std::vector<Config *> serverConfigs = this->getConfig();
+	// std::cout << "PORT: " << http_request->headers["Port"] << std::endl;
+	std::istringstream iss(http_request->headers["Host"]);
+	std::string host;
+	std::getline(iss, host, ':'); // Extract the part before the colon
+	std::string port;
+	std::getline(iss, port); // Extract the part after the colon
+
+	int num;
+
+	if (!port.empty())
+	{
+		std::istringstream portStream(port);
+		if (portStream >> num)
+		{
+			// Conversion successful
+			std::cout << "Parsed port number: " << num << std::endl;
+		}
+		else
+		{
+			// Conversion failed
+			std::cout << "Invalid port number" << std::endl;
+		}
+	}
+	else
+	{
+		// No port number found
+		std::cout << "No port number found" << std::endl;
+	}
+
+	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
+	{
+		if (num == (*itz)->getPorts())
+		{
+			return *(*itz);
+		}
+	}
+	return *(*serverConfigs.begin());
+}
+
 std::string Webserv::checkPath(std::string path)
 {
 	// http_request->headers["Port"]
@@ -265,13 +309,25 @@ std::string Webserv::checkPath(std::string path)
 		{
 			std::cout << "PORTS MATCH" << std::endl;
 			const std::map<std::string, Location *> &locations = (*itz)->getLocation();
-			if (path[path.length() - 1] == '/')
+			
+			
+			
+			
+			
+			
+			std::cout << "PATH before: " << path << std::endl;
+			if (path[path.length() - 1] != '/')
+			{
+				path += "/";
+			}
+
+			// implement check if path is only /
+			if (path[path.length() - 1] == '/' && path.length() > 1)
 			{
 				path = path.substr(0, path.length() - 1);
 			}
 			for (std::map<std::string, Location *>::const_iterator it = locations.begin(); it != locations.end(); ++it)
 			{
-				std::cout << "PATH before: " << path << std::endl;
 				if (path == it->first)
 				{
 					std::cout << "PATH MATCH" << std::endl;
@@ -280,10 +336,11 @@ std::string Webserv::checkPath(std::string path)
 						path += "/";
 					}
 					path += it->second->getIndex();
+				
 					// path = path + it->second->getIndex();
+					
 					std::cout << "PATH after: " << path << std::endl;
 					return path;
-					// break; // exit the loop once the match is found
 				}
 			}
 		}

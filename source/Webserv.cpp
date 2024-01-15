@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/12 15:44:12 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/15 11:49:23 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -299,6 +299,10 @@ void Webserv::run()
 						http_response = new Response();
 
 						newOrAppendRequest(i);
+
+						// Config serverConfig = checkConfig();
+
+						
 						if (http_request->method == "GET")
 						{
 							http_response->status_code = getMethod(); // set outresponse inside

@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/12 16:43:08 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/15 11:47:33 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,6 +162,7 @@ class Webserv
 		int check_sockfds(std::vector<int> sockfds, int i);
 		std::string autoindex(const std::string& path) ;
 		std::string checkPath(std::string path);
+		Config checkConfig();
 
 
         Response *create_http_response(void);
