@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/15 12:42:31 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/15 14:37:48 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -342,6 +342,7 @@ void Webserv::run()
 							logging("Unknown request", DEBUG);
 							// set the response for internal server error
 							http_response->status_code = 500;
+							out_response[poll_fd[i].fd] = create_http_response();
 							deleteRequest(poll_fd[i].fd);
 							close_conn = TRUE;
 							// std::cout << "Unknown request" << std::endl;
