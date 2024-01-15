@@ -13,7 +13,15 @@ int Webserv::getMethod() {
              return (getCgiFilesList());
      }
 
-    char *tmp = string_to_chararray(http_request->path);
+
+
+	std::string tmp_path = checkPath(http_request->path);
+
+
+
+	
+    // char *tmp = string_to_chararray(http_request->path);
+	char *tmp = string_to_chararray(tmp_path);
     if (access(tmp, F_OK) == 0) {
 
         struct stat path_stat;

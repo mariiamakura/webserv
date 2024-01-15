@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/11 07:42:40 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/12 16:43:08 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,6 +161,7 @@ class Webserv
 		int handle_pollin(int i);
 		int check_sockfds(std::vector<int> sockfds, int i);
 		std::string autoindex(const std::string& path) ;
+		std::string checkPath(std::string path);
 
 
         Response *create_http_response(void);

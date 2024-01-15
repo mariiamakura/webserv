@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 13:47:45 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/11 07:55:35 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/12 13:25:54 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,8 +68,8 @@ int main(int argc, char **argv, char **env)
 		{
 			delete *itz;
   		}
-		webserv.init_servers();
-		webserv.run();
+		// webserv.init_servers();
+		// webserv.run();
 		// std::vector<Config>::iterator iter = server._config.begin();
 		
 		// webserv.init_servers();
