@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/15 11:49:23 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/15 12:42:31 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,9 +297,13 @@ void Webserv::run()
 						logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
 
 						http_response = new Response();
-
 						newOrAppendRequest(i);
 
+						std::string tmp_path = checkPath(http_request->path);
+						if (tmp_path != "")
+							http_request->path = tmp_path;
+						
+						
 						// Config serverConfig = checkConfig();
 
 						
