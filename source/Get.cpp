@@ -15,13 +15,13 @@ int Webserv::getMethod() {
 
 
 
-	std::string tmp_path = checkPath(http_request->path);
+	// std::string tmp_path = checkPath(http_request->path);
 
 
 
 	
-    // char *tmp = string_to_chararray(http_request->path);
-	char *tmp = string_to_chararray(tmp_path);
+     char *tmp = string_to_chararray(http_request->path);
+	// char *tmp = string_to_chararray(tmp_path);
     if (access(tmp, F_OK) == 0) {
 
         struct stat path_stat;
@@ -54,7 +54,17 @@ int Webserv::getMethod() {
 //                delete[] tmp;
 //                return 403;
 //            }
+
+			if (http_request->path[http_request->path.size() - 1] != '/')
+			{
+				// Redirect to the path with a trailing slash
+				http_response->status_code = 301; // or 302
+				http_response->headers["Location"] = http_request->path + "/";
+				delete[] tmp;
+				return 301;
+			}
             std::string tmp2 = "." + http_request->path;
+			
             http_response->path = autoindex(tmp2); //AUTOINDEX HERE
             // std::cout << "autoindex http_request.path: " << http_request.path << std::endl;
         }

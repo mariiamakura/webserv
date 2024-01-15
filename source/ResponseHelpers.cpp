@@ -131,7 +131,7 @@ Response *Webserv::create_http_response(void)
 		// http_request.path = "." + http_request.path;
 	}
 
-	std::cout << "PATH : " << http_response->path << std::endl;
+	std::cout << "response PATH : " << http_response->path << std::endl;
 
 	if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403)
 	{
@@ -267,6 +267,7 @@ Config Webserv::checkConfig()
 			return *(*itz);
 		}
 	}
+	
 	return *(*serverConfigs.begin());
 }
 
@@ -314,12 +315,7 @@ std::string Webserv::checkPath(std::string path)
 			
 			
 			
-			
 			std::cout << "PATH before: " << path << std::endl;
-			if (path[path.length() - 1] != '/')
-			{
-				path += "/";
-			}
 
 			// implement check if path is only /
 			if (path[path.length() - 1] == '/' && path.length() > 1)
@@ -338,7 +334,6 @@ std::string Webserv::checkPath(std::string path)
 					path += it->second->getIndex();
 				
 					// path = path + it->second->getIndex();
-					
 					std::cout << "PATH after: " << path << std::endl;
 					return path;
 				}
