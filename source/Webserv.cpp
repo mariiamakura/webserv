@@ -299,25 +299,37 @@ void Webserv::run()
 						http_response = new Response();
 						newOrAppendRequest(i);
 
+
+                        // checkPath should be separated into 2 functions
+                        //1 finding the location so than allowed methods can be checked
+                        //2 to check the path
 						std::string tmp_path = checkPath(http_request->path);
 						if (tmp_path != "")
 							http_request->path = tmp_path;
-						
+
                         Config serverConfig = checkConfig(); //works
-
-//                        const std::map<int, std::string>& errorPages = serverConfig.getErrorPage();
-//                        std::cout << "MY Error Pages:" << std::endl;
-//                        for (std::map<int, std::string>::const_iterator it = errorPages.begin(); it != errorPages.end(); ++it) {
-//                            std::cout << "\t." << it->first << ". => ." << it->second << "." << std::endl;
+//                        std::set<std::string> allow_methods = serverConfig.getAllowedMethods();
+//
+//                        std::cout << "Allowed Methods: ";
+//                        for (std::set<std::string>::iterator it = allow_methods.begin(); it != allow_methods.end(); ++it) {
+//                            std::cout << *it << " ";
 //                        }
+//                        std::cout << std::endl;
 
-						
-						if (http_request->method == "GET")
+                        if (http_request->method == "GET")
 						{
-							http_response->status_code = getMethod(); // set outresponse inside
-
-							// std::cout << "PATH: " << http_response->path << std::endl;
-							out_response[poll_fd[i].fd] = create_http_response();
+//                            std::set<std::string>::iterator it = allow_methods.find("GET");
+//                            if (it != allow_methods.end()) {
+//                                std::cout << "GET ALLOWED\n";
+//                                http_response->status_code = getMethod(); // set outresponse inside
+//
+//                                // std::cout << "PATH: " << http_response->path << std::endl;
+//                            } else {
+//                                std::cout << "GET NOT ALLOWED\n";
+//                                http_response->status_code = 403;
+//                            }
+                            http_response->status_code = getMethod();
+                            out_response[poll_fd[i].fd] = create_http_response();
 							deleteRequest(poll_fd[i].fd);
 							close_conn = TRUE;
 						}

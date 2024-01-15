@@ -61,7 +61,7 @@ int Webserv::getMethod() {
 				//http_response->status_code = 301; // or 302
 				http_response->headers["Location"] = http_request->path + "/";
 				delete[] tmp;
-				return 500;
+				return 403;
 			}
             std::string tmp2 = "." + http_request->path;
 			
