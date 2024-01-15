@@ -290,11 +290,11 @@ void Webserv::run()
 						break;
 					if (poll_fd[i].events | POLLOUT)
 					{
-						std::vector<uint8_t> &requestData = in_request[poll_fd[i].fd];
-						std::string requestString(requestData.begin(), requestData.end());
-
-						logging("request :\n" + requestString + "\n", DEBUG);
-						logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
+//						std::vector<uint8_t> &requestData = in_request[poll_fd[i].fd];
+//						std::string requestString(requestData.begin(), requestData.end());
+//
+//						logging("request :\n" + requestString + "\n", DEBUG);
+//						logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
 
 						http_response = new Response();
 						newOrAppendRequest(i);
@@ -303,8 +303,13 @@ void Webserv::run()
 						if (tmp_path != "")
 							http_request->path = tmp_path;
 						
-						
-						// Config serverConfig = checkConfig();
+                        Config serverConfig = checkConfig(); //works
+
+//                        const std::map<int, std::string>& errorPages = serverConfig.getErrorPage();
+//                        std::cout << "MY Error Pages:" << std::endl;
+//                        for (std::map<int, std::string>::const_iterator it = errorPages.begin(); it != errorPages.end(); ++it) {
+//                            std::cout << "\t." << it->first << ". => ." << it->second << "." << std::endl;
+//                        }
 
 						
 						if (http_request->method == "GET")
@@ -318,17 +323,18 @@ void Webserv::run()
 						}
 						else if (http_request->method == "POST")
 						{
-							http_response->status_code = postMethod(i);
+							http_response->status_code = postMethod(i, serverConfig.getClientBodyBufferSize());
 
 							// create a response
 							out_response[poll_fd[i].fd] = create_http_response();
-							if (http_response->status_code == 201 || http_response->status_code == 400)
-								deleteRequest(poll_fd[i].fd);
+							if (http_response->status_code == 201 || http_response->status_code == 500 || http_response->status_code == 403) {
+                                deleteRequest(poll_fd[i].fd);
+                            }
 						}
 						else if (http_request->method == "DELETE")
 						{
 							std::cout << "DELETE request" << std::endl;
-							logging("request :\n" + requestString + "\n", DEBUG);
+							//logging("request :\n" + requestString + "\n", DEBUG);
 
 							// std::cout << "DELETE PATH: " << http_request->path << std::endl;
 
@@ -357,6 +363,7 @@ void Webserv::run()
 						logging("response :\n" + out_response[poll_fd[i].fd]->toString() + "\n", DEBUG);
 
 						deleteResponse(poll_fd[i].fd);
+//                        delete serverConfig;
 						break;
 					}
 					else if (poll_fd[i].events | POLLHUP)

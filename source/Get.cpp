@@ -58,10 +58,10 @@ int Webserv::getMethod() {
 			if (http_request->path[http_request->path.size() - 1] != '/')
 			{
 				// Redirect to the path with a trailing slash
-				http_response->status_code = 301; // or 302
+				//http_response->status_code = 301; // or 302
 				http_response->headers["Location"] = http_request->path + "/";
 				delete[] tmp;
-				return 301;
+				return 500;
 			}
             std::string tmp2 = "." + http_request->path;
 			

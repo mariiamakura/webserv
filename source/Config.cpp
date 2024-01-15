@@ -27,26 +27,29 @@ Config::Config(Config const &src)	: listen(src.listen), root(src.root), autoinde
 
 Config &Config::operator=(Config const &src)
 {
-	if (this == &src)	{
-		listen = src.listen;
-		serverNames = src.serverNames;
-		host = src.host;
-		root = src.root;
-		errorPage = src.errorPage;
-		location = src.location;
-		allowedMethods = src.allowedMethods;
-		index = src.index;
-		autoindex = src.autoindex;
-		port = src.port;
-		client_body_buffer_size = src.client_body_buffer_size;
+	if (this != &src) {
+        listen = src.listen;
+        serverNames = src.serverNames;
+        host = src.host;
+        root = src.root;
+        errorPage = src.errorPage;
+        //location = src.location;
+        allowedMethods = src.allowedMethods;
+        index = src.index;
+        autoindex = src.autoindex;
+        port = src.port;
+        client_body_buffer_size = src.client_body_buffer_size;
 
-		// Delete existing Location objects
-		for (std::map<std::string, Location*>::iterator it = location.begin(); it != location.end(); ++it) {
-			delete it->second;
-		}
 
-		// Clear the map
-		location.clear();
+        // Delete existing Location objects
+        if (!location.empty()) {
+            for (std::map<std::string, Location *>::iterator it = location.begin(); it != location.end(); ++it) {
+                delete it->second;
+            }
+
+        // Clear the map
+        location.clear();
+    }
 
 		// Copy Location objects
 		for (std::map<std::string, Location*>::const_iterator it = src.location.begin(); it != src.location.end(); ++it) {

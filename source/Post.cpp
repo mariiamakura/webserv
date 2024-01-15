@@ -1,30 +1,36 @@
 #include "Webserv.hpp"
 
-int Webserv::postMethod(size_t i) {
+int Webserv::postMethod(size_t i, size_t client_body_size) {
     int clientFD = poll_fd[i].fd;
+    const char *ContLen = http_request->headers["Content-Length"].c_str();
+    size_t content_length = static_cast<size_t>(std::atoi(ContLen));
     if (http_requests.count(clientFD) == 0) {
         http_requests[clientFD] = http_request;
 
         std::cout << "START CONTENT" << std::endl;
     }
 
-    const char *ContLen = http_request->headers["Content-Length"].c_str();
-    size_t content_length = static_cast<size_t>(std::atoi(ContLen));
-
     if (http_request->content.size() == content_length) {
         std::cout << "FINISH CONTENT" << std::endl;
         http_request->postContentProcess();
         close_conn = TRUE;
         return 201;
-    } else if (http_request->content.size() > content_length || http_request->content.size() > content_length) {
+    }
+    else if (http_request->content.size() > content_length) {
         std::cout << "SUPPOSED content_length : " << content_length << std::endl;
+        std::cout << "Allowed client body size : " << client_body_size << std::endl;
         std::cout << "content size " << http_request->content.size() << std::endl;
 
         std::cout << "CORRUPTED CONTENT" << std::endl;
         close_conn = TRUE;
-        return 400;
+        return 500;
     } else {
         std::cout << "PARTIAL CONTENT " << http_request->content.size() << " of " << content_length << std::endl;
+        std::cout << "request content lengh: " << content_length << " client body size: " << client_body_size << std::endl;
+        if (content_length > client_body_size) {
+            close_conn = TRUE;
+            return 403;
+        }
         return 206;
 
     }

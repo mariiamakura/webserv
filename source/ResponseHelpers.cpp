@@ -104,6 +104,8 @@ Response *Webserv::create_http_response(void)
 	{
 		http_response->status_message = "Internal Server Error";
 		http_response->path = "./over42/500.html";
+        if (!http_response->isFile) // when autoindex is on to display page
+            http_response->isFile = true;
 	}
 	else if (http_response->status_code == 999)
 	{ // php cgi files list
@@ -117,7 +119,7 @@ Response *Webserv::create_http_response(void)
 		return http_response;
 	}
 
-	// std::cout << "status code checked\n";
+	std::cout << "status code: " << http_response->status_code << std::endl;
 
 	if (http_request->path.find(".html") != std::string::npos)
 	{
@@ -133,7 +135,7 @@ Response *Webserv::create_http_response(void)
 
 	std::cout << "response PATH : " << http_response->path << std::endl;
 
-	if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403)
+	if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403 || http_response->status_code == 500)
 	{
 		if (http_response->isFile)
 		{
@@ -308,14 +310,14 @@ std::string Webserv::checkPath(std::string path)
 	{
 		if (num == (*itz)->getPorts())
 		{
-			std::cout << "PORTS MATCH" << std::endl;
+			//std::cout << "PORTS MATCH" << std::endl;
 			const std::map<std::string, Location *> &locations = (*itz)->getLocation();
 			
 			
 			
 			
 			
-			std::cout << "PATH before: " << path << std::endl;
+			//std::cout << "PATH before: " << path << std::endl;
 
 			// implement check if path is only /
 			if (path[path.length() - 1] == '/' && path.length() > 1)
@@ -326,7 +328,7 @@ std::string Webserv::checkPath(std::string path)
 			{
 				if (path == it->first)
 				{
-					std::cout << "PATH MATCH" << std::endl;
+					//std::cout << "PATH MATCH" << std::endl;
 					if (path[path.length() - 1] != '/')
 					{
 						path += "/";
@@ -334,7 +336,7 @@ std::string Webserv::checkPath(std::string path)
 					path += it->second->getIndex();
 				
 					// path = path + it->second->getIndex();
-					std::cout << "PATH after: " << path << std::endl;
+					//std::cout << "PATH after: " << path << std::endl;
 					return path;
 				}
 			}
