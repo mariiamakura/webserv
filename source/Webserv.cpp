@@ -17,6 +17,7 @@ Webserv::Webserv()
 	server.push_back(Server());
 	poll_fd.push_back(pollfd());
 	autoindexBool = true;
+    isSameLocation = false;
 }
 
 Webserv::~Webserv()
@@ -299,44 +300,30 @@ void Webserv::run()
 						http_response = new Response();
 						newOrAppendRequest(i);
 
-
-                        // checkPath should be separated into 2 functions
-                        //1 finding the location so than allowed methods can be checked
-                        //2 to check the path
-						std::string tmp_path = checkPath(http_request->path);
-						if (tmp_path != "")
-							http_request->path = tmp_path;
-
                         Config serverConfig = checkConfig(); //works
-//                        std::set<std::string> allow_methods = serverConfig.getAllowedMethods();
-//
-//                        std::cout << "Allowed Methods: ";
-//                        for (std::set<std::string>::iterator it = allow_methods.begin(); it != allow_methods.end(); ++it) {
-//                            std::cout << *it << " ";
-//                        }
-//                        std::cout << std::endl;
+
+                        std::string tmp_path = checkPath(http_request->path);
+                        if (tmp_path != "")
+                            http_request->path = tmp_path;
 
                         if (http_request->method == "GET")
 						{
-//                            std::set<std::string>::iterator it = allow_methods.find("GET");
-//                            if (it != allow_methods.end()) {
-//                                std::cout << "GET ALLOWED\n";
-//                                http_response->status_code = getMethod(); // set outresponse inside
-//
-//                                // std::cout << "PATH: " << http_response->path << std::endl;
-//                            } else {
-//                                std::cout << "GET NOT ALLOWED\n";
-//                                http_response->status_code = 403;
-//                            }
-                            http_response->status_code = getMethod();
+                            if (isSameLocation && !isMethodAllowed("GET")) {
+                                http_response->status_code = 403;
+                            } else {
+                                http_response->status_code = getMethod();
+                            }
                             out_response[poll_fd[i].fd] = create_http_response();
 							deleteRequest(poll_fd[i].fd);
 							close_conn = TRUE;
 						}
 						else if (http_request->method == "POST")
 						{
-							http_response->status_code = postMethod(i, serverConfig.getClientBodyBufferSize());
-
+                            if (isSameLocation && !isMethodAllowed("POST")) {
+                                http_response->status_code = 403;
+                            } else {
+                                http_response->status_code = postMethod(i, serverConfig.getClientBodyBufferSize());
+                            }
 							// create a response
 							out_response[poll_fd[i].fd] = create_http_response();
 							if (http_response->status_code == 201 || http_response->status_code == 500 || http_response->status_code == 403) {
@@ -345,12 +332,11 @@ void Webserv::run()
 						}
 						else if (http_request->method == "DELETE")
 						{
-							std::cout << "DELETE request" << std::endl;
-							//logging("request :\n" + requestString + "\n", DEBUG);
-
-							// std::cout << "DELETE PATH: " << http_request->path << std::endl;
-
-							http_response->status_code = http_request->deleteMethod();
+                            if (isSameLocation && !isMethodAllowed("DELETE")) {
+                                http_response->status_code = 403;
+                            } else {
+                                http_response->status_code = http_request->deleteMethod();
+                            }
 							out_response[poll_fd[i].fd] = create_http_response();
 							deleteRequest(poll_fd[i].fd);
 							close_conn = TRUE;
@@ -375,7 +361,7 @@ void Webserv::run()
 						logging("response :\n" + out_response[poll_fd[i].fd]->toString() + "\n", DEBUG);
 
 						deleteResponse(poll_fd[i].fd);
-//                        delete serverConfig;
+                        isSameLocation = false;
 						break;
 					}
 					else if (poll_fd[i].events | POLLHUP)
@@ -442,6 +428,18 @@ void Webserv::setConfig(std::vector<Config *> _config)
 std::vector<Config *> Webserv::getConfig() const
 {
 	return config;
+}
+
+bool Webserv::isMethodAllowed(std::string method) {
+    std::set <std::string> allow_meth = currentLocation->getAllowMethods();
+    std::set<std::string>::iterator it = allow_meth.find(method);
+
+    // Check if the element was found
+    if (it != allow_meth.end()) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 int Webserv::parseConfig(std::string path)

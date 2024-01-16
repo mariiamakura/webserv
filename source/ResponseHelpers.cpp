@@ -328,6 +328,8 @@ std::string Webserv::checkPath(std::string path)
 			{
 				if (path == it->first)
 				{
+                    currentLocation = it->second;
+                    isSameLocation = true;
 					//std::cout << "PATH MATCH" << std::endl;
 					if (path[path.length() - 1] != '/')
 					{

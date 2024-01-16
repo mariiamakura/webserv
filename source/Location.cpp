@@ -103,3 +103,7 @@ const std::string& Location::getIndex() const
 	return (index);
 }
 
+const std::set<std::string>& Location::getAllowMethods() const {
+    return allowMethods;
+}
+
