@@ -54,6 +54,10 @@ int Webserv::getMethod() {
 //                delete[] tmp;
 //                return 403;
 //            }
+            if (isSameLocation && !currentLocation->getAutoindex()) {
+                delete[] tmp;
+                return 403;
+            }
 
 			if (http_request->path[http_request->path.size() - 1] != '/')
 			{
