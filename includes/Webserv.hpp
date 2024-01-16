@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/15 11:47:33 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/16 12:48:37 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,9 @@ class Response;
 //};
 
 
+extern volatile sig_atomic_t sig_end_server;
+
+
 class Webserv
 {
 	private:
@@ -107,6 +110,7 @@ class Webserv
         bool    autoindexBool;
 		Request *http_request;
 		Response *http_response;
+		Config *serverConfig;
 		
 		std::vector<Server> server;
 		std::vector<Server>::iterator s_iter;
@@ -126,6 +130,7 @@ class Webserv
 
 	
 	public:
+		std::vector<Config *> serverConfigs;
 		std::string response;
 		Webserv();
 		~Webserv();
