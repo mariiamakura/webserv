@@ -19,7 +19,7 @@
         var filename = document.getElementById("filename").value;
 
         // Construct the URL by appending the filename to the base URL
-        var baseUrl = 'http://localhost:9999/download/';
+        var baseUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/download/';
         var url = baseUrl + encodeURIComponent(filename);
 
         // Perform the DELETE request using the fetch API
