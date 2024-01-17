@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once 
+#pragma once
 #include "Webserv.hpp"
 
 class Location	{
@@ -72,4 +72,6 @@ class Location	{
 
 		void setIndex(const std::string& str);
 		const std::string& getIndex() const;
+
+    const std::set<std::string> &getAllowMethods() const;
 } ;

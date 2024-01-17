@@ -41,6 +41,7 @@
 
 
 #include "ASocket.hpp"
+#include "Location.hpp"
 #include "Config.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
@@ -76,12 +77,13 @@
 #define ORANGE			"\033[38;5;208m"		/* Orange */
 
 
-
+class Location;
 class Config;
 class Client;
 class Server;
 class Request;
 class Response;
+
 
 //struct HttpResponse {
 //    std::string http_version;
@@ -110,6 +112,8 @@ class Webserv
         bool    autoindexBool;
 		Request *http_request;
 		Response *http_response;
+        Location *currentLocation;
+        bool isSameLocation;
 		
 		std::vector<Server> server;
 		std::vector<Server>::iterator s_iter;
@@ -183,6 +187,6 @@ class Webserv
         int getCgiFilesList();
         int getDownloadCgi();
 
-
+        bool isMethodAllowed(std::string method);
 
     };
