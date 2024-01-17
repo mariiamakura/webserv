@@ -337,10 +337,15 @@ std::string Webserv::checkPath(std::string path)
 			for (std::map<std::string, Location *>::const_iterator it = locations.begin(); it != locations.end(); ++it)
 			{
 				std::cout << it->first << " => " << it->second << '\n';
+				if (path.find(it->first) != std::string::npos) {
+					std::cout << "found path in location!" << std::endl;
+					currentLocation = it->second;
+                    isSameLocation = true;
+				}
 				if (path == it->first)
 				{
-                    currentLocation = it->second;
-                    isSameLocation = true;
+                    // currentLocation = it->second;
+                    // isSameLocation = true;
 					//std::cout << "PATH MATCH" << std::endl;
 					if (path[path.length() - 1] != '/')
 					{
