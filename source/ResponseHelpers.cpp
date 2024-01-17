@@ -277,7 +277,7 @@ Config Webserv::checkConfig()
 std::string Webserv::checkPath(std::string path)
 {
 	// http_request->headers["Port"]
-	std::vector<Config *> serverConfigs = this->getConfig();
+	// std::vector<Config *> serverConfigs = this->getConfig();
 	// std::cout << "PORT: " << http_request->headers["Port"] << std::endl;
 	std::istringstream iss(http_request->headers["Host"]);
 	std::string host;
@@ -327,8 +327,10 @@ std::string Webserv::checkPath(std::string path)
 			}
 			for (std::map<std::string, Location *>::const_iterator it = locations.begin(); it != locations.end(); ++it)
 			{
+				std::cout << it->first << " => " << it->second << '\n';
 				if (path == it->first)
 				{
+					
 					std::cout << "PATH MATCH" << std::endl;
 					if (path[path.length() - 1] != '/')
 					{

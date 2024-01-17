@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/16 12:47:01 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/17 09:57:46 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -465,6 +465,7 @@ int Webserv::parseConfig(std::string path)
 	while (!configFile.eof())
 	{
 		// std::cout << "parsing" << std::endl;
+		// Config *serverConfig = new Config();
 		serverConfig = new Config();
 		if (!serverConfig->parse(configFile))
 		{
