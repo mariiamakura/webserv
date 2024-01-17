@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 13:47:45 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/12 13:25:54 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/17 10:03:30 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,21 @@
 
 #include "Webserv.hpp"
 
+volatile sig_atomic_t sig_end_server = false;
+
+// Signal handling function
+void handleSignal(int signal)
+{
+    if (signal == SIGINT)
+    {
+        sig_end_server = true;
+    }
+}
+
 int main(int argc, char **argv, char **env)
 {
+
+	signal(SIGINT, handleSignal);
 	// Server server;
 	Webserv webserv;
 
@@ -41,7 +54,7 @@ int main(int argc, char **argv, char **env)
 		}
 		std::vector<Config *> serverConfigs = webserv.getConfig();
 		std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
-		Config::printConfigs(serverConfigs);
+		// Config::printConfigs(serverConfigs);
 		webserv.init_servers();
 		webserv.run();
 	}
@@ -60,20 +73,26 @@ int main(int argc, char **argv, char **env)
 			std::cout << "Error: Invalid configuration." << std::endl;
 			return 1;
 		}
-		std::vector<Config *> serverConfigs = webserv.getConfig();
-		std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
-		Config::printConfigs(serverConfigs);
+		// std::vector<Config *> serverConfigs = webserv.getConfig();
+	
+		// std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
+		// Config::printConfigs(serverConfigs);
 
-		for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
-		{
-			delete *itz;
-  		}
-		// webserv.init_servers();
-		// webserv.run();
+		// for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
+		// {
+		// 	delete *itz;
+  		// } 
+		webserv.init_servers();
+		webserv.run();
 		// std::vector<Config>::iterator iter = server._config.begin();
 		
 		// webserv.init_servers();
 	}
-	
-	
+	// // Clean up the serverConfigs vector to avoid memory leaks
+	for (std::vector<Config*>::iterator it = webserv.serverConfigs.begin(); it != webserv.serverConfigs.end(); ++it)
+	{
+		delete *it;
+	}
+	webserv.serverConfigs.clear();
+	return 0;
 }

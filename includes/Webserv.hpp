@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/15 11:47:33 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/17 10:03:01 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,9 @@ class Response;
 //};
 
 
+extern volatile sig_atomic_t sig_end_server;
+
+
 class Webserv
 {
 	private:
@@ -130,6 +133,8 @@ class Webserv
 
 	
 	public:
+		std::vector<Config *> serverConfigs;
+		Config *serverConfig;
 		std::string response;
 		Webserv();
 		~Webserv();

@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/15 14:37:48 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/17 09:57:46 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,6 +239,12 @@ void Webserv::run()
 		rc = poll(&poll_fd[0], poll_fd.size(), -1);
 		if (rc < 0)
 		{
+			if (sig_end_server == true)
+			{
+				logging("Server shutdown", INFO);
+				
+				break;
+			}
 			logging("Error: poll() failed", ERROR);
 			break;
 		}
@@ -404,8 +410,9 @@ void Webserv::run()
 				}
 			}
 		}
-
-	} while (end_server == FALSE);
+		
+	// } while (end_server == FALSE && sig_end_server == false);
+	} while (end_server == FALSE );
 
 	// Close the connections
 	p_iter = poll_fd.begin();
@@ -451,12 +458,13 @@ int Webserv::parseConfig(std::string path)
 		std::cerr << "Error: Unable to open the server.conf file." << std::endl;
 		return 1;
 	}
-	std::vector<Config *> serverConfigs;
+	// std::vector<Config *> serverConfigs;
 
 	while (!configFile.eof())
 	{
 		// std::cout << "parsing" << std::endl;
-		Config *serverConfig = new Config();
+		// Config *serverConfig = new Config();
+		serverConfig = new Config();
 		if (!serverConfig->parse(configFile))
 		{
 			// std::cout << "pushing" << std::endl;
@@ -464,8 +472,11 @@ int Webserv::parseConfig(std::string path)
 		}
 		else
 			delete serverConfig;
+		
 	}
+	
 	setConfig(serverConfigs);
+
 	configFile.close();
 	if (serverConfigs[0]->getListen() == "" ||
 		serverConfigs[0]->getHost().empty() ||
@@ -479,5 +490,13 @@ int Webserv::parseConfig(std::string path)
 		}
 		return 2;
 	}
+	
+	// // // Clean up the serverConfigs vector to avoid memory leaks
+	// for (std::vector<Config*>::iterator it = serverConfigs.begin(); it != serverConfigs.end(); ++it)
+	// {
+	// 	delete *it;
+	// }
+	// serverConfigs.clear();
+	
 	return 0;
 }
