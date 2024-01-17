@@ -64,17 +64,23 @@ Response *Webserv::create_http_response(void)
 	}
 	else if (http_response->status_code == 403)
 	{
-		if (!http_response->isFile) // when autoindex is on to display page
-			http_response->isFile = true;
 		http_response->status_message = "Forbidden";
 		http_response->path = "./over42/403.html";
 	}
 	else if (http_response->status_code == 404)
 	{
-		if (!http_response->isFile) // when autoindex is on to display page
-			http_response->isFile = true;
 		http_response->status_message = "Not Found";
 		http_response->path = "./over42/404.html";
+	}
+	else if (http_response->status_code == 405)
+	{
+		http_response->status_message = "Method Not Allowed";
+		http_response->path = "./over42/405.html";
+	}
+	else if (http_response->status_code == 413)
+	{
+		http_response->status_message = "Request Entity Too Large";
+		http_response->path = "./over42/413.html";
 	}
 	else if (http_response->status_code == 201)
 	{
@@ -136,8 +142,11 @@ Response *Webserv::create_http_response(void)
 
 	// std::cout << "response PATH : " << http_response->path << std::endl;
 
-	if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403)
+	if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403
+	|| http_response->status_code == 405 || http_response->status_code == 413)
 	{
+		if (http_response->status_code != 200 && !http_response->isFile) // when autoindex is on to display page
+			http_response->isFile = true;
 		if (http_response->isFile)
 		{
 			std::cout << "is a file\n";
@@ -154,7 +163,7 @@ Response *Webserv::create_http_response(void)
 			http_response->body = http_response->path;
 		}
 	}
-	// std::cout << "response body: " << http_response->body;
+	//std::cout << "response body: " << http_response->body;
 	return http_response;
 }
 

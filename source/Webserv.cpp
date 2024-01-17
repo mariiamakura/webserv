@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: mparasku <mparasku@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/17 09:57:46 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/17 14:09:55 by mparasku         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,11 +297,11 @@ void Webserv::run()
 						break;
 					if (poll_fd[i].events | POLLOUT)
 					{
-//						std::vector<uint8_t> &requestData = in_request[poll_fd[i].fd];
-//						std::string requestString(requestData.begin(), requestData.end());
-//
-//						logging("request :\n" + requestString + "\n", DEBUG);
-//						logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
+						std::vector<uint8_t> &requestData = in_request[poll_fd[i].fd];
+						std::string requestString(requestData.begin(), requestData.end());
+
+						logging("request :\n" + requestString + "\n", DEBUG);
+						logging(" ---- request: " + int_to_string(in_request[poll_fd[i].fd].size()) + " bytes received  ----", DEBUG);
 
 						http_response = new Response();
 						newOrAppendRequest(i);
@@ -315,7 +315,7 @@ void Webserv::run()
                         if (http_request->method == "GET")
 						{
                             if (isSameLocation && !isMethodAllowed("GET")) {
-                                http_response->status_code = 403;
+                                http_response->status_code = 405;
                             } else {
                                 http_response->status_code = getMethod();
                             }
@@ -326,20 +326,21 @@ void Webserv::run()
 						else if (http_request->method == "POST")
 						{
                             if (isSameLocation && !isMethodAllowed("POST")) {
-                                http_response->status_code = 403;
+                                http_response->status_code = 405;
                             } else {
                                 http_response->status_code = postMethod(i, serverConfig.getClientBodyBufferSize());
                             }
 							// create a response
 							out_response[poll_fd[i].fd] = create_http_response();
-							if (http_response->status_code == 201 || http_response->status_code == 500 || http_response->status_code == 403) {
+							if (http_response->status_code == 201 || http_response->status_code == 413 || http_response->status_code == 405
+							|| http_response->status_code == 413) {
                                 deleteRequest(poll_fd[i].fd);
                             }
 						}
 						else if (http_request->method == "DELETE")
 						{
                             if (isSameLocation && !isMethodAllowed("DELETE")) {
-                                http_response->status_code = 403;
+                                http_response->status_code = 405;
                             } else {
                                 http_response->status_code = http_request->deleteMethod();
                             }
