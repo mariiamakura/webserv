@@ -1,15 +1,29 @@
 body {
     font-family: Arial, sans-serif;
 	width: 100%;
-    margin: 0 auto;
-    padding: 0;
-	text-align: center;
+    margin: 10 auto;
+    padding: 10;
+	text-align: left;
 	background-color: aquamarine;
 	/* background-image: url('/over42/images/muppet_opas.jpg'); */
 	background-repeat: no-repeat;
 	background-attachment: fixed;
   	background-size: cover;
 	}
+
+h1 {
+	font-size: 2em;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+}
+
+form {
+	width: 100%;
+	margin: auto;
+	overflow: hidden;
+	text-align: center;
+}
 
 header {
     background-color: #333;

@@ -1,52 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send DELETE Request</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Send DELETE Request</title>
+	<base href="/over42/">
+	<link rel="stylesheet" type="text/css" href="style/style.css">
 </head>
+
 <body>
+	<nav>
+		<ul>
+			<li>
+				<a href="index.html">Home</a>
+			</li>
+			<li>
+				<a href="upload.html">Upload files</a>
+			</li>
+			<li>
+				<a href="download.html">Download files</a>
+			</li>
+			<li>
+				<a href="download_with_php.html">Download CGI</a>
+			</li>
+			<li>
+				<a href="post.html">Tell us your name!</a>
+			</li>
+			<li>
+				<a href="delete.html">Delete a file</a>
+			</li>
+		</ul>
+	</nav>
+	<h1>Delete File</h1>
 
-<h1>Delete File</h1>
+	<label for="filename">Enter Filename:</label>
+	<input type="text" id="filename" placeholder="text.txt">
+	<button onclick="deleteFile()">Delete File</button>
 
-<label for="filename">Enter Filename:</label>
-<input type="text" id="filename" placeholder="text.txt">
-<button onclick="deleteFile()">Delete File</button>
+	<script>
+		function deleteFile() {
+			// Get the filename from the input field
+			var filename = document.getElementById("filename").value;
 
-<script>
-    function deleteFile() {
-        // Get the filename from the input field
-        var filename = document.getElementById("filename").value;
+			// Construct the URL by appending the filename to the base URL
+			var baseUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/download/';
+			var url = baseUrl + encodeURIComponent(filename);
 
-        // Construct the URL by appending the filename to the base URL
-        var baseUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/download/';
-        var url = baseUrl + encodeURIComponent(filename);
-
-        // Perform the DELETE request using the fetch API
-        fetch(url, {
-            method: 'DELETE',
-            headers: {
-                // Add any headers as needed
-            },
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.text(); // or response.json() depending on the expected response
-            })
-            .then(data => {
-                // Handle the successful response
-                console.log(data);
-            })
-            .catch(error => {
-                // Handle errors
-                console.error('There was a problem with the fetch operation:', error);
-            });
-    }
-</script>
+			// Perform the DELETE request using the fetch API
+			fetch(url, {
+				method: 'DELETE',
+				headers: {
+					// Add any headers as needed
+				},
+			})
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+					return response.text(); // or response.json() depending on the expected response
+				})
+				.then(data => {
+					// Handle the successful response
+					console.log(data);
+				})
+				.catch(error => {
+					// Handle errors
+					console.error('There was a problem with the fetch operation:', error);
+				});
+		}
+	</script>
 
 </body>
+
 </html>
-
-
