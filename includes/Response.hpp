@@ -44,5 +44,5 @@ public:
     void downloadFileResponse();
 
     //for Cookies
-    void setCookie(const std::string& name, const std::string& value);  // Set outgoing cookies
+    // void setCookie(const std::string& name, const std::string& value);  // Set outgoing cookies
 };

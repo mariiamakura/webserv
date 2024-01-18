@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:44:28 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/16 17:36:46 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/18 16:27:15 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,10 @@ int Config::parse(std::ifstream& configFile) {
 					if (keyword == "location") {
 						formatValueTmp(configFile, line, tmp2);
 					}
-					setLocation(tmp2, configFile);
+					if (setLocation(tmp2, configFile) == 1) {
+						// std::cout << "hier\n";
+						return 2;
+					}
 				} else if (line.find("autoindex") != std::string::npos) {
 					formatKeyTmp(line, tmp);
 					setAutoindex(tmp.compare("on") == 0 ? true : false);
@@ -126,7 +129,7 @@ int Config::parse(std::ifstream& configFile) {
 		} else
 			return 1;
 	}
-	return 2;
+	return 0;
 }
 
 
@@ -212,7 +215,7 @@ unsigned long Config::getClientBodyBufferSize() const {
 
 // const std::vector<std::string>& getLocationPath() const;
 
-void Config::setLocation(std::string str, std::ifstream& configFile) {
+int Config::setLocation(std::string str, std::ifstream& configFile) {
 	std::string line;
 	std::string tmp;
 	size_t pos;
@@ -222,12 +225,15 @@ void Config::setLocation(std::string str, std::ifstream& configFile) {
 		std::istringstream iss(line);
 		std::string keyword;
 		iss >> keyword;
-
+		if (keyword == "location") {
+			delete loc;
+			return 1;
+		}
 		loc->setPath(str);
 
 		if (line.find("}") != std::string::npos) {
 			location.insert(std::make_pair(str, loc));
-			break;
+			return 0;
 		} else if ((pos = line.find("allow_methods")) != std::string::npos) {
 			std::istringstream iss(line.substr(pos + strlen("allow_methods") + 1));
 			std::set<std::string> methods;
@@ -273,6 +279,7 @@ void Config::setLocation(std::string str, std::ifstream& configFile) {
 				loc->setClientBodyBufferSize(tmp);
 		}
 	}
+	return 1;
 }
 
 const std::map<std::string, Location*>& Config::getLocation() const

@@ -349,7 +349,7 @@ std::string Webserv::checkPath(std::string path)
 	return path;
 }
 
-void Response::setCookie(const std::string& name, const std::string& value) {
-    // Set cookie in the response headers
-		headers["Set-Cookie"] = name + "=" + value;
-}
+// void Response::setCookie(const std::string& name, const std::string& value) {
+//     // Set cookie in the response headers
+// 		headers["Set-Cookie"] = name + "=" + value;
+// }

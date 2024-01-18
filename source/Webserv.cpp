@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/17 17:50:27 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/18 16:17:08 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -460,25 +460,33 @@ int Webserv::parseConfig(std::string path)
 	}
 	// std::vector<Config *> serverConfigs;
 
+	int parseReturn;
 	while (!configFile.eof())
 	{
 		// std::cout << "parsing" << std::endl;
 		// Config *serverConfig = new Config();
 		serverConfig = new Config();
-		if (!serverConfig->parse(configFile))
+		parseReturn = serverConfig->parse(configFile);
+		// std::cout << "parseReturn: " << parseReturn << std::endl;
+		if ( parseReturn == 0)
 		{
 			// std::cout << "pushing" << std::endl;
+			std::cout << serverConfig->getListen() << std::endl;
 			serverConfigs.push_back(serverConfig);
 		}
-		else
+		else {
+			// std::cout << "deleting" << std::endl;
 			delete serverConfig;
+			break;
+		}
 		
 	}
 	
 	setConfig(serverConfigs);
 
 	configFile.close();
-	if (serverConfigs[0]->getListen() == "" ||
+
+	if (parseReturn > 0 || serverConfigs[0]->getListen() == "" ||
 		serverConfigs[0]->getHost().empty() ||
 		serverConfigs[0]->getLocation().find("/") == serverConfigs[0]->getLocation().end())
 	{
@@ -501,14 +509,14 @@ int Webserv::parseConfig(std::string path)
 	return 0;
 }
 
-std::string Webserv::getCookie(const std::string& key) const {
-    auto it = cookies.find(key);
-    if (it != cookies.end()) {
-        return it->second;
-    }
-    return "";
-}
+// std::string Webserv::getCookie(const std::string& key) const {
+//     auto it = cookies.find(key);
+//     if (it != cookies.end()) {
+//         return it->second;
+//     }
+//     return "";
+// }
 
-void Webserv::setCookie(const std::string& key, const std::string& value) {
-    cookies[key] = value;
-}
+// void Webserv::setCookie(const std::string& key, const std::string& value) {
+//     cookies[key] = value;
+// }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 13:47:45 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/17 10:03:30 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/18 16:27:45 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,9 +52,11 @@ int main(int argc, char **argv, char **env)
 			std::cout << "Error: Invalid configuration." << std::endl;
 			return 1;
 		}
-		std::vector<Config *> serverConfigs = webserv.getConfig();
-		std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
+		
+		// std::vector<Config *> serverConfigs = webserv.getConfig();
+		// std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
 		// Config::printConfigs(serverConfigs);
+		
 		webserv.init_servers();
 		webserv.run();
 	}
@@ -73,10 +75,10 @@ int main(int argc, char **argv, char **env)
 			std::cout << "Error: Invalid configuration." << std::endl;
 			return 1;
 		}
-		// std::vector<Config *> serverConfigs = webserv.getConfig();
+		std::vector<Config *> serverConfigs = webserv.getConfig();
 	
-		// std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
-		// Config::printConfigs(serverConfigs);
+		std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
+		Config::printConfigs(serverConfigs);
 
 		// for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
 		// {
