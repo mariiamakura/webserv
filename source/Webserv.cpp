@@ -18,6 +18,7 @@ Webserv::Webserv()
 	poll_fd.push_back(pollfd());
 	autoindexBool = true;
     isSameLocation = false;
+    isCookies = false;
 }
 
 Webserv::~Webserv()
@@ -312,6 +313,12 @@ void Webserv::run()
                         if (tmp_path != "")
                             http_request->path = tmp_path;
 
+                        if (http_request->headers.find("Cookie") != http_request->headers.end()) {
+                            std::string cookieValue = http_request->headers["Cookie"];
+                            if (cookieValue.find("id") != std::string::npos) {
+                                isCookies = true;
+                            }
+                        }
                         if (http_request->method == "GET")
 						{
                             if (isSameLocation && !isMethodAllowed("GET")) {
@@ -369,6 +376,7 @@ void Webserv::run()
 
 						deleteResponse(poll_fd[i].fd);
                         isSameLocation = false;
+                        isCookies = false;
 						break;
 					}
 					else if (poll_fd[i].events | POLLHUP)
