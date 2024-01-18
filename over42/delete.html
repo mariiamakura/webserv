@@ -43,33 +43,40 @@
 			// Get the filename from the input field
 			var filename = document.getElementById("filename").value;
 
-			// Construct the URL by appending the filename to the base URL
-			var baseUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/download/';
-			var url = baseUrl + encodeURIComponent(filename);
+        // Construct the URL by appending the filename to the base URL
+        var baseUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/download/';
+        var url = baseUrl + encodeURIComponent(filename);
 
-			// Perform the DELETE request using the fetch API
-			fetch(url, {
-				method: 'DELETE',
-				headers: {
-					// Add any headers as needed
-				},
-			})
-				.then(response => {
-					if (!response.ok) {
-						throw new Error('Network response was not ok');
-					}
-					return response.text(); // or response.json() depending on the expected response
-				})
-				.then(data => {
-					// Handle the successful response
-					console.log(data);
-				})
-				.catch(error => {
-					// Handle errors
-					console.error('There was a problem with the fetch operation:', error);
-				});
-		}
-	</script>
+        // Perform the DELETE request using the fetch API
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                // Add any headers as needed
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text(); // or response.json() depending on the expected response
+            })
+            .then(data => {
+                // Handle the successful response
+                console.log(data);
+                if (data.trim("File deleted successfully")) {
+                    alert("File deleted successfully");
+                }
+                else {
+                    alert("Not found");
+                }
+            })
+            .catch(error => {
+                // Handle errors
+                console.error('There was a problem with the fetch operation:', error);
+                alert("Not found");
+            });
+    }
+</script>
 
 </body>
 

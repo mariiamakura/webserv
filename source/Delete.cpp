@@ -7,7 +7,7 @@ int Request::deleteMethod() {
     std::string fullPath = "./download/" + filename;
     const char *deleteObj = fullPath.c_str();
     if (std::remove(deleteObj) != 0) {
-        return 204;
+        return 404;
     }
     return 202;
 }
