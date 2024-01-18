@@ -8,7 +8,7 @@ The project aims to create an HTTP web server using C++98 that adheres to the HT
 - Mimic official HTTP responses
 - Listen multiple ports
 - Fully configurable
-- Support Cookies and CGI(PHP, Puthon, JavaScript)
+- Support Cookies and CGI(PHP, Python, JavaScript)
 
 
 ## how to install and compile
