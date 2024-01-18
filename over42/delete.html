@@ -38,10 +38,17 @@
             .then(data => {
                 // Handle the successful response
                 console.log(data);
+                if (data.trim("File deleted successfully")) {
+                    alert("File deleted successfully");
+                }
+                else {
+                    alert("Not found");
+                }
             })
             .catch(error => {
                 // Handle errors
                 console.error('There was a problem with the fetch operation:', error);
+                alert("Not found");
             });
     }
 </script>

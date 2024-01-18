@@ -97,13 +97,9 @@ Response *Webserv::create_http_response(void)
 	{
 		http_response->status_message = "Partial Content";
 	}
-	else if (http_response->status_code == 204)
-	{
-		http_response->status_message = "No Content";
-	}
 	else if (http_response->status_code == 202)
 	{
-		http_response->body += "File deleted";
+		http_response->body += "File deleted successfully";
 		http_response->status_message = "OK";
 	}
 	else if (http_response->status_code == 500)
