@@ -265,7 +265,7 @@ Config Webserv::checkConfig()
 
 	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
 	{
-		if (num == (*itz)->getPorts())
+		if (num == (*itz)->getPort())
 		{
 			return *(*itz);
 		}
@@ -309,7 +309,7 @@ std::string Webserv::checkPath(std::string path)
 
 	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
 	{
-		if (num == (*itz)->getPorts())
+		if (num == (*itz)->getPort())
 		{
 			std::cout << "PORTS MATCH" << std::endl;
 			const std::map<std::string, Location *> &locations = (*itz)->getLocation();
@@ -347,4 +347,9 @@ std::string Webserv::checkPath(std::string path)
 		}
 	}
 	return path;
+}
+
+void Response::setCookie(const std::string& name, const std::string& value) {
+    // Set cookie in the response headers
+		headers["Set-Cookie"] = name + "=" + value;
 }

@@ -112,3 +112,7 @@ void Webserv::deleteRequest(int i) {
         std::cout << "I DONT DELETE REQUEST\n";
     }
 }
+
+void Request::parseCookies() {
+    // Parse incoming cookies from headers and update internal data structures
+}

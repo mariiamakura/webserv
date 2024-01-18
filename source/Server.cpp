@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:43:52 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/28 12:40:41 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/17 17:40:15 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,4 +214,10 @@ void Server::init_server(int port, int backlog) {
     //setup poll structure
     // ft_memset(fds, 0 , sizeof(fds));
     this->sockfd = sockfd;
+}
+
+void Server::handleRequest(Request& request, Response& response) {
+    // Check for valid session cookies, generate new session ID if needed
+    // Retrieve or create session data based on session ID
+    // Process the request and generate the response
 }

@@ -33,6 +33,9 @@ private:
     void parseBodyReq();
     void setMetaData();
     int deleteMethod();
+
+    //Cookie
+    void parseCookies();// Parse and handle incoming cookies
 };
 
 bool canSeparate(const std::vector<uint8_t> &request, size_t &delimIndex);

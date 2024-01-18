@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:22:29 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/23 09:51:00 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/17 17:33:38 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,8 @@ class Server
 		int getSockfd();
 		
 		
-
+		//cookie
+		void handleRequest(Request& request, Response& response);
 		
 		
 	

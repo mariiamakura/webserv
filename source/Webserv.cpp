@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/17 09:57:46 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/17 17:50:27 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void Webserv::init_servers()
 	std::vector<Config *> serverConfigs = this->getConfig();
 	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
 	{
-		ports.push_back((*itz)->getPorts());
+		ports.push_back((*itz)->getPort());
 		// std::cout << "port: " << (*itz)->getPorts() << std::endl;
 	}
 	// ports.push_back(DEF_PORT);
@@ -438,7 +438,7 @@ std::vector<Config *> Webserv::getConfig() const
 }
 
 bool Webserv::isMethodAllowed(std::string method) {
-    std::set <std::string> allow_meth = currentLocation->getAllowMethods();
+    std::set <std::string> allow_meth = currentLocation->getAllowedMethods();
     std::set<std::string>::iterator it = allow_meth.find(method);
 
     // Check if the element was found
@@ -499,4 +499,16 @@ int Webserv::parseConfig(std::string path)
 	// serverConfigs.clear();
 	
 	return 0;
+}
+
+std::string Webserv::getCookie(const std::string& key) const {
+    auto it = cookies.find(key);
+    if (it != cookies.end()) {
+        return it->second;
+    }
+    return "";
+}
+
+void Webserv::setCookie(const std::string& key, const std::string& value) {
+    cookies[key] = value;
 }

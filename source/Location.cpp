@@ -6,19 +6,19 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 17:42:41 by sung-hle          #+#    #+#             */
-/*   Updated: 2024/01/08 13:15:45 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/12 16:14:15 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 
-Location::Location() : path(""), allowMethods(), root(""), cgi_path(), cgi_ext(), autoindex(false) {
+Location::Location() : path(""), allowMethods(), root(""), cgi_path(), cgi_ext(), client_body_buffer_size(0), autoindex(false) {
 }
 
 Location::~Location() {
 }
 
-Location::Location(Location const &src) : path(""), allowMethods(), root(""), cgi_path(), cgi_ext(), autoindex(false) {
+Location::Location(Location const &src) : path(src.path), allowMethods(src.allowMethods), root(src.root), cgi_path(src.cgi_path), cgi_ext(src.cgi_ext), client_body_buffer_size(src.client_body_buffer_size), autoindex(src.autoindex) {
   *this = src;
 }
 
@@ -32,7 +32,7 @@ Location &Location::operator=(Location const &other)
     root = other.root;
     cgi_path = other.cgi_path;
     cgi_ext = other.cgi_ext;
-    // client_body_buffer_size = other.client_body_buffer_size;
+    client_body_buffer_size = other.client_body_buffer_size;
     autoindex = other.autoindex;
   }
   return (*this);
@@ -83,6 +83,16 @@ void Location::setCGIExt(const std::vector<std::string>& newCGIExt) {
     cgi_ext = newCGIExt;
 }
 
+void Location::setClientBodyBufferSize(std::string str) {
+	unsigned long _client_body_buffer_size = 0;
+	_client_body_buffer_size = static_cast<unsigned long>(std::strtol(str.c_str(), NULL, 10));
+	client_body_buffer_size = _client_body_buffer_size;
+}
+
+unsigned long Location::getClientBodyBufferSize() const {
+	return (this->client_body_buffer_size);
+}
+
 // Getter and Setter for 'autoindex'
 bool Location::getAutoindex() const {
     return autoindex;
@@ -101,9 +111,5 @@ const std::string& Location::getIndex() const
 {
     // std::cout << "in method index: " << index << std::endl;
 	return (index);
-}
-
-const std::set<std::string>& Location::getAllowMethods() const {
-    return allowMethods;
 }
 

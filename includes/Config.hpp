@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:37:48 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/11 07:00:07 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/16 17:33:28 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,36 +20,44 @@ class Config
 {
 	private:
 		std::string							listen;//can contain ip-address and port - 127.0.0.1:8080;  # Listen on localhost, port 8080 or listen 0.0.0.0:8000;  # Listen on all available network interfaces, port 8000
-		std::vector<std::string>            serverNames;//e.g. www.example.com example.com or ip-address
+		//only valid variations for listen directive: listen 80, listen 127.0.0.1:8080, listen localhost:80 !!!
+		std::vector<std::string>            serverNames;//e.g. www.example.com example.com  <-only valid vars for us !!!! ///or ip-address
 		std::vector<std::string>            host;// does not exist in nginx but we need it for the host header or server_name or server_name_in_redirect
 		std::string                         root;//e.g. /var/www/example.com/htdocs
-		std::map<int, std::string>          errorPage;
+		std::map<int, std::string>          errorPage;//otherwise we use default error pages
 		std::map<std::string, Location*>     location;
 		std::set<std::string>               allowedMethods;
 		std::vector<std::string>            index;//When a client requests a directory without specifying a particular file, Nginx will look for files listed in the index directive and serve the first one that exists in the directory.
-		// std::string 							           index;
 		bool                                autoindex;
 		int							                    port;
 		unsigned long                       client_body_buffer_size;//--------------- redirs, uploads
-		// std::map<std::string, std::string>  cgi_param;
-		// std::string                         cgi_pass;
-		// std::vector<std::string>            locationPath;
-		// std::string                         alias;
-		// bool                                aliasSet;
-
-// und für locations
-		// std::string						              _path;
-		// std::set<std::string>               _allowed_methods;
-		// std::string                         _alias;
-		// bool                                _aliasSet;
-		// std::string                         _root;
-		// std::map<std::string, std::string>  _cgi_param;
-		// std::string                         _cgi_pass;
-		// unsigned long                       _client_body_buffer_size;
-		// bool                                _autoindex;
 		
 
 		void formatString(std::string& str);
+		void formatKeyTmp(std::string& str, std::string& str2);
+		void formatValueTmp(std::ifstream& configFile, std::string& line, std::string& tmp2);// {
+		// 	std::string tmp;
+		// 	size_t openingBracePos = line.find("{");
+		// 	if (openingBracePos != std::string::npos) {
+		// 		tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
+		// 		std::istringstream issTmp(tmp);
+		// 		issTmp >> std::ws;
+		// 		std::getline(issTmp, tmp2, ' ');
+		// 		line.erase(0, openingBracePos + 1);
+		// 	} else {
+		// 		while (std::getline(configFile, line)) {
+		// 			size_t openingBracePos = line.find("{");
+		// 			if (openingBracePos != std::string::npos) {
+		// 				tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
+		// 				std::istringstream issTmp(tmp);
+		// 				issTmp >> std::ws;
+		// 				std::getline(issTmp, tmp2, ' ');
+		// 				line.erase(0, openingBracePos + 1);
+		// 				break;
+		// 			}
+		// 		}
+		// 	}
+		// }
 
 	public:
 		Config();
@@ -65,7 +73,7 @@ class Config
 		void setHost(std::string str);
 		const std::vector<std::string>& getHost() const;
 		void setPort(std::string str);
-		int getPorts() const;
+		int getPort() const;
 		void setRoot(std::string str);
 		const std::string& getRoot() const;
 		void setErrorPage(std::string str, std::string str2);
