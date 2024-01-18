@@ -18,7 +18,7 @@ int Webserv::getMethod()
 	else if (http_request->path.find("/over42/cgi-bin/index.py") != std::string::npos && access("./over42/cgi-bin/index.py", F_OK) == 0)
 	{
 		char *tmp = string_to_chararray(http_request->path);
-		if (access("./cgi-bin/index.py", X_OK) == 0)
+		if (access("./over42/cgi-bin/index.py", X_OK) == 0)
 		{
 
 			// std::cout << "cgi-bin/index.py exists" << std::endl;
@@ -30,10 +30,10 @@ int Webserv::getMethod()
 			{
 				close(pipefd[0]);
 				dup2(pipefd[1], STDOUT_FILENO);
-				std::string tmp2 = "/cgi-bin/index.py";
+				std::string tmp2 = "/over42/cgi-bin/index.py";
 				delete[] tmp;
 				tmp = string_to_chararray(tmp2);
-				http_request->path = tmp2;
+				http_response->path = tmp2;
 				char *const args[] = {tmp, NULL};
 				execve(tmp, args, env);
 			}
@@ -48,12 +48,14 @@ int Webserv::getMethod()
 					buffer[bytesRead] = '\0';
 					scriptOutput += buffer;
 				}
-				// std::cout << "scriptOutput: " << scriptOutput << std::endl;
-				http_request->path = scriptOutput;
+				std::cout << "scriptOutput: " << scriptOutput << std::endl;
+				http_response->path = scriptOutput;
 				// std::cout << "scripted http_request.path: " << http_request.path << std::endl;
 				waitpid(-1, NULL, WUNTRACED);
 			}
 		}
+		delete[] tmp;
+		// http_response->isFile = true;
 		return 200;
 	}
 
