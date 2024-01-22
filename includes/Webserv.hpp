@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/17 10:03:01 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/18 10:52:09 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,6 +134,8 @@ class Webserv
         std::map <int, Request *> http_requests;
 		std::map <int, Response *> out_response;
 
+		std::map<std::string, std::string> cookies; //for cookies
+
 	
 	public:
 		std::vector<Config *> serverConfigs;
@@ -191,5 +193,9 @@ class Webserv
         int getDownloadCgi();
 
         bool isMethodAllowed(std::string method);
+
+				//Cookie
+				void setCookie(const std::string& key, const std::string& value);
+				std::string getCookie(const std::string& key) const;
 
     };

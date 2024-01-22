@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:44:28 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/11 07:54:16 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/22 07:46:25 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 
-Config::Config()	: listen(""), root(""), autoindex(false), port(0), client_body_buffer_size(0){
+Config::Config()	: listen(""), root(""), autoindex(0), port(0), client_body_buffer_size(0) {
 }
 
 Config::~Config()	{
@@ -21,35 +21,32 @@ Config::~Config()	{
 	}
 }
 
-Config::Config(Config const &src)	: listen(src.listen), root(src.root), autoindex(src.autoindex), port(src.port), client_body_buffer_size(src.client_body_buffer_size){
+Config::Config(Config const &src)	: listen(src.listen), root(src.root), autoindex(src.autoindex), port(src.port), client_body_buffer_size(src.client_body_buffer_size) {
 	*this = src;
 }
 
 Config &Config::operator=(Config const &src)
 {
-	if (this != &src) {
-        listen = src.listen;
-        serverNames = src.serverNames;
-        host = src.host;
-        root = src.root;
-        errorPage = src.errorPage;
-        //location = src.location;
-        allowedMethods = src.allowedMethods;
-        index = src.index;
-        autoindex = src.autoindex;
-        port = src.port;
-        client_body_buffer_size = src.client_body_buffer_size;
+	if (this == &src)	{
+		listen = src.listen;
+		serverNames = src.serverNames;
+		host = src.host;
+		root = src.root;
+		errorPage = src.errorPage;
+		location = src.location;
+		allowedMethods = src.allowedMethods;
+		index = src.index;
+		autoindex = src.autoindex;
+		port = src.port;
+		client_body_buffer_size = src.client_body_buffer_size;
 
+		// Delete existing Location objects
+		for (std::map<std::string, Location*>::iterator it = location.begin(); it != location.end(); ++it) {
+			delete it->second;
+		}
 
-        // Delete existing Location objects
-        if (!location.empty()) {
-            for (std::map<std::string, Location *>::iterator it = location.begin(); it != location.end(); ++it) {
-                delete it->second;
-            }
-
-        // Clear the map
-        location.clear();
-    }
+		// Clear the map
+		location.clear();
 
 		// Copy Location objects
 		for (std::map<std::string, Location*>::const_iterator it = src.location.begin(); it != src.location.end(); ++it) {
@@ -62,48 +59,22 @@ Config &Config::operator=(Config const &src)
 
 
 int Config::parse(std::ifstream& configFile) {
-	std::string line;
-	std::string tmp;
-	std::string tmp2;
-	// std::cout << "Parsing config file..." << std::endl;
+	std::string line, tmp, tmp2, keyword;
 	while (std::getline(configFile, line)) {
 		std::istringstream iss(line);
-		std::string keyword;
 		iss >> std::ws >> keyword;
 
 		if (keyword == "server") {
-			// Start parsing the server block
-			size_t openingBracePos = line.find("{");
-			if (openingBracePos != std::string::npos) {
-				// Opening curly bracket found on the same line
-				line.erase(0, openingBracePos + 1);  // Erase everything before {
-			} else {
-				// Look for the opening curly bracket in the following lines
-				while (std::getline(configFile, line)) {
-						size_t openingBracePos = line.find("{");
-						if (openingBracePos != std::string::npos) {
-								// Opening curly bracket found on this line
-								line.erase(0, openingBracePos + 1);  // Erase everything before {
-								break;
-						}
-				}
-			}
+			formatValueTmp(configFile, line, tmp2);
 			while (std::getline(configFile, line)) {
 				if (line.find("}") != std::string::npos) {
 					return 0;
 //---------------------------                    
 				} else if (line.find("listen") != std::string::npos) {
-					keyword = "listen";
-					iss.clear();
-					iss.str(line);
-					iss >> keyword >> tmp;
+					formatKeyTmp(line, tmp);
 					setListen(tmp);
-                    //get only the port of this
-					setPort(tmp);
 				}
-				// Parse other server-related configuration here
 				else if (line.find("server_name") != std::string::npos) {
-					keyword = "server_name";
 					iss.clear();
 					iss.str(line);
 					iss >> keyword;
@@ -112,73 +83,38 @@ int Config::parse(std::ifstream& configFile) {
 						setServerNames(tmp);
 					}
 				} else if (line.find("host") != std::string::npos) {
-					keyword = "host";
 					iss.clear();
 					iss.str(line);
-					iss >> keyword >> tmp;
-					// std::cout << "TMP HOST: " << tmp << std::endl;
-					formatString(tmp);
-					host.push_back(tmp);
+					iss >> keyword;
+					while (iss >> tmp) {
+						formatString(tmp);
+						setHost(tmp);
+					}
 				} else if (line.find("root") != std::string::npos) {
-					keyword = "root";
-					iss.clear();
-					iss.str(line);
-					iss >> keyword >> tmp;
-					formatString(tmp);
+					formatKeyTmp(line, tmp);
 					setRoot(tmp);
 				} else if (line.find("error_page") != std::string::npos) {
-					keyword = "error_page";
 					iss.clear();
 					iss.str(line);
-					std::string tmp2;
 					iss >> keyword >> tmp >> tmp2;
 					formatString(tmp2);
 					setErrorPage(tmp, tmp2);
 				} else if (line.find("client_max_body_size") != std::string::npos) {
-					keyword = "client_max_body_size";
-					iss.clear();
-					iss.str(line);
-					iss >> keyword >> tmp;
-					formatString(tmp);
+					formatKeyTmp(line, tmp);
 					setClientBodyBufferSize(tmp);
 				} else if (line.find("location") != std::string::npos) {
 					std::istringstream iss(line);
 					iss >> keyword;
 					if (keyword == "location") {
-						size_t openingBracePos = line.find("{");
-						if (openingBracePos != std::string::npos) {
-							tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
-							std::istringstream issTmp(tmp);
-							issTmp >> std::ws;
-							std::getline(issTmp, tmp2, ' ');
-							line.erase(0, openingBracePos + 1);  // Erase everything before {
-						} else {
-							while (std::getline(configFile, line)) {
-								size_t openingBracePos = line.find("{");
-								if (openingBracePos != std::string::npos) {
-									tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
-									std::istringstream issTmp(tmp);
-									issTmp >> std::ws;
-									std::getline(issTmp, tmp2, ' ');
-									line.erase(0, openingBracePos + 1);  // Erase everything before {
-									break;
-								}
-							}
-						}
+						formatValueTmp(configFile, line, tmp2);
 					}
-					setLocation(tmp2, configFile);
+					if (setLocation(tmp2, configFile) == 1) {
+						return 2;
+					}
 				} else if (line.find("autoindex") != std::string::npos) {
-					keyword = "autoindex";
-					iss.clear();
-					iss.str(line);
-					iss >> keyword >> tmp;
-					formatString(tmp);
-					if (tmp.compare("on") == 0)
-						this->autoindex = true;
-					else
-						this->autoindex = false;
+					formatKeyTmp(line, tmp);
+					setAutoindex(tmp.compare("on") == 0 ? true : false);
 				} else if (line.find("index") != std::string::npos) {
-					keyword = "index";
 					iss.clear();
 					iss.str(line);
 					iss >> keyword;
@@ -188,16 +124,26 @@ int Config::parse(std::ifstream& configFile) {
 					}
 				}
 			}
-			// End of server block
-		} else
-			return 1;
+		}
 	}
-	return 2;
+	std::cout << "Error in server block" << std::endl;
+	return 1;
 }
 
 
 void Config::setListen(std::string str) {
 	listen = str;
+	std::istringstream iss(str);
+	std::string hostPort;
+	iss >> hostPort;
+
+	std::size_t colonPos = hostPort.find(':');
+	if (colonPos == std::string::npos) {
+		port = static_cast<int>(std::strtol(hostPort.c_str(), NULL, 10));
+	} else {
+		host.push_back(hostPort.substr(0, colonPos));
+		port = static_cast<int>(std::strtol(hostPort.substr(colonPos + 1).c_str(), NULL, 10));
+	}
 }
 
 const std::string& Config::getListen()  const {
@@ -229,7 +175,7 @@ void Config::setPort(std::string str) {
 	port = _port;
 }
 
-int Config::getPorts() const {
+int Config::getPort() const {
 	return (this->port);
 }
 
@@ -265,7 +211,9 @@ unsigned long Config::getClientBodyBufferSize() const {
 	return (this->client_body_buffer_size);
 }
 
-void Config::setLocation(std::string str, std::ifstream& configFile) {
+// const std::vector<std::string>& getLocationPath() const;
+
+int Config::setLocation(std::string str, std::ifstream& configFile) {
 	std::string line;
 	std::string tmp;
 	size_t pos;
@@ -275,46 +223,38 @@ void Config::setLocation(std::string str, std::ifstream& configFile) {
 		std::istringstream iss(line);
 		std::string keyword;
 		iss >> keyword;
-
+		if (keyword == "location") {
+			delete loc;
+			return 1;
+		}
+		// std::cout << str << std::endl;
 		loc->setPath(str);
 
 		if (line.find("}") != std::string::npos) {
-			// Closing curly bracket found, end parsing server block
-			// std::cout << "END OF LOCATION" << std::endl;
 			location.insert(std::make_pair(str, loc));
-			break;
+			return 0;
 		} else if ((pos = line.find("allow_methods")) != std::string::npos) {
 			std::istringstream iss(line.substr(pos + strlen("allow_methods") + 1));
 			std::set<std::string> methods;
 			std::string method;
 			while (iss >> method) {
 				formatString(method);
+				if (method != "GET" && method != "POST" && method != "DELETE") {
+					std::cout << "Unknown method" << std::endl;
+					delete loc;
+					return 1;
+				}
 				methods.insert(method);
 			}
-			// for (std::set<std::string>::const_iterator it = methods.begin(); it != methods.end(); ++it) {
-			// 		std::cout << *it << " ";
-			// }
-			std::cout << std::endl;
+			// std::cout << std::endl;
 			loc->setAllowedMethods(methods);
 		} else if (line.find("root") != std::string::npos) {
-			keyword = "root";
-			iss.clear();
-			iss.str(line);
-			iss >> keyword >> tmp;
-			formatString(tmp);
+			formatKeyTmp(line, tmp);
 			loc->setRoot(tmp);
 		} else if (line.find("autoindex") != std::string::npos) {
-			keyword = "autoindex";
-			iss.clear();
-			iss.str(line);
-			iss >> keyword >> tmp;
-			formatString(tmp); 	
-			if (tmp.compare("on") == 0)
-				loc->setAutoindex(true);
-			else
-				loc->setAutoindex(false);
+			formatKeyTmp(line, tmp);
+			loc->setAutoindex(tmp.compare("on") == 0 ? true : false);
 		} else if (line.find("index") != std::string::npos) {
-			keyword = "index";
 			iss.clear();
 			iss.str(line);
 			iss >> keyword;
@@ -338,8 +278,17 @@ void Config::setLocation(std::string str, std::ifstream& configFile) {
 				cgiExtVector.push_back(tmp);
 			}
 			loc->setCGIExt(cgiExtVector);
+		} else if (line.find("client_max_body_size") != std::string::npos) {
+				formatKeyTmp(line, tmp);
+				loc->setClientBodyBufferSize(tmp);
+		} else {
+			std::cout << "Error in location block" << std::endl;
+			delete loc;
+			return 1;
 		}
 	}
+	delete loc;
+	return 1;
 }
 
 const std::map<std::string, Location*>& Config::getLocation() const
@@ -418,6 +367,7 @@ void Config::printConfigs(std::vector<Config *>& serverConfigs) {
     std::cout << "Hosts: ";
     displayVector(hosts);
     std::cout << std::endl;
+		std::cout << "Port: ." << (*itz)->getPort() << "." << std::endl;
 
     std::cout << "Root: ." << (*itz)->getRoot() << "." << std::endl;
 		std::cout << "Index: .";
@@ -443,7 +393,11 @@ void Config::printConfigs(std::vector<Config *>& serverConfigs) {
 			std::cout << "\tAllowed Methods: .";
 			displaySet(it->second->getAllowedMethods());
 			std::cout << std::endl;
-			std::cout << "\tIndex: ." << it->second->getIndex() << "." << std::endl;
+			std::cout << "\tIndex: ." << it->second->getIndex() << std::endl;
+			// const std::vector<std::string>& index = it->second->getIndex();
+			// for (std::vector<std::string>::const_iterator indexIt = index.begin(); indexIt != index.end(); ++indexIt) {
+			// 	std::cout << "\t\t." << *indexIt << "." << std::endl;
+			// }
 			std::cout << "\tcgi_path: ." << std::endl;
 			const std::vector<std::string>& cgiPath = it->second->getCGIPath();
 			for (std::vector<std::string>::const_iterator pathIt = cgiPath.begin(); pathIt != cgiPath.end(); ++pathIt) {
@@ -455,6 +409,7 @@ void Config::printConfigs(std::vector<Config *>& serverConfigs) {
 			for (std::vector<std::string>::const_iterator extIt = cgiExt.begin(); extIt != cgiExt.end(); ++extIt) {
 				std::cout << "\t\t." << *extIt << "." << std::endl;
 			}
+			std::cout << "\tClient Body Buffer Size: ." << it->second->getClientBodyBufferSize() << "." << std::endl;
 		}
 	}
 }
@@ -465,3 +420,36 @@ void Config::formatString(std::string& str) {
 			str.erase(str.size() - 1);
 	}
 }
+
+void Config::formatKeyTmp(std::string& str, std::string& str2) {
+	std::istringstream iss;
+	std::string keyword;
+	iss.clear();
+	iss.str(str);
+	iss >> keyword >> str2;
+	formatString(str2);
+}
+
+void Config::formatValueTmp(std::ifstream& configFile, std::string& line, std::string& tmp2) {
+			std::string tmp;
+			size_t openingBracePos = line.find("{");
+			if (openingBracePos != std::string::npos) {
+				tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
+				std::istringstream issTmp(tmp);
+				issTmp >> std::ws;
+				std::getline(issTmp, tmp2, ' ');
+				line.erase(0, openingBracePos + 1);
+			} else {
+				while (std::getline(configFile, line)) {
+					size_t openingBracePos = line.find("{");
+					if (openingBracePos != std::string::npos) {
+						tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
+						std::istringstream issTmp(tmp);
+						issTmp >> std::ws;
+						std::getline(issTmp, tmp2, ' ');
+						line.erase(0, openingBracePos + 1);
+						break;
+					}
+				}
+			}
+		}

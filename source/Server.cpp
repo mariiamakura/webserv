@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:43:52 by fhassoun          #+#    #+#             */
-/*   Updated: 2023/11/28 12:40:41 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/18 11:38:14 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,3 +215,56 @@ void Server::init_server(int port, int backlog) {
     // ft_memset(fds, 0 , sizeof(fds));
     this->sockfd = sockfd;
 }
+
+// void Server::handleRequest(Request& request, Response& response) {
+//     // Check for valid session cookies, generate new session ID if needed
+//     // Retrieve or create session data based on session ID
+//     // Process the request and generate the response
+
+// 		// request.parseCookies();
+
+//     // // Now, you can access the parsed cookies from the cookies map
+//     // std::map<std::string, std::string> cookies = request.getCookies();
+// 		// if (cookies.find("session_id") != cookies.end()) {
+//     //     // Session ID exists in cookies
+//     //     // Perform logic based on session ID
+//     // } else {
+// 		// 		// Session ID does not exist in cookies
+// 		// 		// Generate a new session ID and store it in the cookies map
+// 		// 		cookies["session_id"] = generateSessionId();
+// 		// }
+// 		// Check for valid session cookies, generate new session ID if needed
+//     request.parseCookies();
+//     std::map<std::string, std::string> cookies = request.getCookies();
+
+//     if (cookies.find("session_id") != cookies.end()) {
+//         // Session ID exists in cookies
+//         // Perform logic based on session ID
+//         response.setStatusCode(200);
+//         response.setBody("Welcome, existing user!");
+//     } else {
+//         // Session ID does not exist in cookies
+//         // Generate a new session ID and store it in the cookies map
+//         cookies["session_id"] = generateSessionId();
+//         response.setStatusCode(200);
+//         response.setBody("Welcome, new user!");
+        
+//         // Set the session ID cookie in the response
+//         response.setCookie("session_id", cookies["session_id"]);
+//     }
+// }
+
+// std::string Server::generateSessionId() {
+//     // You can use a library or your own logic to generate a unique session ID
+//     // For simplicity, let's use a basic method for illustration
+//     srand(time(NULL));
+//     const std::string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+//     const int sessionIdLength = 32;  // Adjust the length as needed
+
+//     std::string sessionId;
+//     for (int i = 0; i < sessionIdLength; ++i) {
+//         sessionId += chars[rand() % chars.length()];
+//     }
+
+//     return sessionId;
+// }

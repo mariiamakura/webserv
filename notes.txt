@@ -1,0 +1,6 @@
+index in location string -> vector
+check if server empty / port is not used again
+if something is unknown
+keyword server can be servers for example, it then would be an optional identifier
+no catching of misspellings of directives, would go beyond.. with git clone https://github.com/okigan/cpp-stringdist.git and levenshtein
+consider using alias

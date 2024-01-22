@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mparasku <mparasku@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/17 14:09:55 by mparasku         ###   ########.fr       */
+/*   Updated: 2024/01/22 08:39:48 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,7 @@ void Webserv::init_servers()
 	std::vector<Config *> serverConfigs = this->getConfig();
 	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
 	{
-		ports.push_back((*itz)->getPorts());
+		ports.push_back((*itz)->getPort());
 		// std::cout << "port: " << (*itz)->getPorts() << std::endl;
 	}
 	// ports.push_back(DEF_PORT);
@@ -447,7 +447,7 @@ std::vector<Config *> Webserv::getConfig() const
 }
 
 bool Webserv::isMethodAllowed(std::string method) {
-    std::set <std::string> allow_meth = currentLocation->getAllowMethods();
+    std::set <std::string> allow_meth = currentLocation->getAllowedMethods();
     std::set<std::string>::iterator it = allow_meth.find(method);
 
     // Check if the element was found
@@ -469,25 +469,57 @@ int Webserv::parseConfig(std::string path)
 	}
 	// std::vector<Config *> serverConfigs;
 
+	int parseReturn;
 	while (!configFile.eof())
 	{
 		// std::cout << "parsing" << std::endl;
 		// Config *serverConfig = new Config();
 		serverConfig = new Config();
-		if (!serverConfig->parse(configFile))
+		parseReturn = serverConfig->parse(configFile);
+		// std::cout << "parseReturn: " << parseReturn << std::endl;
+		if ( parseReturn == 0)
 		{
 			// std::cout << "pushing" << std::endl;
+			// std::cout << serverConfig->getListen() << std::endl;
 			serverConfigs.push_back(serverConfig);
 		}
-		else
+		else {
+			// std::cout << "deleting" << std::endl;
 			delete serverConfig;
+			break;
+		}
 		
 	}
 	
 	setConfig(serverConfigs);
 
 	configFile.close();
-	if (serverConfigs[0]->getListen() == "" ||
+
+	//port-check
+	std::map<int, int> portOccurrences;
+	for (std::vector<Config*>::iterator it = serverConfigs.begin(); it != serverConfigs.end(); ++it) {
+			int port = (*it)->getPort();
+
+			// Check if the port is already in the map
+			if (portOccurrences.find(port) != portOccurrences.end()) {
+						// Port is already in the map, increment occurrence count
+					// portOccurrences[port]++;
+					std::cout << "Error: Port " << port << " is already in use." << std::endl;
+					std::cout << "Invalid configuration." << std::endl;
+					for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
+					{
+						delete *itz;
+					}
+					return 2;
+			} else {
+					// Port is not in the map, add it with an occurrence count of 1
+					portOccurrences[port] = 1;
+			}
+	}
+	
+	
+	// std::cout << parseReturn << std::endl;
+	if (parseReturn > 0 || serverConfigs[0]->getListen() == "" ||
 		serverConfigs[0]->getHost().empty() ||
 		serverConfigs[0]->getLocation().find("/") == serverConfigs[0]->getLocation().end())
 	{
@@ -509,3 +541,15 @@ int Webserv::parseConfig(std::string path)
 	
 	return 0;
 }
+
+// std::string Webserv::getCookie(const std::string& key) const {
+//     auto it = cookies.find(key);
+//     if (it != cookies.end()) {
+//         return it->second;
+//     }
+//     return "";
+// }
+
+// void Webserv::setCookie(const std::string& key, const std::string& value) {
+//     cookies[key] = value;
+// }

@@ -6,26 +6,27 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 17:41:51 by sung-hle          #+#    #+#             */
-/*   Updated: 2023/12/19 15:35:41 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/22 07:17:18 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#pragma once 
 #include "Webserv.hpp"
 
 class Location	{
 	private:
 		std::string						    					path;
 		std::set<std::string>               allowMethods;
-		// std::string                         alias;
+		std::string                         alias;
 		// bool                                aliasSet;
 		std::string                         root;
 		// std::map<std::string, std::string>  cgi_path;
 		std::vector<std::string>          cgi_path;
 		std::vector<std::string>            cgi_ext;
-		// unsigned long                       client_body_buffer_size;
+		unsigned long                       client_body_buffer_size;
 		bool                                autoindex;//
-		std::string													index;//
+		// std::vector<std::string>            index;//
+		std::string            index;//
 	
 	public:
 		Location();
@@ -42,8 +43,8 @@ class Location	{
     void setAllowedMethods(const std::set<std::string>& newMethods);
 
     // Getter and Setter for 'alias'
-    // const std::string& getAlias() const;
-    // void setAlias(const std::string& newAlias);
+    const std::string& getAlias() const;
+    void setAlias(const std::string& newAlias);
 
     // Getter and Setter for 'aliasSet'
     // bool getAliasSet() const;
@@ -63,15 +64,14 @@ class Location	{
     void setCGIExt(const std::vector<std::string>& newCGIExt);
 
     // Getter and Setter for 'client_body_buffer_size'
-    // unsigned long getClientBodyBufferSize() const;
-    // void setClientBodyBufferSize(const std::string& newSize);
+    unsigned long getClientBodyBufferSize() const;
+    void setClientBodyBufferSize(std::string newSize);
 
     // Getter and Setter for 'autoindex'
     bool getAutoindex() const;
     void setAutoindex(bool newAutoindex);
 
 		void setIndex(const std::string& str);
-		const std::string& getIndex() const;
-
-    const std::set<std::string> &getAllowMethods() const;
+		// const std::vector<std::string>& getIndex() const;
+    const std::string& getIndex() const;
 } ;

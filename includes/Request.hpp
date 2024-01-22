@@ -23,6 +23,9 @@ private:
         std::vector<uint8_t> contentHead;
         MetaData MetaD;
 
+
+        // std::map<std::string, std::string> cookies;
+
     public:
         Request() {};
         ~Request() {};
@@ -33,6 +36,11 @@ private:
     void parseBodyReq();
     void setMetaData();
     int deleteMethod();
+
+    //Cookie
+    // std::map<std::string, std::string> getCookies() const;
+    // void parseCookies();// Parse and handle incoming cookies
+
 };
 
 bool canSeparate(const std::vector<uint8_t> &request, size_t &delimIndex);

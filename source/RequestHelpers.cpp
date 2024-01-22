@@ -112,3 +112,34 @@ void Webserv::deleteRequest(int i) {
         std::cout << "I DONT DELETE REQUEST\n";
     }
 }
+
+// void Request::parseCookies() {
+//     // Parse incoming cookies from headers and update internal data structures
+//     // Find the "Cookie" header in the headers map
+//     auto cookieHeader = headers.find("Cookie");
+
+//     // If "Cookie" header is found
+//     if (cookieHeader != headers.end()) {
+//         // Extract the cookie header value
+//         std::string cookieValue = cookieHeader->second;
+
+//         // Tokenize the cookie value based on the semicolon and space separator
+//         std::istringstream cookieStream(cookieValue);
+//         std::string cookie;
+//         while (std::getline(cookieStream, cookie, ';')) {
+//             // Split each token into key-value pairs based on the equal sign
+//             size_t equalPos = cookie.find('=');
+//             if (equalPos != std::string::npos) {
+//                 std::string name = cookie.substr(0, equalPos);
+//                 std::string value = cookie.substr(equalPos + 1);
+                
+//                 // Add the cookie to your internal data structure
+//                 cookies[name] = value;
+//             }
+//         }
+//     }
+// }
+
+// std::map<std::string, std::string> Request::getCookies() const {
+//     return cookies;
+// }
