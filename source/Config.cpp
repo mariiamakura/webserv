@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:44:28 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/22 13:42:29 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/22 16:19:37 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ Config &Config::operator=(Config const &src)
 
 int Config::parse(std::ifstream& configFile) {
 	std::string line, tmp, tmp2, keyword;
+	bool serverBlock = false;
 	while (std::getline(configFile, line)) {
 		std::istringstream iss(line);
 		iss >> std::ws >> keyword;
@@ -75,6 +76,7 @@ int Config::parse(std::ifstream& configFile) {
 					return 2;
 				}
 				else if (line.find("}") != std::string::npos) {
+					serverBlock = true;
 					return 0;
 //---------------------------                    
 				} else if (line.find("listen") != std::string::npos) {
@@ -145,14 +147,16 @@ int Config::parse(std::ifstream& configFile) {
 			}
 		}
 	}
-	// std::cout << "Error in server block" << std::endl;
-	// if (line == "") {
-		return 1;
+	return 2;
+	// if (configFile.eof() && serverBlock == false) {
+	// 	return 2;
 	// } else {
-		// return 1;
+	// 	return 1;
 	// }
 }
 
+// 1 segfault when missing bracket
+// 2 empty lines gives error, where it should not
 
 void Config::setListen(std::string str) {
 	listen = str;

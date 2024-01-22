@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/22 13:33:32 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/22 15:52:48 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -496,7 +496,7 @@ int Webserv::parseConfig(std::string path)
 	configFile.close();
 	
 	
-	// std::cout << parseReturn << std::endl;
+	std::cout << parseReturn << std::endl;
 	if (parseReturn > 1 ||
 		serverConfigs[0]->getListen() == "" ||
 		serverConfigs[0]->getHost().empty() ||
