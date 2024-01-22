@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:43:52 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/22 13:04:02 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/22 14:04:07 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ void Server::init_server(int port, int backlog)
 
 	// Create a socket (IPv4, TCP)
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	std::cout << "sockfd: " << sockfd << std::endl;
+	// std::cout << "sockfd: " << sockfd << std::endl;
 	if (sockfd == -1)
 	{
 		std::cout << "Failed to create socket. errno: " << errno << std::endl;

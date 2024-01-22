@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/22 13:06:31 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/22 14:03:31 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -490,7 +490,7 @@ int Webserv::parseConfig(std::string path)
 		}
 		
 	}
-	std::cout << serverConfigs.size() << std::endl;
+	// std::cout << serverConfigs.size() << std::endl;
 	setConfig(serverConfigs);
 
 	configFile.close();
@@ -518,7 +518,7 @@ int Webserv::parseConfig(std::string path)
 	}
 	
 	
-	std::cout << parseReturn << std::endl;
+	// std::cout << parseReturn << std::endl;
 	if (parseReturn > 1 || serverConfigs[0]->getListen() == "" ||
 		serverConfigs[0]->getHost().empty() ||
 		serverConfigs[0]->getLocation().find("/") == serverConfigs[0]->getLocation().end())

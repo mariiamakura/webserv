@@ -48,7 +48,7 @@ int Webserv::getMethod()
 					buffer[bytesRead] = '\0';
 					scriptOutput += buffer;
 				}
-				std::cout << "scriptOutput: " << scriptOutput << std::endl;
+				// std::cout << "scriptOutput: " << scriptOutput << std::endl;
 				http_response->path = scriptOutput;
 				// std::cout << "scripted http_request.path: " << http_request.path << std::endl;
 				waitpid(-1, NULL, WUNTRACED);

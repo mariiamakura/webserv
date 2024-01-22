@@ -217,7 +217,7 @@ std::string Webserv::autoindex(const std::string &path)
 					else
 					{
 						// Add a list item with a download link for files
-						std::cout << "download files\n";
+						// std::cout << "download files\n";
 						html << "<li><a href=\"" << file_name << "\" download>" << file_name << "</a></li>";
 					}
 				}
@@ -348,10 +348,10 @@ std::string Webserv::checkPath(std::string path)
 			}
 			for (std::map<std::string, Location *>::const_iterator it = locations.begin(); it != locations.end(); ++it)
 			{
-				std::cout << it->first << " => " << it->second << '\n';
+				// std::cout << it->first << " => " << it->second << '\n';
 				if (path.find(it->first) != std::string::npos)
 				{
-					std::cout << "found path in location!" << std::endl;
+					// std::cout << "found path in location!" << std::endl;
 					currentLocation = it->second;
 					isSameLocation = true;
 				}
