@@ -6,19 +6,19 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 17:42:41 by sung-hle          #+#    #+#             */
-/*   Updated: 2024/01/22 07:17:12 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/22 09:04:49 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 
-Location::Location() : path(""), allowMethods(), root(""), cgi_path(), cgi_ext(), client_body_buffer_size(0), autoindex(false) {
+Location::Location() : path(""), allowMethods(), alias(""), root(""), cgi_path(), cgi_ext(), client_body_buffer_size(0), autoindex(false) {
 }
 
 Location::~Location() {
 }
 
-Location::Location(Location const &src) : path(src.path), allowMethods(src.allowMethods), root(src.root), cgi_path(src.cgi_path), cgi_ext(src.cgi_ext), client_body_buffer_size(src.client_body_buffer_size), autoindex(src.autoindex) {
+Location::Location(Location const &src) : path(src.path), allowMethods(src.allowMethods), alias(src.alias), root(src.root), cgi_path(src.cgi_path), cgi_ext(src.cgi_ext), client_body_buffer_size(src.client_body_buffer_size), autoindex(src.autoindex) {
   *this = src;
 }
 
@@ -27,7 +27,7 @@ Location &Location::operator=(Location const &other)
   if (this != &other) {
     path = other.path;
     allowMethods = other.allowMethods;
-    // alias = other.alias;
+    alias = other.alias;
     // aliasSet = other.aliasSet;
     root = other.root;
     cgi_path = other.cgi_path;

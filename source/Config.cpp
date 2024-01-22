@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:44:28 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/22 08:58:53 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/22 13:42:29 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,13 +66,24 @@ int Config::parse(std::ifstream& configFile) {
 
 		if (keyword == "server") {
 			formatValueTmp(configFile, line, tmp2);
+			// std::cout << "line: " << line << std::endl;
 			while (std::getline(configFile, line)) {
-				if (line.find("}") != std::string::npos) {
+				// std::istringstream iss(line);
+				// iss >> std::ws >> line;
+				// std::cout << "line: " << line << std::endl;
+				if (line.substr(0, 6) == "server" && line != "server_name") {
+					return 2;
+				}
+				else if (line.find("}") != std::string::npos) {
 					return 0;
 //---------------------------                    
 				} else if (line.find("listen") != std::string::npos) {
 					formatKeyTmp(line, tmp);
 					setListen(tmp);
+					if (getPort() < 0 || getPort() > 65535) {
+						std::cout << "Invalid port number" << std::endl;
+						return 2;
+					}
 				}
 				else if (line.find("server_name") != std::string::npos) {
 					iss.clear();
@@ -106,10 +117,12 @@ int Config::parse(std::ifstream& configFile) {
 					// std::cout << "hier\n";
 					std::istringstream iss(line);
 					iss >> keyword;
+					tmp2 = "";
 					if (keyword == "location") {
 						formatValueTmp(configFile, line, tmp2);
 					}
-					if (setLocation(tmp2, configFile) == 1) {
+					// std::cout << "tmp2: ." << tmp2 << "." << std::endl;
+					if (tmp2 == "" || setLocation(tmp2, configFile) == 2) {
 						return 2;
 					}
 				} else if (line.find("autoindex") != std::string::npos) {
@@ -123,12 +136,21 @@ int Config::parse(std::ifstream& configFile) {
 						formatString(tmp);
 						setIndex(tmp);
 					}
+				} else if (line == "") {
+					continue;
+				// } else {
+				// 	std::cout << "Error in server block" << std::endl;
+				// 	return 2;
 				}
 			}
 		}
 	}
 	// std::cout << "Error in server block" << std::endl;
-	return 1;
+	// if (line == "") {
+		return 1;
+	// } else {
+		// return 1;
+	// }
 }
 
 
@@ -219,6 +241,7 @@ int Config::setLocation(std::string str, std::ifstream& configFile) {
 	std::string tmp;
 	size_t pos;
 	Location *loc = new Location();
+	loc->setPath(str);
 
 	while (std::getline(configFile, line)) {
 		std::istringstream iss(line);
@@ -226,10 +249,9 @@ int Config::setLocation(std::string str, std::ifstream& configFile) {
 		iss >> keyword;
 		if (keyword == "location") {
 			delete loc;
-			return 1;
+			return 2;
 		}
 		// std::cout << str << std::endl;
-		loc->setPath(str);
 
 		if (line.find("}") != std::string::npos) {
 			location.insert(std::make_pair(str, loc));
@@ -243,7 +265,7 @@ int Config::setLocation(std::string str, std::ifstream& configFile) {
 				if (method != "GET" && method != "POST" && method != "DELETE") {
 					std::cout << "Unknown method" << std::endl;
 					delete loc;
-					return 1;
+					return 2;
 				}
 				methods.insert(method);
 			}
@@ -282,14 +304,16 @@ int Config::setLocation(std::string str, std::ifstream& configFile) {
 		} else if (line.find("client_max_body_size") != std::string::npos) {
 				formatKeyTmp(line, tmp);
 				loc->setClientBodyBufferSize(tmp);
-		} else {
-			std::cout << "Error in location block" << std::endl;
-			delete loc;
-			return 1;
+		// } else {
+		// 	std::cout << "Error in location block" << std::endl;
+		// 	delete loc;
+		// 	return 1;
+		} else if (line == "") {
+			continue;
 		}
 	}
 	delete loc;
-	return 1;
+	return 2;
 }
 
 const std::map<std::string, Location*>& Config::getLocation() const
@@ -323,10 +347,10 @@ const std::set<std::string>& Config::getAllowedMethods() const
 
 void Config::setIndex(std::string str)
 {
-	index.push_back(str);
+	index = str;
 }
 
-const std::vector<std::string>& Config::getIndex() const
+const std::string& Config::getIndex() const
 {
 	return index;
 }
@@ -371,9 +395,7 @@ void Config::printConfigs(std::vector<Config *>& serverConfigs) {
 		std::cout << "Port: ." << (*itz)->getPort() << "." << std::endl;
 
     std::cout << "Root: ." << (*itz)->getRoot() << "." << std::endl;
-		std::cout << "Index: .";
-		const std::vector<std::string>& index = (*itz)->getIndex();
-		displayVector(index);
+		std::cout << "Index: ." << (*itz)->getIndex() << "." << std::endl;	
 		std::cout << "." << std::endl;
 		std::cout << "Autoindex: ." << ((*itz)->getAutoindex() ? "on" : "off") << std::endl;
     const std::map<int, std::string>& errorPages = (*itz)->getErrorPage();

@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:37:48 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/22 06:33:09 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/22 09:22:22 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ class Config
 		std::map<int, std::string>          errorPage;//otherwise we use default error pages
 		std::map<std::string, Location*>    location;
 		std::set<std::string>               allowedMethods;
-		std::vector<std::string>            index;//When a client requests a directory without specifying a particular file, Nginx will look for files listed in the index directive and serve the first one that exists in the directory.
+		// std::vector<std::string>            index;//When a client requests a directory without specifying a particular file, Nginx will look for files listed in the index directive and serve the first one that exists in the directory.
+		std::string							            index;
 		bool                                autoindex;
 		int							                    port;
 		unsigned long                       client_body_buffer_size;//--------------- redirs, uploads
@@ -68,7 +69,8 @@ class Config
 		void setAllowedMethods(std::string str);
 		const std::set<std::string>& getAllowedMethods() const;
 		void setIndex(std::string str);
-		const std::vector<std::string>& getIndex() const;
+		// const std::vector<std::string>& getIndex() const;
+		const std::string& getIndex() const;
 		void setAutoindex(bool b);
 		bool getAutoindex() const;
 		// void setAlias(std::string str);
