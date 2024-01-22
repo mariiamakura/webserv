@@ -119,6 +119,18 @@ Response *Webserv::create_http_response(void)
 		return http_response;
 	}
 
+    if (!isCookies) {
+        //std::cout << "THERE IS NO ID\n";
+
+        std::srand(static_cast<unsigned int>(std::time(0)));
+        int randomNum = std::rand();
+
+        std::stringstream  ss;
+        ss << randomNum;
+        // id=2145060342
+        http_response->headers["Set-Cookie"] += "id=" + ss.str();
+    }
+
 	// std::cout << "status code checked\n";
 
 	if (http_request->path.find(".html") != std::string::npos)

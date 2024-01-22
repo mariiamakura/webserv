@@ -22,9 +22,11 @@
 #include <map>
 #include <iomanip>
 #include <cctype>
+#include <ctime>
 #include <cstring>
 #include <string>
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <typeinfo>
 #include <cmath>
@@ -110,6 +112,7 @@ class Webserv
 		int 	end_server ;
 		int		close_conn ;
         bool    autoindexBool;
+        bool    isCookies;
 		Request *http_request;
 		Response *http_response;
         Location *currentLocation;
