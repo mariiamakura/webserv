@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:44:28 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/18 16:27:15 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/22 07:46:25 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,6 @@ int Config::parse(std::ifstream& configFile) {
 				} else if (line.find("error_page") != std::string::npos) {
 					iss.clear();
 					iss.str(line);
-					std::string tmp2;
 					iss >> keyword >> tmp >> tmp2;
 					formatString(tmp2);
 					setErrorPage(tmp, tmp2);
@@ -110,7 +109,6 @@ int Config::parse(std::ifstream& configFile) {
 						formatValueTmp(configFile, line, tmp2);
 					}
 					if (setLocation(tmp2, configFile) == 1) {
-						// std::cout << "hier\n";
 						return 2;
 					}
 				} else if (line.find("autoindex") != std::string::npos) {
@@ -126,10 +124,10 @@ int Config::parse(std::ifstream& configFile) {
 					}
 				}
 			}
-		} else
-			return 1;
+		}
 	}
-	return 0;
+	std::cout << "Error in server block" << std::endl;
+	return 1;
 }
 
 
@@ -229,6 +227,7 @@ int Config::setLocation(std::string str, std::ifstream& configFile) {
 			delete loc;
 			return 1;
 		}
+		// std::cout << str << std::endl;
 		loc->setPath(str);
 
 		if (line.find("}") != std::string::npos) {
@@ -240,9 +239,14 @@ int Config::setLocation(std::string str, std::ifstream& configFile) {
 			std::string method;
 			while (iss >> method) {
 				formatString(method);
+				if (method != "GET" && method != "POST" && method != "DELETE") {
+					std::cout << "Unknown method" << std::endl;
+					delete loc;
+					return 1;
+				}
 				methods.insert(method);
 			}
-			std::cout << std::endl;
+			// std::cout << std::endl;
 			loc->setAllowedMethods(methods);
 		} else if (line.find("root") != std::string::npos) {
 			formatKeyTmp(line, tmp);
@@ -277,8 +281,13 @@ int Config::setLocation(std::string str, std::ifstream& configFile) {
 		} else if (line.find("client_max_body_size") != std::string::npos) {
 				formatKeyTmp(line, tmp);
 				loc->setClientBodyBufferSize(tmp);
+		} else {
+			std::cout << "Error in location block" << std::endl;
+			delete loc;
+			return 1;
 		}
 	}
+	delete loc;
 	return 1;
 }
 
@@ -384,7 +393,11 @@ void Config::printConfigs(std::vector<Config *>& serverConfigs) {
 			std::cout << "\tAllowed Methods: .";
 			displaySet(it->second->getAllowedMethods());
 			std::cout << std::endl;
-			std::cout << "\tIndex: ." << it->second->getIndex() << "." << std::endl;
+			std::cout << "\tIndex: ." << it->second->getIndex() << std::endl;
+			// const std::vector<std::string>& index = it->second->getIndex();
+			// for (std::vector<std::string>::const_iterator indexIt = index.begin(); indexIt != index.end(); ++indexIt) {
+			// 	std::cout << "\t\t." << *indexIt << "." << std::endl;
+			// }
 			std::cout << "\tcgi_path: ." << std::endl;
 			const std::vector<std::string>& cgiPath = it->second->getCGIPath();
 			for (std::vector<std::string>::const_iterator pathIt = cgiPath.begin(); pathIt != cgiPath.end(); ++pathIt) {

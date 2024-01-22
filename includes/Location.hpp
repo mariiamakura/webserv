@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 17:41:51 by sung-hle          #+#    #+#             */
-/*   Updated: 2024/01/12 15:59:44 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/22 07:17:18 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ class Location	{
 	private:
 		std::string						    					path;
 		std::set<std::string>               allowMethods;
-		// std::string                         alias;
+		std::string                         alias;
 		// bool                                aliasSet;
 		std::string                         root;
 		// std::map<std::string, std::string>  cgi_path;
@@ -25,7 +25,8 @@ class Location	{
 		std::vector<std::string>            cgi_ext;
 		unsigned long                       client_body_buffer_size;
 		bool                                autoindex;//
-		std::string													index;//
+		// std::vector<std::string>            index;//
+		std::string            index;//
 	
 	public:
 		Location();
@@ -42,8 +43,8 @@ class Location	{
     void setAllowedMethods(const std::set<std::string>& newMethods);
 
     // Getter and Setter for 'alias'
-    // const std::string& getAlias() const;
-    // void setAlias(const std::string& newAlias);
+    const std::string& getAlias() const;
+    void setAlias(const std::string& newAlias);
 
     // Getter and Setter for 'aliasSet'
     // bool getAliasSet() const;
@@ -71,5 +72,6 @@ class Location	{
     void setAutoindex(bool newAutoindex);
 
 		void setIndex(const std::string& str);
-		const std::string& getIndex() const;
+		// const std::vector<std::string>& getIndex() const;
+    const std::string& getIndex() const;
 } ;

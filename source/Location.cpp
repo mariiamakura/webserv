@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 17:42:41 by sung-hle          #+#    #+#             */
-/*   Updated: 2024/01/12 16:14:15 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/22 07:17:12 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,15 @@ const std::set<std::string>& Location::getAllowedMethods() const {
 
 void Location::setAllowedMethods(const std::set<std::string>& newMethods) {
     allowMethods = newMethods;
+}
+
+// Getter and Setter for 'alias'
+const std::string& Location::getAlias() const {
+    return alias;
+}
+
+void Location::setAlias(const std::string& newAlias) {
+    alias = newAlias;
 }
 
 // Getter and Setter for 'root'
@@ -106,6 +115,17 @@ void Location::setIndex(const std::string& str)
 {
 	index = str;
 }
+
+// void Location::setIndex(const std::string& str)
+// {
+// 	index.push_back(str);
+// }
+
+// const std::vector<std::string>& Location::getIndex() const
+// {
+//     // std::cout << "in method index: " << index << std::endl;
+// 	return (index);
+// }
 
 const std::string& Location::getIndex() const
 {
