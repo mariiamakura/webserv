@@ -46,8 +46,8 @@ void Response::downloadFileResponse()
 		}
 		// Extract body
 		this->body = httpResponseText.substr(doubleNewlinePos + 5); // Skip '\r\n\r\n' after headers
-		// std::cout << "body size: " << this->body.size() << std::endl;
-		// std::cout << "Content Size: " << this->headers["Content-Length"] << std::endl;
+																	// std::cout << "body size: " << this->body.size() << std::endl;
+																	// std::cout << "Content Size: " << this->headers["Content-Length"] << std::endl;
 	}
 }
 
@@ -84,10 +84,14 @@ Response *Webserv::create_http_response(void)
 	}
 	else if (http_response->status_code == 201)
 	{
+		std::string data(http_request->content.begin(), http_request->content.end());
+		data = data.substr(data.find("=") + 1);
 		http_response->body += "<html><body>";
-		http_response->body += "Your data received by us";
-		http_response->body += "</body></html>";
+		http_response->body += "Your data received by us is: <h2>";
+		http_response->body += data;
+		http_response->body += "</h2></body></html>";
 		http_response->status_message = "OK";
+
 	}
 	else if (http_response->status_code == 400)
 	{
@@ -145,13 +149,11 @@ Response *Webserv::create_http_response(void)
 		// http_request.path = "." + http_request.path;
 	}
 
-	//if int the config file error_page is set to a path, then set the path to that
-	 
+	// if int the config file error_page is set to a path, then set the path to that
 
 	// std::cout << "response PATH : " << http_response->path << std::endl;
 
-	if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403
-	|| http_response->status_code == 405 || http_response->status_code == 413)
+	if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403 || http_response->status_code == 405 || http_response->status_code == 413)
 	{
 		if (http_response->status_code != 200 && !http_response->isFile) // when autoindex is on to display page
 			http_response->isFile = true;
@@ -171,7 +173,7 @@ Response *Webserv::create_http_response(void)
 			http_response->body = http_response->path;
 		}
 	}
-	//std::cout << "response body: " << http_response->body;
+	std::cout << "response body: " << http_response->body;
 	return http_response;
 }
 
@@ -184,7 +186,7 @@ std::string Webserv::autoindex(const std::string &path)
 
 	// Start building the HTML string
 	std::ostringstream html;
-	//html << "<html><body><ul>";
+	// html << "<html><body><ul>";
 	html << "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Download Folder Contents</title><link rel=\"stylesheet\" type=\"text/css\" href=\"style/style.css\"></head>";
 
 	if ((dir = opendir(path.c_str())) != NULL)
@@ -247,7 +249,6 @@ void Webserv::deleteResponse(int i)
 	}
 }
 
-
 Config Webserv::checkConfig()
 {
 	// http_request->headers["Port"]
@@ -288,7 +289,7 @@ Config Webserv::checkConfig()
 			return *(*itz);
 		}
 	}
-	
+
 	return *(*serverConfigs.begin());
 }
 
@@ -331,11 +332,7 @@ std::string Webserv::checkPath(std::string path)
 		{
 			std::cout << "PORTS MATCH" << std::endl;
 			const std::map<std::string, Location *> &locations = (*itz)->getLocation();
-			
-			
-			
-			
-			
+
 			std::cout << "PATH before: " << path << std::endl;
 
 			// implement check if path is only /
@@ -346,22 +343,23 @@ std::string Webserv::checkPath(std::string path)
 			for (std::map<std::string, Location *>::const_iterator it = locations.begin(); it != locations.end(); ++it)
 			{
 				std::cout << it->first << " => " << it->second << '\n';
-				if (path.find(it->first) != std::string::npos) {
+				if (path.find(it->first) != std::string::npos)
+				{
 					std::cout << "found path in location!" << std::endl;
 					currentLocation = it->second;
-                    isSameLocation = true;
+					isSameLocation = true;
 				}
 				if (path == it->first)
 				{
-                    // currentLocation = it->second;
-                    // isSameLocation = true;
-					//std::cout << "PATH MATCH" << std::endl;
+					// currentLocation = it->second;
+					// isSameLocation = true;
+					// std::cout << "PATH MATCH" << std::endl;
 					if (path[path.length() - 1] != '/')
 					{
 						path += "/";
 					}
 					path += it->second->getIndex();
-				
+
 					// path = path + it->second->getIndex();
 					std::cout << "PATH after: " << path << std::endl;
 					return path;

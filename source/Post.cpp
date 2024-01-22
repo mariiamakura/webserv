@@ -14,6 +14,13 @@ int Webserv::postMethod(size_t i, size_t client_body_size) {
         std::cout << "FINISH CONTENT" << std::endl;
         http_request->postContentProcess();
         close_conn = TRUE;
+		// std::vector<uint8_t>::iterator it = http_request->content.begin();
+		// while (it != http_request->content.end())
+		// {
+		// 	std::cout << "body: " << *it << std::endl;
+		// 	it++;
+
+		// }
         return 201;
     }
     else if (http_request->content.size() > content_length) {
