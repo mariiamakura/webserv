@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
+/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 13:47:45 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/18 16:27:45 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/22 12:55:16 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,16 @@ volatile sig_atomic_t sig_end_server = false;
 // Signal handling function
 void handleSignal(int signal)
 {
-    if (signal == SIGINT)
-    {
-        sig_end_server = true;
-    }
+	if (signal == SIGINT)
+	{
+		sig_end_server = true;
+	}
 }
 
 int main(int argc, char **argv, char **env)
 {
 
 	signal(SIGINT, handleSignal);
-	// Server server;
 	Webserv webserv;
 
 	webserv.setEnv(env);
@@ -42,21 +41,17 @@ int main(int argc, char **argv, char **env)
 	if (argc == 1)
 	{
 		webserv.logging("No config file specified. Using default config!", INFO);
-		// std::cout << "No config file specified. Using default config!" << std::endl;
-		//server.parseConfig((char *)DEF_CONF);
 		int parseReturn = webserv.parseConfig("configs/default.conf");
-		if (parseReturn == 1) {
+		if (parseReturn == 1)
+		{
 			std::cout << "Error: Unable to open the " << argv[1] << " file." << std::endl;
 			return 1;
-		} else if (parseReturn == 2) {
+		}
+		else if (parseReturn == 2)
+		{
 			std::cout << "Error: Invalid configuration." << std::endl;
 			return 1;
 		}
-		
-		// std::vector<Config *> serverConfigs = webserv.getConfig();
-		// std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
-		// Config::printConfigs(serverConfigs);
-		
 		webserv.init_servers();
 		webserv.run();
 	}
@@ -68,30 +63,27 @@ int main(int argc, char **argv, char **env)
 	else
 	{
 		int parseReturn = webserv.parseConfig(argv[1]);
-		if (parseReturn == 1) {
+		if (parseReturn == 1)
+		{
 			std::cout << "Error: Unable to open the " << argv[1] << " file." << std::endl;
 			return 1;
-		} else if (parseReturn == 2) {
+		}
+		else if (parseReturn == 2)
+		{
 			std::cout << "Error: Invalid configuration." << std::endl;
 			return 1;
 		}
 		std::vector<Config *> serverConfigs = webserv.getConfig();
-	
-		std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
-		Config::printConfigs(serverConfigs);
 
-		// for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
-		// {
-		// 	delete *itz;
-  		// } 
+		// FOR DEBUGGING
+		// std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
+		// Config::printConfigs(serverConfigs);
+
 		webserv.init_servers();
 		webserv.run();
-		// std::vector<Config>::iterator iter = server._config.begin();
-		
-		// webserv.init_servers();
 	}
 	// // Clean up the serverConfigs vector to avoid memory leaks
-	for (std::vector<Config*>::iterator it = webserv.serverConfigs.begin(); it != webserv.serverConfigs.end(); ++it)
+	for (std::vector<Config *>::iterator it = webserv.serverConfigs.begin(); it != webserv.serverConfigs.end(); ++it)
 	{
 		delete *it;
 	}

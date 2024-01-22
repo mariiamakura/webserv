@@ -159,7 +159,7 @@ Response *Webserv::create_http_response(void)
 			http_response->isFile = true;
 		if (http_response->isFile)
 		{
-			std::cout << "is a file\n";
+			// std::cout << "is a file\n";
 			std::ifstream file(http_response->path.c_str(), std::ios::binary);
 			std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 			// std::cout << "str: " << str << std::endl;
@@ -169,11 +169,11 @@ Response *Webserv::create_http_response(void)
 		}
 		else
 		{
-			std::cout << "not a file\n";
+			// std::cout << "not a file\n";
 			http_response->body = http_response->path;
 		}
 	}
-	std::cout << "response body: " << http_response->body;
+	// std::cout << "response body: " << http_response->body;
 	return http_response;
 }
 
@@ -268,18 +268,21 @@ Config Webserv::checkConfig()
 		if (portStream >> num)
 		{
 			// Conversion successful
-			std::cout << "Parsed port number: " << num << std::endl;
+			logging("Parsed port number", DEBUG);
+			// std::cout << "Parsed port number: " << num << std::endl;
 		}
 		else
 		{
 			// Conversion failed
-			std::cout << "Invalid port number" << std::endl;
+			logging("Invalid port number", DEBUG);
+			// std::cout << "Invalid port number" << std::endl;
 		}
 	}
 	else
 	{
 		// No port number found
-		std::cout << "No port number found" << std::endl;
+		logging("No port number found", DEBUG);
+		// std::cout << "No port number found" << std::endl;
 	}
 
 	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
@@ -312,28 +315,31 @@ std::string Webserv::checkPath(std::string path)
 		if (portStream >> num)
 		{
 			// Conversion successful
-			std::cout << "Parsed port number: " << num << std::endl;
+			logging("Parsed port number", DEBUG);
+			// std::cout << "Parsed port number: " << num << std::endl;
 		}
 		else
 		{
 			// Conversion failed
-			std::cout << "Invalid port number" << std::endl;
+			logging("Invalid port number", DEBUG);
+			// std::cout << "Invalid port number" << std::endl;
 		}
 	}
 	else
 	{
 		// No port number found
-		std::cout << "No port number found" << std::endl;
+		logging("No port number found", DEBUG);
+		// std::cout << "No port number found" << std::endl;
 	}
 
 	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
 	{
 		if (num == (*itz)->getPort())
 		{
-			std::cout << "PORTS MATCH" << std::endl;
+			// std::cout << "PORTS MATCH" << std::endl;
 			const std::map<std::string, Location *> &locations = (*itz)->getLocation();
 
-			std::cout << "PATH before: " << path << std::endl;
+			// std::cout << "PATH before: " << path << std::endl;
 
 			// implement check if path is only /
 			if (path[path.length() - 1] == '/' && path.length() > 1)
@@ -361,7 +367,7 @@ std::string Webserv::checkPath(std::string path)
 					path += it->second->getIndex();
 
 					// path = path + it->second->getIndex();
-					std::cout << "PATH after: " << path << std::endl;
+					// std::cout << "PATH after: " << path << std::endl;
 					return path;
 				}
 			}
