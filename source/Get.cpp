@@ -7,12 +7,12 @@ int Webserv::getMethod()
 	// 2 CGI FOR DOWNLOAD
 	if (http_request->path.find("download.php") != std::string::npos && access("./over42/download.php", F_OK) == 0)
 	{
-		std::cout << "./over42/download.php exists" << std::endl;
+		// std::cout << "./over42/download.php exists" << std::endl;
 		return (getDownloadCgi());
 	}
 	else if (http_request->path.find("/over42/get_files.php") != std::string::npos && access("./over42/get_files.php", F_OK) == 0)
 	{
-		std::cout << "/over42/get_files.php exists" << std::endl;
+		// std::cout << "/over42/get_files.php exists" << std::endl;
 		return (getCgiFilesList());
 	}
 	else if (http_request->path.find("/over42/cgi-bin/index.py") != std::string::npos && access("./over42/cgi-bin/index.py", F_OK) == 0)
@@ -22,7 +22,7 @@ int Webserv::getMethod()
 		{
 
 			// std::cout << "cgi-bin/index.py exists" << std::endl;
-			logging("cgi-bin/index.py exists", DEBUG);
+			// logging("cgi-bin/index.py exists", DEBUG);
 
 			int pipefd[2];
 			pipe(pipefd);
@@ -59,10 +59,7 @@ int Webserv::getMethod()
 		return 200;
 	}
 
-	// std::string tmp_path = checkPath(http_request->path);
-
 	char *tmp = string_to_chararray(http_request->path);
-	// char *tmp = string_to_chararray(tmp_path);
 	if (access(tmp, F_OK) == 0)
 	{
 
@@ -75,7 +72,6 @@ int Webserv::getMethod()
 
 			if (access(tmp, R_OK) == 0)
 			{
-				std::cout << "file exists" << std::endl;
 				http_response->path = tmp;
 				http_response->isFile = true;
 				delete[] tmp;
@@ -83,18 +79,12 @@ int Webserv::getMethod()
 			}
 			else
 			{
-				std::cout << "file doesn't exist" << std::endl;
 				delete[] tmp;
 				return 404;
 			}
 		}
 		else if (is_directory)
 		{
-			//            autoindexBool = false;
-			//            if (!autoindexBool) {
-			//                delete[] tmp;
-			//                return 403;
-			//            }
 			if (isSameLocation && !currentLocation->getAutoindex())
 			{
 				delete[] tmp;
@@ -112,15 +102,14 @@ int Webserv::getMethod()
 			std::string tmp2 = "." + http_request->path;
 
 			http_response->path = autoindex(tmp2); // AUTOINDEX HERE
-												   // std::cout << "autoindex http_request.path: " << http_request.path << std::endl;
 		}
 		delete[] tmp;
-		// std::cout << "PATH IN REQUEST END: " << http_response->path << std::endl;
 		return 200;
 	}
 	else
 	{
-		std::cout << "file doesn't exist" << std::endl;
+		logging("file doesn't exist", DEBUG);
+		// std::cout << "file doesn't exist" << std::endl;
 	}
 	delete[] tmp;
 	return 404;
@@ -189,7 +178,6 @@ int Webserv::getCgiFilesList()
 			tmp = string_to_chararray(tmp2);
 			http_response->path = tmp2;
 			char *const args[] = {tmp, NULL};
-			// std::cout << "tmp: " << tmp << " args: " << args[0] << std::endl;
 			execve(tmp, args, env);
 		}
 		else
@@ -203,9 +191,7 @@ int Webserv::getCgiFilesList()
 				buffer[bytesRead] = '\0';
 				scriptOutput += buffer;
 			}
-			// std::cout << "scriptOutput: " << scriptOutput << std::endl;
 			http_response->path = scriptOutput;
-			// std::cout << "scripted http_request->path: " << http_request->path << std::endl;
 			waitpid(-1, NULL, WUNTRACED);
 		}
 		delete[] tmp;
