@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:44:28 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/22 07:46:25 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/22 08:58:53 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,7 @@ int Config::parse(std::ifstream& configFile) {
 					formatKeyTmp(line, tmp);
 					setClientBodyBufferSize(tmp);
 				} else if (line.find("location") != std::string::npos) {
+					// std::cout << "hier\n";
 					std::istringstream iss(line);
 					iss >> keyword;
 					if (keyword == "location") {
@@ -126,7 +127,7 @@ int Config::parse(std::ifstream& configFile) {
 			}
 		}
 	}
-	std::cout << "Error in server block" << std::endl;
+	// std::cout << "Error in server block" << std::endl;
 	return 1;
 }
 
