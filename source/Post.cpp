@@ -5,11 +5,18 @@ int Webserv::postMethod(size_t i, size_t client_body_size)
 	int clientFD = poll_fd[i].fd;
 	const char *ContLen = http_request->headers["Content-Length"].c_str();
 	size_t content_length = static_cast<size_t>(std::atoi(ContLen));
+	std::cout << "length: " << content_length << std::endl;
+	std::cout << "client body size: " << client_body_size << std::endl;
 	if (http_requests.count(clientFD) == 0)
 	{
 		http_requests[clientFD] = http_request;
 	}
 
+	if (content_length > client_body_size)
+	{
+		close_conn = TRUE;
+		return 413;
+	}
 	if (http_request->content.size() == content_length)
 	{
 		http_request->postContentProcess();
@@ -30,11 +37,6 @@ int Webserv::postMethod(size_t i, size_t client_body_size)
 	{
 		// std::cout << "PARTIAL CONTENT " << http_request->content.size() << " of " << content_length << std::endl;
 		// std::cout << "request content lengh: " << content_length << " client body size: " << client_body_size << std::endl;
-		if (content_length > client_body_size)
-		{
-			close_conn = TRUE;
-			return 413;
-		}
 		return 206;
 	}
 }

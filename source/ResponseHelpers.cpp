@@ -56,6 +56,42 @@ Response *Webserv::create_http_response(void)
 	// std::ostringstream sstream;
 	// std::cout << "create response start\n";
 	// std::cout << http_request->http_version << std::endl;
+	// get the port from the http_request and cast it to int
+	std::istringstream iss(http_request->headers["Host"]);
+	std::string host;
+	std::getline(iss, host, ':'); // Extract the part before the colon
+	std::string port;
+	std::getline(iss, port); // Extract the part after the colon
+
+	int num;
+
+	if (!port.empty())
+	{
+		std::istringstream portStream(port);
+		if (portStream >> num)
+		{
+			// Conversion successful
+			logging("Parsed port number", DEBUG);
+			// std::cout << "Parsed port number: " << num << std::endl;
+		}
+		else
+		{
+			// Conversion failed
+			logging("Invalid port number", DEBUG);
+			// std::cout << "Invalid port number" << std::endl;
+		}
+	}
+	else
+	{
+		// No port number found
+		logging("No port number found", DEBUG);
+		// std::cout << "No port number found" << std::endl;
+	}
+
+	
+
+
+
 	http_response->http_version = http_request->http_version;
 
 	if (http_response->status_code == 200)
@@ -69,9 +105,55 @@ Response *Webserv::create_http_response(void)
 	}
 	else if (http_response->status_code == 404)
 	{
+		for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
+		{
+			std::map<int, std::string> error = (*itz)->getErrorPage();
+
+			if (num == (*itz)->getPort())
+			{
+				std::cout << "ERROR PAGES: " << std::endl;
+				//check if there are error pages defined in the config file
+				// std::map<int, std::string> errorPages = serverConfigs[0]->getErrorPage();
+				// std::map<int, std::string> errorPages = itz[0]->getErrorPage();
+				std::map<int, std::string>::iterator it = error.begin();
+				while (it != error.end())
+				{
+					std::cout << "ERROR CODE: " << it->first << " PATH: " << it->second << std::endl;
+					if (it->first == 404)
+					{
+						http_response->path = it->second;
+						break;
+					}
+					it++;
+				}
+				if (it == error.end())
+				{
+					std::cout << "NO ERROR PAGES DEFINED" << std::endl;
+					http_response->path = "./over42/404.html";
+				}
+			}
+		}
+		
+			
+		// http_response->path = "./over42/404.html";
 		http_response->status_message = "Not Found";
-		http_response->path = "./over42/404.html";
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	else if (http_response->status_code == 405)
 	{
 		http_response->status_message = "Method Not Allowed";

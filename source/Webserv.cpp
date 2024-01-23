@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/22 14:03:31 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/23 13:57:05 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,7 +237,7 @@ void Webserv::run()
 	do
 	{
 		logging("Waiting on poll()...", INFO);
-		rc = poll(&poll_fd[0], poll_fd.size(), -1);
+		rc = poll(&poll_fd[0], poll_fd.size(), TIMEOUT);
 		if (rc < 0)
 		{
 			if (sig_end_server == true)
