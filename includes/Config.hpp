@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:37:48 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/22 09:22:22 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/23 15:02:28 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,3 +82,4 @@ class Config
 
 void displaySet(const std::set<std::string>& strSet);
 void displayVector(const std::vector<std::string>& strVector);
+bool isWhitespace(const std::string& str);

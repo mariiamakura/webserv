@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:44:28 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/23 14:04:21 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/23 15:02:39 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,14 +117,12 @@ int Config::parse(std::ifstream& configFile) {
 					formatKeyTmp(line, tmp);
 					setClientBodyBufferSize(tmp);
 				} else if (line.find("location") != std::string::npos) {
-					// std::cout << "hier\n";
 					std::istringstream iss(line);
 					iss >> keyword;
 					tmp2 = "";
 					if (keyword == "location") {
 						formatValueTmp(configFile, line, tmp2);
 					}
-					// std::cout << "tmp2: ." << tmp2 << "." << std::endl;
 					if (tmp2 == "" || setLocation(tmp2, configFile) == 2) {
 						return 2;
 					}
@@ -141,9 +139,6 @@ int Config::parse(std::ifstream& configFile) {
 					}
 				} else if (line == "") {
 					continue;
-				// } else {
-				// 	std::cout << "Error in server block" << std::endl;
-				// 	return 2;
 				}
 			}
 		} else if (keyword == "")
@@ -249,6 +244,8 @@ int Config::setLocation(std::string str, std::ifstream& configFile) {
 	loc->setPath(str);
 
 	while (std::getline(configFile, line)) {
+		// std::cout << "line: " << line << std::endl;
+		
 		std::istringstream iss(line);
 		std::string keyword;
 		iss >> keyword;
@@ -256,8 +253,8 @@ int Config::setLocation(std::string str, std::ifstream& configFile) {
 			delete loc;
 			return 2;
 		}
-		// std::cout << str << std::endl;
-
+		// iss >> std::ws >> line;
+		// std::cout << "line: " << line << std::endl;
 		if (line.find("}") != std::string::npos) {
 			location.insert(std::make_pair(str, loc));
 			return 0;
@@ -309,11 +306,7 @@ int Config::setLocation(std::string str, std::ifstream& configFile) {
 		} else if (line.find("client_max_body_size") != std::string::npos) {
 				formatKeyTmp(line, tmp);
 				loc->setClientBodyBufferSize(tmp);
-		// } else {
-		// 	std::cout << "Error in location block" << std::endl;
-		// 	delete loc;
-		// 	return 1;
-		} else if (line == "") {
+		} else if (isWhitespace(line) || line == "") {
 			continue;
 		}
 	}
@@ -459,7 +452,16 @@ void Config::formatKeyTmp(std::string& str, std::string& str2) {
 }
 
 void Config::formatValueTmp(std::ifstream& configFile, std::string& line, std::string& tmp2) {
-			std::string tmp;
+	std::string tmp;
+	size_t openingBracePos = line.find("{");
+	if (openingBracePos != std::string::npos) {
+		tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
+		std::istringstream issTmp(tmp);
+		issTmp >> std::ws;
+		std::getline(issTmp, tmp2, ' ');
+		line.erase(0, openingBracePos + 1);
+	} else {
+		while (std::getline(configFile, line)) {
 			size_t openingBracePos = line.find("{");
 			if (openingBracePos != std::string::npos) {
 				tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
@@ -467,17 +469,16 @@ void Config::formatValueTmp(std::ifstream& configFile, std::string& line, std::s
 				issTmp >> std::ws;
 				std::getline(issTmp, tmp2, ' ');
 				line.erase(0, openingBracePos + 1);
-			} else {
-				while (std::getline(configFile, line)) {
-					size_t openingBracePos = line.find("{");
-					if (openingBracePos != std::string::npos) {
-						tmp = line.substr(line.find("location") + 8, openingBracePos - line.find("location") - 8);
-						std::istringstream issTmp(tmp);
-						issTmp >> std::ws;
-						std::getline(issTmp, tmp2, ' ');
-						line.erase(0, openingBracePos + 1);
-						break;
-					}
-				}
+				break;
 			}
 		}
+	}
+}
+
+bool isWhitespace(const std::string& str) {
+    for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
+        if (!std::isspace(*it))
+            return false;
+    }
+    return true;
+}
