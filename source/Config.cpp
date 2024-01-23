@@ -6,7 +6,7 @@
 /*   By: sung-hle <sung-hle@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 11:44:28 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/22 16:19:37 by sung-hle         ###   ########.fr       */
+/*   Updated: 2024/01/23 14:04:21 by sung-hle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,13 +60,14 @@ Config &Config::operator=(Config const &src)
 
 int Config::parse(std::ifstream& configFile) {
 	std::string line, tmp, tmp2, keyword;
-	bool serverBlock = false;
+	bool serverBlock = true;
 	while (std::getline(configFile, line)) {
 		std::istringstream iss(line);
 		iss >> std::ws >> keyword;
 
 		if (keyword == "server") {
 			formatValueTmp(configFile, line, tmp2);
+			serverBlock = false;
 			// std::cout << "line: " << line << std::endl;
 			while (std::getline(configFile, line)) {
 				// std::istringstream iss(line);
@@ -145,14 +146,14 @@ int Config::parse(std::ifstream& configFile) {
 				// 	return 2;
 				}
 			}
-		}
+		} else if (keyword == "")
+			continue;
 	}
-	return 2;
-	// if (configFile.eof() && serverBlock == false) {
-	// 	return 2;
-	// } else {
-	// 	return 1;
-	// }
+	if (configFile.eof() && serverBlock == false) {
+		return 2;
+	} else {
+		return 1;
+	}
 }
 
 // 1 segfault when missing bracket
