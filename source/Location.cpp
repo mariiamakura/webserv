@@ -6,38 +6,37 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/07 17:42:41 by sung-hle          #+#    #+#             */
-/*   Updated: 2024/01/22 12:53:58 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/24 09:48:40 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Location.hpp"
 
-Location::Location() : path(""), allowMethods(), root(""), cgi_path(), cgi_ext(), client_body_buffer_size(0), autoindex(false)
-{
+Location::Location() : path(""), allowMethods(), alias(""), root(""), cgi_path(), cgi_ext(), client_body_buffer_size(0), autoindex(false) {
 }
 
 Location::~Location()
 {
 }
 
-Location::Location(Location const &src) : path(src.path), allowMethods(src.allowMethods), root(src.root), cgi_path(src.cgi_path), cgi_ext(src.cgi_ext), client_body_buffer_size(src.client_body_buffer_size), autoindex(src.autoindex)
-{
-	*this = src;
+Location::Location(Location const &src) : path(src.path), allowMethods(src.allowMethods), alias(src.alias), root(src.root), cgi_path(src.cgi_path), cgi_ext(src.cgi_ext), client_body_buffer_size(src.client_body_buffer_size), autoindex(src.autoindex) {
+  *this = src;
 }
 
 Location &Location::operator=(Location const &other)
 {
-	if (this != &other)
-	{
-		path = other.path;
-		allowMethods = other.allowMethods;
-		root = other.root;
-		cgi_path = other.cgi_path;
-		cgi_ext = other.cgi_ext;
-		client_body_buffer_size = other.client_body_buffer_size;
-		autoindex = other.autoindex;
-	}
-	return (*this);
+  if (this != &other) {
+    path = other.path;
+    allowMethods = other.allowMethods;
+    alias = other.alias;
+    // aliasSet = other.aliasSet;
+    root = other.root;
+    cgi_path = other.cgi_path;
+    cgi_ext = other.cgi_ext;
+    client_body_buffer_size = other.client_body_buffer_size;
+    autoindex = other.autoindex;
+  }
+  return (*this);
 }
 
 // Getter and Setter for 'path'

@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/23 13:57:05 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/24 09:49:00 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -494,32 +494,11 @@ int Webserv::parseConfig(std::string path)
 	setConfig(serverConfigs);
 
 	configFile.close();
-
-	//port-check
-	std::map<int, int> portOccurrences;
-	for (std::vector<Config*>::iterator it = serverConfigs.begin(); it != serverConfigs.end(); ++it) {
-			int port = (*it)->getPort();
-
-			// Check if the port is already in the map
-			if (portOccurrences.find(port) != portOccurrences.end()) {
-						// Port is already in the map, increment occurrence count
-					// portOccurrences[port]++;
-					std::cout << "Error: Port " << port << " is already in use." << std::endl;
-					std::cout << "Invalid configuration." << std::endl;
-					for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
-					{
-						delete *itz;
-					}
-					return 2;
-			} else {
-					// Port is not in the map, add it with an occurrence count of 1
-					portOccurrences[port] = 1;
-			}
-	}
 	
 	
-	// std::cout << parseReturn << std::endl;
-	if (parseReturn > 1 || serverConfigs[0]->getListen() == "" ||
+	std::cout << parseReturn << std::endl;
+	if (parseReturn > 1 ||
+		serverConfigs[0]->getListen() == "" ||
 		serverConfigs[0]->getHost().empty() ||
 		serverConfigs[0]->getLocation().find("/") == serverConfigs[0]->getLocation().end())
 	{
