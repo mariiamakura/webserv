@@ -5,8 +5,8 @@ int Webserv::postMethod(size_t i, size_t client_body_size)
 	int clientFD = poll_fd[i].fd;
 	const char *ContLen = http_request->headers["Content-Length"].c_str();
 	size_t content_length = static_cast<size_t>(std::atoi(ContLen));
-	std::cout << "length: " << content_length << std::endl;
-	std::cout << "client body size: " << client_body_size << std::endl;
+	// std::cout << "length: " << content_length << std::endl;
+	// std::cout << "client body size: " << client_body_size << std::endl;
 	if (http_requests.count(clientFD) == 0)
 	{
 		http_requests[clientFD] = http_request;
