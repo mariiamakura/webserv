@@ -1,0 +1,34 @@
+index in location string -> vector
+check if server empty / port is not used again
+if something is unknown
+keyword server can be servers for example, it then would be an optional identifier
+no catching of misspellings of directives, would go beyond.. with git clone https://github.com/okigan/cpp-stringdist.git and levenshtein
+consider using alias
+
+
+
+
+eval-sheet check:
+- override of default error-pages
+
+
+
+
+
+
+-	You need to test with files containing errors to see if the error handling works properly. 
+	You can use a script containing an infinite loop or an error; you are free to do whatever 
+	tests you want within the limits of acceptability that remain at your discretion. 
+	The group being evaluated should help you with this. 
+
+
+
+
+
+eval
+Limit the client body (use: curl -X POST -H "Content-Type: plain/text" --data "BODY IS HERE write something shorter or longer than body limit").
+
+You need to test with files containing errors to see if the error handling works properly. 
+You can use a script containing an infinite loop or an error; you are free to do whatever 
+tests you want within the limits of acceptability that remain at your discretion. The group 
+being evaluated should help you with this. 

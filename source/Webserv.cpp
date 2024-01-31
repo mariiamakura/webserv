@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mparasku <mparasku@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:53:31 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/17 14:09:55 by mparasku         ###   ########.fr       */
+/*   Updated: 2024/01/24 09:52:41 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,12 +127,12 @@ void Webserv::init_servers()
 	std::vector<Config *> serverConfigs = this->getConfig();
 	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
 	{
-		ports.push_back((*itz)->getPorts());
+		ports.push_back((*itz)->getPort());
 		// std::cout << "port: " << (*itz)->getPorts() << std::endl;
 	}
 	// ports.push_back(DEF_PORT);
-	std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
-	std::cout << "Number of server ports: " << ports.size() << std::endl;
+	// std::cout << "Number of server configurations: " << serverConfigs.size() << std::endl;
+	// std::cout << "Number of server ports: " << ports.size() << std::endl;
 	// ports.push_back(8888);
 	// ports.push_back(7777);
 
@@ -141,7 +141,7 @@ void Webserv::init_servers()
 	for (std::vector<Server>::size_type i = 0; i < size; i++)
 	{
 		// instead of ports[i] we need to loop through config files and pass port and backlog
-		std::cout << "init server: " << ports[i] << std::endl;
+		// std::cout << "init server: " << ports[i] << std::endl;
 		server[i].init_server(ports[i], DEF_BACKLOG);
 		poll_fd[i].fd = server[i].getSockfd();
 		poll_fd[i].events = POLLIN;
@@ -237,7 +237,7 @@ void Webserv::run()
 	do
 	{
 		logging("Waiting on poll()...", INFO);
-		rc = poll(&poll_fd[0], poll_fd.size(), -1);
+		rc = poll(&poll_fd[0], poll_fd.size(), TIMEOUT);
 		if (rc < 0)
 		{
 			if (sig_end_server == true)
@@ -447,7 +447,7 @@ std::vector<Config *> Webserv::getConfig() const
 }
 
 bool Webserv::isMethodAllowed(std::string method) {
-    std::set <std::string> allow_meth = currentLocation->getAllowMethods();
+    std::set <std::string> allow_meth = currentLocation->getAllowedMethods();
     std::set<std::string>::iterator it = allow_meth.find(method);
 
     // Check if the element was found
@@ -469,25 +469,36 @@ int Webserv::parseConfig(std::string path)
 	}
 	// std::vector<Config *> serverConfigs;
 
+	int parseReturn;
 	while (!configFile.eof())
 	{
 		// std::cout << "parsing" << std::endl;
 		// Config *serverConfig = new Config();
 		serverConfig = new Config();
-		if (!serverConfig->parse(configFile))
+		parseReturn = serverConfig->parse(configFile);
+		// std::cout << "parseReturn: " << parseReturn << std::endl;
+		if ( parseReturn == 0)
 		{
 			// std::cout << "pushing" << std::endl;
+			// std::cout << serverConfig->getListen() << std::endl;
 			serverConfigs.push_back(serverConfig);
 		}
-		else
+		else {
+			// std::cout << "deleting" << std::endl;
 			delete serverConfig;
+			break;
+		}
 		
 	}
-	
+	// std::cout << serverConfigs.size() << std::endl;
 	setConfig(serverConfigs);
 
 	configFile.close();
-	if (serverConfigs[0]->getListen() == "" ||
+	
+	
+	// std::cout << parseReturn << std::endl;
+	if (parseReturn > 1 ||
+		serverConfigs[0]->getListen() == "" ||
 		serverConfigs[0]->getHost().empty() ||
 		serverConfigs[0]->getLocation().find("/") == serverConfigs[0]->getLocation().end())
 	{
@@ -509,3 +520,15 @@ int Webserv::parseConfig(std::string path)
 	
 	return 0;
 }
+
+// std::string Webserv::getCookie(const std::string& key) const {
+//     auto it = cookies.find(key);
+//     if (it != cookies.end()) {
+//         return it->second;
+//     }
+//     return "";
+// }
+
+// void Webserv::setCookie(const std::string& key, const std::string& value) {
+//     cookies[key] = value;
+// }

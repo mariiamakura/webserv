@@ -46,8 +46,8 @@ void Response::downloadFileResponse()
 		}
 		// Extract body
 		this->body = httpResponseText.substr(doubleNewlinePos + 5); // Skip '\r\n\r\n' after headers
-		// std::cout << "body size: " << this->body.size() << std::endl;
-		// std::cout << "Content Size: " << this->headers["Content-Length"] << std::endl;
+																	// std::cout << "body size: " << this->body.size() << std::endl;
+																	// std::cout << "Content Size: " << this->headers["Content-Length"] << std::endl;
 	}
 }
 
@@ -56,6 +56,42 @@ Response *Webserv::create_http_response(void)
 	// std::ostringstream sstream;
 	// std::cout << "create response start\n";
 	// std::cout << http_request->http_version << std::endl;
+	// get the port from the http_request and cast it to int
+	std::istringstream iss(http_request->headers["Host"]);
+	std::string host;
+	std::getline(iss, host, ':'); // Extract the part before the colon
+	std::string port;
+	std::getline(iss, port); // Extract the part after the colon
+
+	int num;
+
+	if (!port.empty())
+	{
+		std::istringstream portStream(port);
+		if (portStream >> num)
+		{
+			// Conversion successful
+			logging("Parsed port number", DEBUG);
+			// std::cout << "Parsed port number: " << num << std::endl;
+		}
+		else
+		{
+			// Conversion failed
+			logging("Invalid port number", DEBUG);
+			// std::cout << "Invalid port number" << std::endl;
+		}
+	}
+	else
+	{
+		// No port number found
+		logging("No port number found", DEBUG);
+		// std::cout << "No port number found" << std::endl;
+	}
+
+	
+
+
+
 	http_response->http_version = http_request->http_version;
 
 	if (http_response->status_code == 200)
@@ -69,9 +105,55 @@ Response *Webserv::create_http_response(void)
 	}
 	else if (http_response->status_code == 404)
 	{
+		for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
+		{
+			std::map<int, std::string> error = (*itz)->getErrorPage();
+
+			if (num == (*itz)->getPort())
+			{
+				std::cout << "ERROR PAGES: " << std::endl;
+				//check if there are error pages defined in the config file
+				// std::map<int, std::string> errorPages = serverConfigs[0]->getErrorPage();
+				// std::map<int, std::string> errorPages = itz[0]->getErrorPage();
+				std::map<int, std::string>::iterator it = error.begin();
+				while (it != error.end())
+				{
+					std::cout << "ERROR CODE: " << it->first << " PATH: " << it->second << std::endl;
+					if (it->first == 404)
+					{
+						http_response->path = it->second;
+						break;
+					}
+					it++;
+				}
+				if (it == error.end())
+				{
+					std::cout << "NO ERROR PAGES DEFINED" << std::endl;
+					http_response->path = "./over42/404.html";
+				}
+			}
+		}
+		
+			
+		// http_response->path = "./over42/404.html";
 		http_response->status_message = "Not Found";
-		http_response->path = "./over42/404.html";
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	else if (http_response->status_code == 405)
 	{
 		http_response->status_message = "Method Not Allowed";
@@ -84,10 +166,14 @@ Response *Webserv::create_http_response(void)
 	}
 	else if (http_response->status_code == 201)
 	{
+		std::string data(http_request->content.begin(), http_request->content.end());
+		data = data.substr(data.find("=") + 1);
 		http_response->body += "<html><body>";
-		http_response->body += "Your data received by us";
-		http_response->body += "</body></html>";
+		http_response->body += "Your data received by us is: <h2>";
+		http_response->body += data;
+		http_response->body += "</h2></body></html>";
 		http_response->status_message = "OK";
+
 	}
 	else if (http_response->status_code == 400)
 	{
@@ -145,19 +231,17 @@ Response *Webserv::create_http_response(void)
 		// http_request.path = "." + http_request.path;
 	}
 
-	//if int the config file error_page is set to a path, then set the path to that
-	 
+	// if int the config file error_page is set to a path, then set the path to that
 
 	// std::cout << "response PATH : " << http_response->path << std::endl;
 
-	if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403
-	|| http_response->status_code == 405 || http_response->status_code == 413)
+	if (http_response->status_code == 200 || http_response->status_code == 404 || http_response->status_code == 403 || http_response->status_code == 405 || http_response->status_code == 413)
 	{
 		if (http_response->status_code != 200 && !http_response->isFile) // when autoindex is on to display page
 			http_response->isFile = true;
 		if (http_response->isFile)
 		{
-			std::cout << "is a file\n";
+			// std::cout << "is a file\n";
 			std::ifstream file(http_response->path.c_str(), std::ios::binary);
 			std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 			// std::cout << "str: " << str << std::endl;
@@ -167,11 +251,11 @@ Response *Webserv::create_http_response(void)
 		}
 		else
 		{
-			std::cout << "not a file\n";
+			// std::cout << "not a file\n";
 			http_response->body = http_response->path;
 		}
 	}
-	//std::cout << "response body: " << http_response->body;
+	// std::cout << "response body: " << http_response->body;
 	return http_response;
 }
 
@@ -184,8 +268,8 @@ std::string Webserv::autoindex(const std::string &path)
 
 	// Start building the HTML string
 	std::ostringstream html;
-	//html << "<html><body><ul>";
-	html << "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Download Folder Contents</title><base href=\"/over42/\"><link rel=\"stylesheet\" type=\"text/css\" href=\"style/style.css\"></head>";
+	// html << "<html><body><ul>";
+	html << "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Download Folder Contents</title><link rel=\"stylesheet\" type=\"text/css\" href=\"style/style.css\"></head>";
 
 	if ((dir = opendir(path.c_str())) != NULL)
 	{
@@ -215,7 +299,7 @@ std::string Webserv::autoindex(const std::string &path)
 					else
 					{
 						// Add a list item with a download link for files
-						std::cout << "download files\n";
+						// std::cout << "download files\n";
 						html << "<li><a href=\"" << file_name << "\" download>" << file_name << "</a></li>";
 					}
 				}
@@ -247,7 +331,6 @@ void Webserv::deleteResponse(int i)
 	}
 }
 
-
 Config Webserv::checkConfig()
 {
 	// http_request->headers["Port"]
@@ -267,28 +350,31 @@ Config Webserv::checkConfig()
 		if (portStream >> num)
 		{
 			// Conversion successful
-			std::cout << "Parsed port number: " << num << std::endl;
+			logging("Parsed port number", DEBUG);
+			// std::cout << "Parsed port number: " << num << std::endl;
 		}
 		else
 		{
 			// Conversion failed
-			std::cout << "Invalid port number" << std::endl;
+			logging("Invalid port number", DEBUG);
+			// std::cout << "Invalid port number" << std::endl;
 		}
 	}
 	else
 	{
 		// No port number found
-		std::cout << "No port number found" << std::endl;
+		logging("No port number found", DEBUG);
+		// std::cout << "No port number found" << std::endl;
 	}
 
 	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
 	{
-		if (num == (*itz)->getPorts())
+		if (num == (*itz)->getPort())
 		{
 			return *(*itz);
 		}
 	}
-	
+
 	return *(*serverConfigs.begin());
 }
 
@@ -311,32 +397,31 @@ std::string Webserv::checkPath(std::string path)
 		if (portStream >> num)
 		{
 			// Conversion successful
-			std::cout << "Parsed port number: " << num << std::endl;
+			logging("Parsed port number", DEBUG);
+			// std::cout << "Parsed port number: " << num << std::endl;
 		}
 		else
 		{
 			// Conversion failed
-			std::cout << "Invalid port number" << std::endl;
+			logging("Invalid port number", DEBUG);
+			// std::cout << "Invalid port number" << std::endl;
 		}
 	}
 	else
 	{
 		// No port number found
-		std::cout << "No port number found" << std::endl;
+		logging("No port number found", DEBUG);
+		// std::cout << "No port number found" << std::endl;
 	}
 
 	for (std::vector<Config *>::iterator itz = serverConfigs.begin(); itz != serverConfigs.end(); ++itz)
 	{
-		if (num == (*itz)->getPorts())
+		if (num == (*itz)->getPort())
 		{
-			std::cout << "PORTS MATCH" << std::endl;
+			// std::cout << "PORTS MATCH" << std::endl;
 			const std::map<std::string, Location *> &locations = (*itz)->getLocation();
-			
-			
-			
-			
-			
-			std::cout << "PATH before: " << path << std::endl;
+
+			// std::cout << "PATH before: " << path << std::endl;
 
 			// implement check if path is only /
 			if (path[path.length() - 1] == '/' && path.length() > 1)
@@ -345,25 +430,26 @@ std::string Webserv::checkPath(std::string path)
 			}
 			for (std::map<std::string, Location *>::const_iterator it = locations.begin(); it != locations.end(); ++it)
 			{
-				std::cout << it->first << " => " << it->second << '\n';
-				if (path.find(it->first) != std::string::npos) {
-					std::cout << "found path in location!" << std::endl;
+				// std::cout << it->first << " => " << it->second << '\n';
+				if (path.find(it->first) != std::string::npos)
+				{
+					// std::cout << "found path in location!" << std::endl;
 					currentLocation = it->second;
-                    isSameLocation = true;
+					isSameLocation = true;
 				}
 				if (path == it->first)
 				{
-                    // currentLocation = it->second;
-                    // isSameLocation = true;
-					//std::cout << "PATH MATCH" << std::endl;
+					// currentLocation = it->second;
+					// isSameLocation = true;
+					// std::cout << "PATH MATCH" << std::endl;
 					if (path[path.length() - 1] != '/')
 					{
 						path += "/";
 					}
 					path += it->second->getIndex();
-				
+
 					// path = path + it->second->getIndex();
-					std::cout << "PATH after: " << path << std::endl;
+					// std::cout << "PATH after: " << path << std::endl;
 					return path;
 				}
 			}
@@ -371,3 +457,8 @@ std::string Webserv::checkPath(std::string path)
 	}
 	return path;
 }
+
+// void Response::setCookie(const std::string& name, const std::string& value) {
+//     // Set cookie in the response headers
+// 		headers["Set-Cookie"] = name + "=" + value;
+// }

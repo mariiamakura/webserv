@@ -6,7 +6,7 @@
 /*   By: fhassoun <fhassoun@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 08:10:32 by fhassoun          #+#    #+#             */
-/*   Updated: 2024/01/17 10:03:01 by fhassoun         ###   ########.fr       */
+/*   Updated: 2024/01/23 13:56:52 by fhassoun         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,8 @@
 #define DEF_BACKLOG		100
 #define FALSE			0
 #define TRUE			1
+
+#define TIMEOUT			-1
 
 
 // define log levels
@@ -134,6 +136,8 @@ class Webserv
         std::map <int, Request *> http_requests;
 		std::map <int, Response *> out_response;
 
+		std::map<std::string, std::string> cookies; //for cookies
+
 	
 	public:
 		std::vector<Config *> serverConfigs;
@@ -191,5 +195,9 @@ class Webserv
         int getDownloadCgi();
 
         bool isMethodAllowed(std::string method);
+
+				//Cookie
+				void setCookie(const std::string& key, const std::string& value);
+				std::string getCookie(const std::string& key) const;
 
     };
